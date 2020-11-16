@@ -66,6 +66,7 @@ namespace WalletWasabi.Fluent.ViewModels.Dialogs
 		{
 			Password = "";
 			ConfirmPassword = "";
+			// TODO: GoBack();
 		}
 
 		private void ValidateConfirmPassword(IValidationErrors errors)

@@ -1,7 +1,9 @@
 <Styles xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:c="using:WalletWasabi.Fluent.Controls"
-        xmlns:dialogs="using:WalletWasabi.Fluent.ViewModels.Dialogs">
+        xmlns:dialogs="using:WalletWasabi.Fluent.ViewModels.Dialogs"
+        xmlns:i="using:Avalonia.Xaml.Interactivity"
+        xmlns:ia="using:Avalonia.Xaml.Interactions.Core">
   <Design.PreviewWith>
     <c:Dialog IsDialogOpen="True">
       <dialogs:TestDialogViewModel/>
@@ -13,8 +15,14 @@
     <Setter Property="Template">
       <ControlTemplate>
         <Panel>
-          <Panel Background="{DynamicResource DialogOverlayColor}" Name="PART_Overlay" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" />
-          <Panel Name="PART_DialogHost" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="40">
+            <Panel Background="{DynamicResource DialogOverlayColor}" Name="PART_Overlay" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" >
+              <i:Interaction.Behaviors>
+                <ia:EventTriggerBehavior EventName="PointerPressed">
+                  <ia:CallMethodAction TargetObject="{Binding}" MethodName="CloseDialog" />
+                </ia:EventTriggerBehavior>
+              </i:Interaction.Behaviors>
+            </Panel>
+            <Panel Name="PART_DialogHost" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="40">
             <Border CornerRadius="4" BoxShadow="{DynamicResource DialogBoxShadow}"
                     Background="{DynamicResource DialogBackground}"
                     MaxWidth="{TemplateBinding MaxContentWidth}" MaxHeight="{TemplateBinding MaxContentHeight}" Margin="40">

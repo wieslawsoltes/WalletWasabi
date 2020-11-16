@@ -39,21 +39,13 @@ namespace WalletWasabi.Fluent.ViewModels.Dialogs
 			_accountKeyPath = interactionInput.keyPath.ToString();
 			_minGapLimit = interactionInput.minGapLimit.ToString();
 
-			BackCommand = ReactiveCommand.Create(() => GoBack(), backCommandCanExecute);
+			BackCommand = ReactiveCommand.Create(() => Close(), backCommandCanExecute);
 
 			NextCommand = ReactiveCommand.Create(
-				() =>
-				{
-					Close((KeyPath.Parse(AccountKeyPath), int.Parse(MinGapLimit)));
-					GoBack();
-				},
+				() => Close((KeyPath.Parse(AccountKeyPath), int.Parse(MinGapLimit))),
 				nextCommandCanExecute);
 
-			CancelCommand = ReactiveCommand.Create(() =>
-			{
-				Close();
-				GoBack();
-			}, cancelCommandCanExecute);
+			CancelCommand = ReactiveCommand.Create(() => Close(), cancelCommandCanExecute);
 		}
 
 		public string AccountKeyPath
@@ -100,6 +92,7 @@ namespace WalletWasabi.Fluent.ViewModels.Dialogs
 
 		protected override void OnDialogClosed()
 		{
+			GoBack();
 		}
 	}
 }

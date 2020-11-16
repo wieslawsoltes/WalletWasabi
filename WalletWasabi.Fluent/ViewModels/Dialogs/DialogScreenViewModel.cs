@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Reactive;
 using System.Reactive.Linq;
 using ReactiveUI;
@@ -47,12 +48,24 @@ namespace WalletWasabi.Fluent.ViewModels.Dialogs
 			if (!_isClosing)
 			{
 				_isClosing = true;
+
+				if (Router.CurrentViewModel.Latest().LastOrDefault() is DialogViewModelBase dvmb)
+				{
+					dvmb.CloseDialog();
+				}
+
 				if (Router.NavigationStack.Count >= 1)
 				{
 					Router.NavigationStack.Clear();
 				}
+
 				_isClosing = false;
 			}
+		}
+
+		public void CloseDialog()
+		{
+			Close();
 		}
 	}
 }

@@ -56,6 +56,11 @@ namespace WalletWasabi.Fluent.ViewModels.Dialogs
 			OnDialogClosed();
 		}
 
+		public override void CloseDialog()
+		{
+			Close();
+		}
+
 		/// <summary>
 		/// Shows the dialog.
 		/// </summary>

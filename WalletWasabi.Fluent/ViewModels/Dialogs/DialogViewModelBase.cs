@@ -22,5 +22,10 @@ namespace WalletWasabi.Fluent.ViewModels.Dialogs
 			get => _isDialogOpen;
 			set => this.RaiseAndSetIfChanged(ref _isDialogOpen, value);
 		}
+
+		/// <summary>
+		/// Closes the dialog.
+		/// </summary>
+		public abstract void CloseDialog();
 	}
 }
