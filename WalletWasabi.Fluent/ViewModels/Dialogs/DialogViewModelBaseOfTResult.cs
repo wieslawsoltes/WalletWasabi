@@ -60,17 +60,9 @@ namespace WalletWasabi.Fluent.ViewModels.Dialogs
 		/// Shows the dialog.
 		/// </summary>
 		/// <returns>The value to be returned when the dialog is finished.</returns>
-		public Task<TResult> ShowDialogAsync(IDialogHost? host = null)
+		public Task<TResult> ShowDialogAsync(IScreen host)
 		{
-			if (host is null)
-			{
-				host = MainViewModel.Instance;
-			}
-
-			if (host is { })
-			{
-				host.CurrentDialog = this;
-			}
+			host.Router.Navigate.Execute(this);
 
 			IsDialogOpen = true;
 

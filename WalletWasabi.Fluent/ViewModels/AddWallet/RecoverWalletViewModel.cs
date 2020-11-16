@@ -71,7 +71,7 @@ namespace WalletWasabi.Fluent.ViewModels.AddWallet
 			AdvancedOptionsInteraction.RegisterHandler(
 				async interaction =>
 					interaction.SetOutput(
-						await new AdvancedRecoveryOptionsViewModel(navigationState, NavigationTarget.DialogHost, interaction.Input).ShowDialogAsync()));
+						await new AdvancedRecoveryOptionsViewModel(navigationState, NavigationTarget.DialogScreen, interaction.Input).ShowDialogAsync(NavigationState.DialogScreen())));
 		}
 
 		private async Task OnNext(NavigationStateViewModel navigationState, WalletManager walletManager, Network network, string? walletName)

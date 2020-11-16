@@ -53,13 +53,6 @@ namespace WalletWasabi.Fluent.ViewModels
 					}
 					break;
 
-				case NavigationTarget.DialogHost:
-					if (viewModel is DialogViewModelBase dialog)
-					{
-						NavigateToDialogHost(dialog);
-					}
-					break;
-
 				default:
 					break;
 			}
@@ -79,14 +72,6 @@ namespace WalletWasabi.Fluent.ViewModels
 				NavigationState.DialogScreen?.Invoke().Router.NavigateAndReset :
 				NavigationState.DialogScreen?.Invoke().Router.Navigate;
 			command?.Execute(viewModel);
-		}
-
-		private void NavigateToDialogHost(DialogViewModelBase dialog)
-		{
-			if (NavigationState.DialogHost?.Invoke() is IDialogHost dialogHost)
-			{
-				dialogHost.CurrentDialog = dialog;
-			}
 		}
 
 		public void NavigateToSelf() => NavigateTo(this, NavigationTarget, false);

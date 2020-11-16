@@ -29,8 +29,8 @@ namespace WalletWasabi.Fluent.ViewModels
 			ConfirmSetting.RegisterHandler(
 				async interaction =>
 				{
-					var x = new TestDialogViewModel(navigationState, NavigationTarget.DialogHost, interaction.Input);
-					var result = await x.ShowDialogAsync(navigationState.DialogHost());
+					var x = new TestDialogViewModel(navigationState, NavigationTarget.DialogScreen, interaction.Input);
+					var result = await x.ShowDialogAsync(navigationState.DialogScreen());
 					interaction.SetOutput(result);
 				});
 

@@ -1,9 +1,10 @@
-using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
+using Avalonia.ReactiveUI;
+using WalletWasabi.Fluent.ViewModels.Dialogs;
 
 namespace WalletWasabi.Fluent.Views.Dialogs
 {
-	public class TestDialogView : UserControl
+	public class TestDialogView :  ReactiveUserControl<TestDialogViewModel>
 	{
 		public TestDialogView()
 		{
