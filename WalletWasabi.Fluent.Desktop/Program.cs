@@ -35,6 +35,11 @@ namespace WalletWasabi.Fluent.Desktop
 		// yet and stuff might break.
 		public static void Main(string[] args)
 		{
+
+
+			var userControls = SearchIndex.UserControls;
+
+
 			bool runGui;
 			Exception? appException = null;
 
