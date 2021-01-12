@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
+using System.Windows.Input;
 using WalletWasabi.Fluent.ViewModels.Login;
 using WalletWasabi.Fluent.ViewModels.Navigation;
 using WalletWasabi.Gui.ViewModels;
@@ -23,6 +24,7 @@ namespace WalletWasabi.Fluent.ViewModels.NavBar
 		[AutoNotify] private ObservableCollection<NavBarItemViewModel> _bottomItems;
 		private NavBarItemViewModel? _selectedItem;
 		private readonly WalletManagerViewModel _walletManager;
+		private readonly TargettedNavigationStack _mainScreen;
 		[AutoNotify] private bool _isBackButtonVisible;
 		private bool _isNavigating;
 		[AutoNotify] private bool _isOpen;
@@ -35,6 +37,7 @@ namespace WalletWasabi.Fluent.ViewModels.NavBar
 		public NavBarViewModel(TargettedNavigationStack mainScreen, WalletManagerViewModel walletManager)
 		{
 			_walletManager = walletManager;
+			_mainScreen = mainScreen;
 			_topItems = new ObservableCollection<NavBarItemViewModel>();
 			_bottomItems = new ObservableCollection<NavBarItemViewModel>();
 
@@ -72,6 +75,19 @@ namespace WalletWasabi.Fluent.ViewModels.NavBar
 					CurrentCompactPaneLength = x ? 0 : NormalCompactPaneLength;
 					CurrentOpenPaneLength = x ? 0 : NormalOpenPaneLength;
 				});
+
+			CloseActionsCommand = ReactiveCommand.Create(() =>
+			{
+				var walletViewModel = walletManager.CloseActions();
+				if (walletViewModel is { })
+				{
+					_isNavigating = true;
+					// SelectedItem = walletViewModel;
+					SelectedItem = null;
+					_mainScreen.CurrentPage = null;
+					_isNavigating = false;
+				}
+			});
 		}
 
 		public ObservableCollection<NavBarItemViewModel> Actions => _walletManager.Actions;
@@ -83,6 +99,8 @@ namespace WalletWasabi.Fluent.ViewModels.NavBar
 			get => _selectedItem;
 			set => SetSelectedItem(value);
 		}
+
+		public ICommand CloseActionsCommand { get; protected set; }
 
 		public async Task InitialiseAsync()
 		{

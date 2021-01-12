@@ -209,7 +209,7 @@ namespace WalletWasabi.Fluent.ViewModels
 
 		private void InsertActions(WalletViewModelBase walletViewModel, IEnumerable<NavBarItemViewModel> actions)
 		{
-			_items.Remove(walletViewModel);
+			//_items.Remove(walletViewModel);
 			_actions.Add(walletViewModel);
 
 			foreach (var action in actions)
@@ -221,7 +221,7 @@ namespace WalletWasabi.Fluent.ViewModels
 		private void RemoveActions(WalletViewModelBase wallet, IEnumerable<NavBarItemViewModel> actions, bool dispose = false)
 		{
 			_actions.Remove(wallet);
-			_items.Insert(0, wallet);
+			//_items.Insert(0, wallet);
 
 			foreach (var action in actions)
 			{
@@ -232,6 +232,22 @@ namespace WalletWasabi.Fluent.ViewModels
 			{
 				_walletActionsDictionary.Remove(wallet);
 			}
+		}
+
+		public WalletViewModelBase? CloseActions()
+		{
+			if (SelectedWallet is WalletViewModelBase walletViewModel)
+			{
+				var actions = _walletActionsDictionary[walletViewModel];
+
+				RemoveActions(walletViewModel, actions);
+
+				SelectedWallet = null;
+
+				return walletViewModel;
+			}
+
+			return default;
 		}
 	}
 }

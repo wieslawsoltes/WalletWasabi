@@ -136,7 +136,10 @@
           </DataTemplate>
         </c:NavBarListBox.DataTemplates>
       </c:NavBarListBox>
-      <Separator IsVisible="{Binding !!Actions.Count}" />
+      <!-- <Separator IsVisible="{Binding !!Actions.Count}" /> -->
+      <Button Margin="4,0,4,0" Padding="8,12,12,12" Classes="plain" Command="{Binding CloseActionsCommand}" IsVisible="{Binding !!Actions.Count}">
+        <PathIcon Data="{StaticResource arrow_left_regular}" Width="16" HorizontalAlignment="Left" />
+      </Button>
     </StackPanel>
     <StackPanel DockPanel.Dock="Bottom">
       <Separator />
@@ -165,7 +168,7 @@
         </c:NavBarListBox.ItemTemplate>
       </c:NavBarListBox>
     </StackPanel>
-    <c:NavBarListBox Items="{Binding Items}" SelectedItem="{Binding SelectedItem, Mode=TwoWay}" VerticalAlignment="{Binding Actions.Count, Mode=OneWay, Converter={x:Static conv:NavBarItemsListBoxAlignmentConverter.Instance}}">
+    <c:NavBarListBox IsVisible="{Binding !Actions.Count}" Items="{Binding Items}" SelectedItem="{Binding SelectedItem, Mode=TwoWay}" VerticalAlignment="{Binding Actions.Count, Mode=OneWay, Converter={x:Static conv:NavBarItemsListBoxAlignmentConverter.Instance}}">
       <c:NavBarListBox.Styles>
         <Style Selector="c|NavBarItem">
           <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" x:CompileBindings="False" />
