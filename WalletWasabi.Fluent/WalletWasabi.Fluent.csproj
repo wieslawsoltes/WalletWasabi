@@ -18,6 +18,7 @@
 	<ItemGroup>
 		<PackageReference Include="Avalonia.ReactiveUI" Version="0.10.0" />
 		<PackageReference Include="Avalonia.Diagnostics" Version="0.10.0" />
+		<PackageReference Include="Avalonia.Controls.DataGrid" Version="0.10.0" />
 		<PackageReference Include="Avalonia.Xaml.Behaviors" Version="0.10.0" />
 		<PackageReference Include="Avalonia.Xaml.Interactions.Custom" Version="0.10.0" />
 		<PackageReference Include="Avalonia.Xaml.Interactivity" Version="0.10.0" />

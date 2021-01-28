@@ -995,6 +995,7 @@
       "walletwasabi.fluent": {
         "type": "Project",
         "dependencies": {
+          "Avalonia.Controls.DataGrid": "0.10.0",
           "Avalonia.Diagnostics": "0.10.0",
           "Avalonia.ReactiveUI": "0.10.0",
           "Avalonia.Xaml.Behaviors": "0.10.0",

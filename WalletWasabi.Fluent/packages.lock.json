@@ -2,6 +2,18 @@
   "version": 1,
   "dependencies": {
     ".NETCoreApp,Version=v5.0": {
+      "Avalonia.Controls.DataGrid": {
+        "type": "Direct",
+        "requested": "[0.10.0, )",
+        "resolved": "0.10.0",
+        "contentHash": "Mkw6uzOx1RT2+k8vvQ+eF2ndYEheI+kHrUCListB6SyaOsYxz+OAnQnzh1fFDZB25b5yF/hirw84bSBTfngwyA==",
+        "dependencies": {
+          "Avalonia": "0.10.0",
+          "Avalonia.Remote.Protocol": "0.10.0",
+          "JetBrains.Annotations": "10.3.0",
+          "System.Reactive": "5.0.0"
+        }
+      },
       "Avalonia.Diagnostics": {
         "type": "Direct",
         "requested": "[0.10.0, )",
@@ -73,17 +85,6 @@
         "type": "Transitive",
         "resolved": "2.1.0.2019013001",
         "contentHash": "sMJYV9/Xha3uy6gvKQFgakTOeRxuU43eI/lUj5O7cI8dkBKJ9QwNCHnIF4AY2ZsQuojPPnYaQmrtzpqeWyacyg=="
-      },
-      "Avalonia.Controls.DataGrid": {
-        "type": "Transitive",
-        "resolved": "0.10.0",
-        "contentHash": "Mkw6uzOx1RT2+k8vvQ+eF2ndYEheI+kHrUCListB6SyaOsYxz+OAnQnzh1fFDZB25b5yF/hirw84bSBTfngwyA==",
-        "dependencies": {
-          "Avalonia": "0.10.0",
-          "Avalonia.Remote.Protocol": "0.10.0",
-          "JetBrains.Annotations": "10.3.0",
-          "System.Reactive": "5.0.0"
-        }
       },
       "Avalonia.Desktop": {
         "type": "Transitive",

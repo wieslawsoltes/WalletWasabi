@@ -15,6 +15,41 @@
         Title="Wasabi Wallet">
 
   <Panel Margin="{Binding #MainWindow.OffScreenMargin}">
-    <local:MainView />
+    <!-- <local:MainView /> -->
+    <Panel>
+      <Border Background="{DynamicResource RegionColor}" BoxShadow="{DynamicResource BoxShadow}" IsHitTestVisible="False" />
+      <DataGrid x:Name="ItemsDataGrid"
+                SelectionMode="Single"
+                AutoGenerateColumns="False"
+                IsReadOnly="False"
+                CanUserReorderColumns="False"
+                CanUserResizeColumns="True"
+                CanUserSortColumns="True"
+                BorderThickness="0"
+                RowBackground="Transparent"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Top"
+                GridLinesVisibility="Horizontal"
+                Margin="20 36 20 20">
+        <DataGrid.Styles>
+          <Style Selector="DataGridColumnHeader">
+            <Setter Property="Background" Value="Transparent" />
+          </Style>
+          <Style Selector="DataGridCell">
+            <Style.Resources>
+              <SolidColorBrush x:Key="DataGridCellFocusVisualPrimaryBrush">Transparent</SolidColorBrush>
+              <SolidColorBrush x:Key="DataGridCellFocusVisualSecondaryBrush">Transparent</SolidColorBrush>
+            </Style.Resources>
+          </Style>
+        </DataGrid.Styles>
+        <DataGrid.Columns>
+          <DataGridTextColumn Header="Date" Width="140" CanUserSort="True" IsReadOnly="True" Binding="{Binding Date}" />
+          <DataGridTextColumn Header="Description" Width="280" CanUserSort="True" IsReadOnly="True" Binding="{Binding Description}" />
+          <DataGridTextColumn Header="Outgoing" Width="180" CanUserSort="True" IsReadOnly="True" Binding="{Binding Outgoing}" />
+          <DataGridTextColumn Header="Incoming" Width="180" CanUserSort="True" IsReadOnly="True" Binding="{Binding Incoming}" />
+          <DataGridTextColumn Header="Status" Width="140" CanUserSort="True" IsReadOnly="True" Binding="{Binding Status}" />
+        </DataGrid.Columns>
+      </DataGrid>
+    </Panel>
   </Panel>
 </Window>
