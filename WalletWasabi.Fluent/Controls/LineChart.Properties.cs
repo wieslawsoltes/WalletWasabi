@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Avalonia;
+using Avalonia.Data;
 using Avalonia.Media;
 
 namespace WalletWasabi.Fluent.Controls
@@ -53,7 +54,7 @@ namespace WalletWasabi.Fluent.Controls
 			AvaloniaProperty.Register<LineChart, double>(nameof(XAxisMaxValue));
 
 		public static readonly StyledProperty<double> XAxisCurrentValueProperty =
-			AvaloniaProperty.Register<LineChart, double>(nameof(XAxisCurrentValue));
+			AvaloniaProperty.Register<LineChart, double>(nameof(XAxisCurrentValue), defaultBindingMode: BindingMode.TwoWay);
 
 		public static readonly StyledProperty<double> XAxisOpacityProperty =
 			AvaloniaProperty.Register<LineChart, double>(nameof(XAxisOpacity));

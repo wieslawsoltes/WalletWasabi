@@ -42,10 +42,12 @@ namespace WalletWasabi.Fluent.ViewModels.Wallets.Send
 		[AutoNotify] private ObservableCollection<string> _priorLabels;
 		[AutoNotify] private ObservableCollection<string> _labels;
 		[AutoNotify] private bool _isPayJoin;
-		[AutoNotify] private double[] _xAxisValues;
-		[AutoNotify] private double[] _yAxisValues;
+		[AutoNotify] private double[]? _xAxisValues;
+		[AutoNotify] private double[]? _yAxisValues;
 		[AutoNotify] private string[] _xAxisLabels;
-
+		[AutoNotify] private double _xAxisCurrentValue = 36;
+		[AutoNotify] private double _xAxisMinValue = 1;
+		[AutoNotify] private double _xAxisMaxValue = 1000;
 		private string? _payJoinEndPoint;
 		private bool _parsingUrl;
 
@@ -67,6 +69,12 @@ namespace WalletWasabi.Fluent.ViewModels.Wallets.Send
 
 			this.WhenAnyValue(x => x.AmountBtc)
 				.Subscribe(x => _transactionInfo.Amount = new Money(x, MoneyUnit.BTC));
+
+			this.WhenAnyValue(x => x.XAxisCurrentValue)
+				.Subscribe(x =>
+				{
+					_transactionInfo.FeeRate = new FeeRate(GetYAxisValueFromXAxisCurrentValue(x));
+				});
 
 			Labels.ToObservableChangeSet().Subscribe(x =>
 			{
@@ -317,21 +325,23 @@ namespace WalletWasabi.Fluent.ViewModels.Wallets.Send
 			}
 		}
 
-		private double GetYAxisValueFromXAxisCurrentValue()
+		private decimal GetYAxisValueFromXAxisCurrentValue(double xValue)
 		{
-			var x = _xAxisValues.Reverse().ToArray();
-			var y = _yAxisValues;
-			double t = XAxisCurrentValue;
-			var spline = CubicSpline.InterpolateNaturalSorted(x, y);
-			return spline.Interpolate(t);
+			if (_xAxisValues is { } && _yAxisValues is { })
+			{
+				var x = _xAxisValues;
+				var y = _yAxisValues;
+				double t = xValue / 10;
+				var spline = CubicSpline.InterpolateNaturalSorted(x, y);
+				var interpolated = (decimal) spline.Interpolate(t);
+
+				return Math.Clamp(interpolated, (decimal)_yAxisValues[0], (decimal)_yAxisValues[^1]);
+			}
+
+			return (decimal)XAxisMaxValue;
 		}
 
 		public ICommand PasteCommand { get; }
 
-		public double XAxisCurrentValue { get; set; } = 36;
-
-		public double XAxisMinValue { get; set; } = 1;
-
-		public double XAxisMaxValue { get; set; } = 1008;
 	}
 }
