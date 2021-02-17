@@ -48,6 +48,7 @@ namespace WalletWasabi.Fluent.ViewModels.Wallets.Send
 		[AutoNotify] private double _xAxisCurrentValue = 36;
 		[AutoNotify] private double _xAxisMinValue = 1;
 		[AutoNotify] private double _xAxisMaxValue = 1000;
+		[AutoNotify] private decimal _satoshiPerByte;
 		private string? _payJoinEndPoint;
 		private bool _parsingUrl;
 
@@ -73,7 +74,8 @@ namespace WalletWasabi.Fluent.ViewModels.Wallets.Send
 			this.WhenAnyValue(x => x.XAxisCurrentValue)
 				.Subscribe(x =>
 				{
-					_transactionInfo.FeeRate = new FeeRate(GetYAxisValueFromXAxisCurrentValue(x));
+					SatoshiPerByte = GetYAxisValueFromXAxisCurrentValue(x);
+					_transactionInfo.FeeRate = new FeeRate(SatoshiPerByte);
 				});
 
 			Labels.ToObservableChangeSet().Subscribe(x =>
@@ -329,13 +331,12 @@ namespace WalletWasabi.Fluent.ViewModels.Wallets.Send
 		{
 			if (_xAxisValues is { } && _yAxisValues is { })
 			{
-				var x = _xAxisValues;
-				var y = _yAxisValues;
-				double t = xValue / 10;
+				var x = _xAxisValues.Reverse().ToArray();
+				var y = _yAxisValues.Reverse().ToArray();
+				double t = xValue;
 				var spline = CubicSpline.InterpolateNaturalSorted(x, y);
 				var interpolated = (decimal) spline.Interpolate(t);
-
-				return Math.Clamp(interpolated, (decimal)_yAxisValues[0], (decimal)_yAxisValues[^1]);
+				return Math.Clamp(interpolated, (decimal)y[^1], (decimal)y[0]);
 			}
 
 			return (decimal)XAxisMaxValue;
