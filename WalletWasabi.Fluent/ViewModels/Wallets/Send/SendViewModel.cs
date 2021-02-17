@@ -339,7 +339,7 @@ namespace WalletWasabi.Fluent.ViewModels.Wallets.Send
 				return Math.Clamp(interpolated, (decimal)y[^1], (decimal)y[0]);
 			}
 
-			return (decimal)XAxisMaxValue;
+			return 0m;
 		}
 
 		public ICommand PasteCommand { get; }
