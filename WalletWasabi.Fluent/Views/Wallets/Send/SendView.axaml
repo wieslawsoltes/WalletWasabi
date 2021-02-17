@@ -159,6 +159,14 @@
                            Height="0.55"
                            Background="#7FFFFFFF"/>
                 <Label Margin="0 10 0 20" Content="_Priority:" Target="CursorValue2" />
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="XAxisCurrentValue: " />
+                    <TextBlock Text="{Binding XAxisCurrentValue}" />
+                </StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="SatoshiPerByte: " />
+                <TextBlock Text="{Binding SatoshiPerByte}" />
+                </StackPanel>
             </StackPanel>
 
             <DockPanel MinHeight="80">
