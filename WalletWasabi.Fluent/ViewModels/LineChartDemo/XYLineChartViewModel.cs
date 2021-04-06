@@ -23,6 +23,7 @@ namespace WalletWasabi.Fluent.ViewModels.LineChartDemo
 				new DateTime(2021, 4, 1, 2, 0, 0),
 				new DateTime(2021, 4, 1, 3, 0, 0),
 				new DateTime(2021, 4, 1, 4, 0, 0),
+				new DateTime(2021, 4, 1, 5, 0, 0),
 			};
 
 			XAxisValues = new();
@@ -32,7 +33,16 @@ namespace WalletWasabi.Fluent.ViewModels.LineChartDemo
 			{
 				var d = ToDouble(value);
 				XAxisValues.Add(d);
-				XAxisLabels.Add(value.ToString());
+				//XAxisLabels.Add(value.ToString());
+			}
+
+			for (int i = 0; i < values.Count; i++)
+			{
+				if (i % 2 == 0)
+				{
+
+					XAxisLabels.Add(values[i].ToString());
+				}
 			}
 		}
 
@@ -46,7 +56,8 @@ namespace WalletWasabi.Fluent.ViewModels.LineChartDemo
 			2,
 			5,
 			8,
-			1
+			1,
+			5
 		};
 	}
 }
