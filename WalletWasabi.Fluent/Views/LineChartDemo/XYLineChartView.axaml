@@ -72,6 +72,7 @@
         <c:LineChart x:Name="GradientLineChart"
                      Classes="area border xAxis xAxisLabels yAxis yAxisLabels"
                      XAxisValues="{Binding XAxisValues}"
+                     XAxisLabels="{Binding XAxisLabels}"
                      YAxisValues="{Binding YAxisValues}">
         </c:LineChart>
     </DockPanel>
