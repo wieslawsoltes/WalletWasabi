@@ -28,6 +28,16 @@ namespace WalletWasabi.Fluent.Controls
 				ContentControl.ContentTemplateProperty);
 		}
 
+		protected override void OnPropertyChanged<T>(AvaloniaPropertyChangedEventArgs<T> change)
+		{
+			base.OnPropertyChanged(change);
+
+			if (change.Property.Name == "SelectedItem")
+			{
+				Console.WriteLine($"--- NavBarListBox OnPropertyChanged {SelectedItem}");
+			}
+		}
+
 		protected override void OnPointerPressed(PointerPressedEventArgs e)
 		{
 			var previousSelectedItem = SelectedItem;
