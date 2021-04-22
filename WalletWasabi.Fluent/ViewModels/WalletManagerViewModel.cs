@@ -148,7 +148,7 @@ namespace WalletWasabi.Fluent.ViewModels
 		private void OpenClosedWallet(UiConfig uiConfig, ClosedWalletViewModel closedWalletViewModel)
 		{
 			IsLoadingWallet = true;
-			Console.WriteLine($"[Selection] IsLoadingWallet true");
+			Console.WriteLine($"[Selection.WalletManagerViewModel.OpenClosedWallet] IsLoadingWallet='true'");
 
 			RemoveWallet(closedWalletViewModel);
 
@@ -162,12 +162,12 @@ namespace WalletWasabi.Fluent.ViewModels
 
 			if (_currentSelection == closedWalletViewModel)
 			{
-				Console.WriteLine($"[Selection] SelectedWallet {walletViewModelItem}");
+				Console.WriteLine($"[Selection.WalletManagerViewModel.OpenClosedWallet] SelectedWallet='{walletViewModelItem}'");
 				SelectedWallet = walletViewModelItem;
 				InsertActions(walletViewModelItem, actions);
 			}
 
-			Console.WriteLine($"[Selection] IsLoadingWallet false");
+			Console.WriteLine($"[Selection.WalletManagerViewModel.OpenClosedWallet] IsLoadingWallet='false'");
 			IsLoadingWallet = false;
 		}
 
@@ -230,7 +230,7 @@ namespace WalletWasabi.Fluent.ViewModels
 			if (item.SelectionMode == NavBarItemSelectionMode.Selected)
 			{
 				_currentSelection = item;
-				Console.WriteLine($"[Selection] SelectionChanged _currentSelection {item}");
+				Console.WriteLine($"[Selection.WalletManagerViewModel.SelectionChanged] _currentSelection='{item}'");
 			}
 
 			if (IsLoadingWallet || SelectedWallet == item)
@@ -248,7 +248,7 @@ namespace WalletWasabi.Fluent.ViewModels
 
 					RemoveActions(walletViewModelPrevious, actions);
 
-					Console.WriteLine($"[Selection] SelectedWallet {null}");
+					Console.WriteLine($"[Selection.WalletManagerViewModel.SelectionChanged] SelectedWallet='null'");
 					SelectedWallet = null;
 
 					result = item;
@@ -265,8 +265,8 @@ namespace WalletWasabi.Fluent.ViewModels
 
 				InsertActions(walletViewModelItem, actions);
 
+				Console.WriteLine($"[Selection.WalletManagerViewModel.SelectionChanged] SelectedWallet='{walletViewModelItem}'");
 				SelectedWallet = walletViewModelItem;
-				Console.WriteLine($"[Selection] SelectedWallet {walletViewModelItem}");
 
 				result = item;
 			}
