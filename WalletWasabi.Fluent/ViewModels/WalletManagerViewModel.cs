@@ -148,7 +148,7 @@ namespace WalletWasabi.Fluent.ViewModels
 		private void OpenClosedWallet(UiConfig uiConfig, ClosedWalletViewModel closedWalletViewModel)
 		{
 			IsLoadingWallet = true;
-			Console.WriteLine($"[Selection.WalletManagerViewModel.OpenClosedWallet] IsLoadingWallet='true'");
+			Console.WriteLine($"[Selection.WalletManagerViewModel.OpenClosedWallet('{closedWalletViewModel})] IsLoadingWallet='true'");
 
 			RemoveWallet(closedWalletViewModel);
 
