@@ -32,7 +32,7 @@ namespace WalletWasabi.Fluent.Controls
 		{
 			this.GetObservable(SelectedItemProperty).Subscribe(x =>
 			{
-				Console.WriteLine($"[Selection.SelectedItemProperty] [{Name}].SelectedItem='{x}'");
+				Console.WriteLine($"[Selection.NavBarListBox.SelectedItemProperty] [{Name}].SelectedItem='{x}'");
 			});
 		}
 
@@ -42,7 +42,7 @@ namespace WalletWasabi.Fluent.Controls
 
 			if (change.Property.Name == "SelectedItem")
 			{
-				Console.WriteLine($"[Selection.NavBarListBoxOnPropertyChanged] [{Name}].SelectedItem='{SelectedItem}'");
+				Console.WriteLine($"[Selection.NavBarListBox.OnPropertyChanged] [{Name}].SelectedItem='{SelectedItem}'");
 			}
 		}
 
