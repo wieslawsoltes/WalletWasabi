@@ -28,13 +28,21 @@ namespace WalletWasabi.Fluent.Controls
 				ContentControl.ContentTemplateProperty);
 		}
 
+		public NavBarListBox()
+		{
+			this.GetObservable(SelectedItemProperty).Subscribe(x =>
+			{
+				Console.WriteLine($"[Selection.SelectedItemProperty] [{Name}].SelectedItem='{x}'");
+			});
+		}
+
 		protected override void OnPropertyChanged<T>(AvaloniaPropertyChangedEventArgs<T> change)
 		{
 			base.OnPropertyChanged(change);
 
 			if (change.Property.Name == "SelectedItem")
 			{
-				Console.WriteLine($"[Selection] NavBarListBox OnPropertyChanged '{SelectedItem}'");
+				Console.WriteLine($"[Selection.NavBarListBoxOnPropertyChanged] [{Name}].SelectedItem='{SelectedItem}'");
 			}
 		}
 
