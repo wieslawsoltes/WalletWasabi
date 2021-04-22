@@ -50,7 +50,9 @@ namespace WalletWasabi.Fluent.Controls
 		{
 			var previousSelectedItem = SelectedItem;
 
+			Console.WriteLine($"[Selection.NavBarListBox.OnPointerPressed] [BEFORE] [{Name}].SelectedItem is '{SelectedItem}'");
 			base.OnPointerPressed(e);
+			Console.WriteLine($"[Selection.NavBarListBox.OnPointerPressed] [AFTER] [{Name}].SelectedItem is '{SelectedItem}'");
 
 			// Trigger SelectedItem change notification on pointer pressed event when it was already selected.
 			// This enables view model to receive change notification on pointer pressed events using SelectedItem observable.
@@ -59,7 +61,10 @@ namespace WalletWasabi.Fluent.Controls
 				var isSameSelectedItem = previousSelectedItem is not null && previousSelectedItem == SelectedItem;
 				if (isSameSelectedItem)
 				{
+					Console.WriteLine($"[Selection.NavBarListBox.OnPointerPressed] [{Name}].SelectedItem is '{SelectedItem}'");
+					Console.WriteLine($"[Selection.NavBarListBox.OnPointerPressed] [{Name}].SelectedItem='null'");
 					SelectedItem = null;
+					Console.WriteLine($"[Selection.NavBarListBox.OnPointerPressed] [{Name}].SelectedItem='{previousSelectedItem}'");
 					SelectedItem = previousSelectedItem;
 				}
 			}
