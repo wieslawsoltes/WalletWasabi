@@ -53,6 +53,7 @@ namespace WalletWasabi.Fluent.ViewModels.Wallets
 
 		public int CompareTo([AllowNull] WalletViewModelBase other)
 		{
+			Console.WriteLine($"[Selection.WalletViewModelBase.CompareTo]{GetType()}.{this} == {other?.GetType()}.{other}");
 			if (WalletState != other!.WalletState)
 			{
 				if (WalletState == WalletState.Started || other.WalletState == WalletState.Started)
