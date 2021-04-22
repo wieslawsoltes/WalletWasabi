@@ -34,7 +34,7 @@ namespace WalletWasabi.Fluent.Controls
 
 			if (change.Property.Name == "SelectedItem")
 			{
-				Console.WriteLine($"--- NavBarListBox OnPropertyChanged {SelectedItem}");
+				Console.WriteLine($"[Selection] NavBarListBox OnPropertyChanged '{SelectedItem}'");
 			}
 		}
 

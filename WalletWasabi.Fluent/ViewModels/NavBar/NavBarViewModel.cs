@@ -55,7 +55,7 @@ namespace WalletWasabi.Fluent.ViewModels.NavBar
 						if (!_walletManager.IsLoadingWallet)
 						{
 							SelectedItem = Items.FirstOrDefault();
-							Console.WriteLine($"WhenAnyValue Items.Count SelectedItem = {SelectedItem}");
+							Console.WriteLine($"[Selection] WhenAnyValue Items.Count SelectedItem = '{SelectedItem}'");
 						}
 					}
 				});
@@ -87,7 +87,7 @@ namespace WalletWasabi.Fluent.ViewModels.NavBar
 					if (x is not null)
 					{
 						SelectedItem = x;
-						Console.WriteLine($"_walletManager.WhenAnyValue SelectedItem = {x}");
+						Console.WriteLine($"[Selection] _walletManager.WhenAnyValue SelectedItem = '{x}'");
 					}
 				});
 		}
@@ -138,14 +138,14 @@ namespace WalletWasabi.Fluent.ViewModels.NavBar
 
 		private void RaiseAndChangeSelectedItem(NavBarItemViewModel? value)
 		{
-			Console.WriteLine($"RaiseAndChangeSelectedItem {value}");
+			Console.WriteLine($"[Selection] RaiseAndChangeSelectedItem '{value}'");
 			_selectedItem = value;
 			this.RaisePropertyChanged(nameof(SelectedItem));
 		}
 
 		private void Select(NavBarItemViewModel? value)
 		{
-			Console.WriteLine($"Select {value}");
+			Console.WriteLine($"[Selection] Select {value}");
 			if (_selectedItem == value)
 			{
 				return;
@@ -169,10 +169,10 @@ namespace WalletWasabi.Fluent.ViewModels.NavBar
 
 		private void SetSelectedItem(NavBarItemViewModel? value)
 		{
-			Console.WriteLine($"SetSelectedItem {value}");
+			Console.WriteLine($"[Selection] SetSelectedItem {value}");
 			if (value is null || value.SelectionMode == NavBarItemSelectionMode.Selected)
 			{
-				Console.WriteLine($"SetSelectedItem Selected {value}");
+				Console.WriteLine($"[Selection] SetSelectedItem Selected {value}");
 				Select(value);
 				return;
 			}
@@ -218,13 +218,13 @@ namespace WalletWasabi.Fluent.ViewModels.NavBar
 					var result = walletManager.SelectionChanged(x);
 					if (result is not null)
 					{
-						Console.WriteLine($"CurrentPageChanged SelectedItem = {x}");
+						Console.WriteLine($"[Selection] CurrentPageChanged SelectedItem = {x}");
 						SelectedItem = x;
 					}
 
 					if (x.SelectionMode == NavBarItemSelectionMode.Selected)
 					{
-						Console.WriteLine($"CurrentPageChanged SetSelectedItem {x}");
+						Console.WriteLine($"[Selection] CurrentPageChanged SetSelectedItem {x}");
 						SetSelectedItem(x);
 					}
 
@@ -235,7 +235,7 @@ namespace WalletWasabi.Fluent.ViewModels.NavBar
 
 		private void NavigateItem(NavBarItemViewModel x)
 		{
-			Console.WriteLine($"NavigateItem {x}");
+			Console.WriteLine($"[Selection] NavigateItem {x}");
 			if (!_isNavigating)
 			{
 				_isNavigating = true;
@@ -243,7 +243,7 @@ namespace WalletWasabi.Fluent.ViewModels.NavBar
 				var result = _walletManager.SelectionChanged(x);
 				if (result is not null)
 				{
-					Console.WriteLine($"NavigateItem SelectedItem = {result}");
+					Console.WriteLine($"[Selection] NavigateItem SelectedItem = {result}");
 					SelectedItem = result;
 				}
 

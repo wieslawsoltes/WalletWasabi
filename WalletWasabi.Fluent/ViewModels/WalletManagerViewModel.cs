@@ -148,7 +148,7 @@ namespace WalletWasabi.Fluent.ViewModels
 		private void OpenClosedWallet(UiConfig uiConfig, ClosedWalletViewModel closedWalletViewModel)
 		{
 			IsLoadingWallet = true;
-			Console.WriteLine($"IsLoadingWallet true");
+			Console.WriteLine($"[Selection] IsLoadingWallet true");
 
 			RemoveWallet(closedWalletViewModel);
 
@@ -162,12 +162,12 @@ namespace WalletWasabi.Fluent.ViewModels
 
 			if (_currentSelection == closedWalletViewModel)
 			{
-				Console.WriteLine($"SelectedWallet {walletViewModelItem}");
+				Console.WriteLine($"[Selection] SelectedWallet {walletViewModelItem}");
 				SelectedWallet = walletViewModelItem;
 				InsertActions(walletViewModelItem, actions);
 			}
 
-			Console.WriteLine($"IsLoadingWallet false");
+			Console.WriteLine($"[Selection] IsLoadingWallet false");
 			IsLoadingWallet = false;
 		}
 
@@ -230,7 +230,7 @@ namespace WalletWasabi.Fluent.ViewModels
 			if (item.SelectionMode == NavBarItemSelectionMode.Selected)
 			{
 				_currentSelection = item;
-				Console.WriteLine($"SelectionChanged _currentSelection {item}");
+				Console.WriteLine($"[Selection] SelectionChanged _currentSelection {item}");
 			}
 
 			if (IsLoadingWallet || SelectedWallet == item)
@@ -248,7 +248,7 @@ namespace WalletWasabi.Fluent.ViewModels
 
 					RemoveActions(walletViewModelPrevious, actions);
 
-					Console.WriteLine($"SelectedWallet {null}");
+					Console.WriteLine($"[Selection] SelectedWallet {null}");
 					SelectedWallet = null;
 
 					result = item;
@@ -266,7 +266,7 @@ namespace WalletWasabi.Fluent.ViewModels
 				InsertActions(walletViewModelItem, actions);
 
 				SelectedWallet = walletViewModelItem;
-				Console.WriteLine($"SelectedWallet {walletViewModelItem}");
+				Console.WriteLine($"[Selection] SelectedWallet {walletViewModelItem}");
 
 				result = item;
 			}
