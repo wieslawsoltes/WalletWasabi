@@ -95,7 +95,8 @@ namespace WalletWasabi.Fluent.ViewModels.AddWallet.HardwareWallet
 
 			if (ExistingWallet is { } && navBar is { })
 			{
-				navBar.SelectedItem = ExistingWallet;
+				// navBar.SelectedItem = ExistingWallet;
+				navBar.SetSelectedItem(ExistingWallet);
 				Navigate().Clear();
 				ExistingWallet.OpenCommand.Execute(default);
 			}

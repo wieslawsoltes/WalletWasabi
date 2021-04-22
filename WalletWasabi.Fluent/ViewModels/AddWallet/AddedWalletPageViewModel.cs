@@ -43,7 +43,8 @@ namespace WalletWasabi.Fluent.ViewModels.AddWallet
 
 			if (wallet is { } && navBar is { })
 			{
-				navBar.SelectedItem = wallet;
+				// navBar.SelectedItem = wallet;
+				navBar.SetSelectedItem(wallet);
 				Console.WriteLine($"[Selection] navBar.SelectedItem OnNext '{wallet}'");
 				wallet.OpenCommand.Execute(default);
 			}
