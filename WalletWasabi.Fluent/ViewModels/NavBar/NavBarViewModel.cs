@@ -101,7 +101,11 @@ namespace WalletWasabi.Fluent.ViewModels.NavBar
 		public NavBarItemViewModel? SelectedItem
 		{
 			get => _selectedItem;
-			set => SetSelectedItem(value);
+			set
+			{
+				Console.WriteLine($"[Selection] SelectedItem Setter '{value}'");
+				SetSelectedItem(value);
+			}
 		}
 
 		public async Task InitialiseAsync()
