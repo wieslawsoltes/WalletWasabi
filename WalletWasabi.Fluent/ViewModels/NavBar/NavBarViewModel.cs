@@ -89,7 +89,8 @@ namespace WalletWasabi.Fluent.ViewModels.NavBar
 					if (x is not null)
 					{
 						Console.WriteLine($"[Selection.NavBarViewModel.ctor] _walletManager.WhenAnyValue() SelectedItem='{x}'");
-						SelectedItem = x;
+						// SelectedItem = x;
+						SetSelectedItem(x);
 					}
 				});
 		}
