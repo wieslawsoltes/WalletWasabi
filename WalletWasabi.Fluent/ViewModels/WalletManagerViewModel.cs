@@ -189,6 +189,7 @@ namespace WalletWasabi.Fluent.ViewModels
 
 		private void InsertWallet(WalletViewModelBase wallet)
 		{
+			Console.WriteLine($"[Selection.WalletManagerViewModel.InsertWallet] '{wallet}'");
 			_wallets.InsertSorted(wallet);
 
 			_walletDictionary.Add(wallet.Wallet, wallet);
@@ -200,6 +201,7 @@ namespace WalletWasabi.Fluent.ViewModels
 
 			walletViewModel.Dispose();
 
+			Console.WriteLine($"[Selection.WalletManagerViewModel.RemoveWallet] '{walletViewModel}'");
 			_wallets.Remove(walletViewModel);
 
 			if (isLoggedIn)
