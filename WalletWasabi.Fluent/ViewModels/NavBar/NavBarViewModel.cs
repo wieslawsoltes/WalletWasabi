@@ -93,6 +93,14 @@ namespace WalletWasabi.Fluent.ViewModels.NavBar
 						SetSelectedItem(x);
 					}
 				});
+
+			PropertyChanged += (_, e) =>
+			{
+				if (e.PropertyName == nameof(SelectedItem))
+				{
+					Console.WriteLine($"[Selection.NavBarViewModel.ctor.PropertyChanged] SelectedItem='{SelectedItem}'");
+				}
+			};
 		}
 
 		public ObservableCollection<NavBarItemViewModel> Actions => _walletManager.Actions;
