@@ -26,9 +26,8 @@
       <Separator />
       <!-- Selected Wallet List -->
       <ListBox Items="{Binding SelectedWallets}"
-                       SelectedItem="{Binding SelectedItem, Mode=TwoWay}"
-                       Name="SelectedWalletListBox"
-                       RenderTransformOrigin="0%,50%">
+               SelectedItem="{Binding SelectedItem, Mode=TwoWay}"
+               Name="SelectedWalletListBox">
       <ListBox.DataTemplates>
           <DataTemplate DataType="vmw:WalletViewModelBase">
             <Panel>
@@ -48,12 +47,8 @@
     </StackPanel>
     <!-- Items List -->
     <ListBox Items="{Binding Items}"
-                     SelectedItem="{Binding SelectedItem, Mode=TwoWay}"
-                     IsVisible="{Binding !HideItems, Mode=OneWay}"
-                     Name="ItemsListBox"
-                     RenderTransformOrigin="0%,50%"
-                     VerticalAlignment="{Binding Actions.Count, Mode=OneWay, Converter={x:Static conv:NavBarItemsListBoxAlignmentConverter.Instance}}">
-
+             SelectedItem="{Binding SelectedItem, Mode=TwoWay}"
+             Name="ItemsListBox">
       <ListBox.DataTemplates>
         <DataTemplate DataType="vmw:WalletViewModelBase">
           <Panel>
