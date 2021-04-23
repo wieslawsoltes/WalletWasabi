@@ -69,7 +69,7 @@
           <TextBlock Text="Wasabi Wallet" Classes="h6" VerticalAlignment="Center" FontWeight="SemiBold" Margin="55 0 0 0" />
         </Panel>
       </Border>
-      <!-- TopItems List -->
+      <!-- TopItems List --><!--
       <c:NavBarListBox Items="{Binding TopItems}"
                        SelectedItem="{Binding SelectedItem, Mode=TwoWay}"
                        Name="TopListBox">
@@ -98,14 +98,14 @@
             </Panel>
           </DataTemplate>
         </c:NavBarListBox.ItemTemplate>
-      </c:NavBarListBox>
+      </c:NavBarListBox>-->
       <Separator />
       <!-- Selected Wallet List -->
       <c:NavBarListBox Items="{Binding SelectedWallets}"
                        SelectedItem="{Binding SelectedItem, Mode=TwoWay}"
                        Name="SelectedWalletListBox"
                        RenderTransformOrigin="0%,50%">
-        <c:NavBarListBox.Styles>
+        <!--<c:NavBarListBox.Styles>
           <Style Selector=":is(ListBox):not(:empty)">
             <Style.Animations>
               <Animation Delay="0:0:0.0" Duration="0:0:0.175">
@@ -137,7 +137,7 @@
           <Style Selector="c|NavBarItem:disabled PathIcon">
             <Setter Property="Foreground" Value="{DynamicResource ButtonForegroundDisabled}" />
           </Style>
-        </c:NavBarListBox.Styles>
+        </c:NavBarListBox.Styles>-->
         <c:NavBarListBox.DataTemplates>
           <DataTemplate DataType="vmw:WalletViewModelBase">
             <Panel>
@@ -166,7 +166,7 @@
           </DataTemplate>
         </c:NavBarListBox.DataTemplates>
       </c:NavBarListBox>
-      <!-- Actions List -->
+      <!-- Actions List --><!--
       <c:NavBarListBox Items="{Binding Actions}"
                        SelectedItem="{Binding SelectedItem, Mode=TwoWay}"
                        Name="ActionsListBox"
@@ -227,8 +227,8 @@
             </Panel>
           </DataTemplate>
         </c:NavBarListBox.DataTemplates>
-      </c:NavBarListBox>
-      <!-- Actions Separator -->
+      </c:NavBarListBox>-->
+      <!-- Actions Separator --><!--
       <Separator>
         <Separator.IsVisible>
           <MultiBinding Converter="{x:Static BoolConverters.And}">
@@ -251,11 +251,11 @@
             </Style.Animations>
           </Style>
         </Separator.Styles>
-      </Separator>
+      </Separator>-->
     </StackPanel>
     <StackPanel DockPanel.Dock="Bottom">
       <Separator />
-      <!-- BottomItems List -->
+      <!-- BottomItems List --><!--
       <c:NavBarListBox Items="{Binding BottomItems}"
                        SelectedItem="{Binding SelectedItem, Mode=TwoWay}"
                        Name="BottomListBox">
@@ -291,7 +291,7 @@
             </Panel>
           </DataTemplate>
         </c:NavBarListBox.ItemTemplate>
-      </c:NavBarListBox>
+      </c:NavBarListBox>-->
     </StackPanel>
     <!-- Items List -->
     <c:NavBarListBox Items="{Binding Items}"
@@ -300,7 +300,7 @@
                      Name="ItemsListBox"
                      RenderTransformOrigin="0%,50%"
                      VerticalAlignment="{Binding Actions.Count, Mode=OneWay, Converter={x:Static conv:NavBarItemsListBoxAlignmentConverter.Instance}}">
-      <c:NavBarListBox.Styles>
+      <!--<c:NavBarListBox.Styles>
         <Style Selector=":is(ListBox)[VerticalAlignment=Bottom]">
           <Style.Animations>
             <Animation Delay="0:0:0.1" Duration="0:0:0.175">
@@ -354,7 +354,7 @@
         <Style Selector="c|NavBarItem:disabled PathIcon">
           <Setter Property="Foreground" Value="{DynamicResource ButtonForegroundDisabled}" />
         </Style>
-      </c:NavBarListBox.Styles>
+      </c:NavBarListBox.Styles>-->
       <c:NavBarListBox.DataTemplates>
         <DataTemplate DataType="vmw:WalletViewModelBase">
           <Panel>
