@@ -148,8 +148,8 @@ namespace WalletWasabi.Fluent.ViewModels.NavBar
 			Console.WriteLine($"[Selection.NavBarViewModel.RaiseAndChangeSelectedItem] _selectedItem='{value}'");
 			//_selectedItem = value;
 			Console.WriteLine($"[Selection.NavBarViewModel.RaiseAndChangeSelectedItem] RaisePropertyChanged('{value}')");
-			//this.RaisePropertyChanged(nameof(SelectedItem));
-			this.RaiseAndSetIfChanged(ref _selectedItem, value, nameof(SelectedItem));
+			this.RaisePropertyChanged(nameof(SelectedItem));
+			//this.RaiseAndSetIfChanged(ref _selectedItem, value, nameof(SelectedItem));
 		}
 
 		private void Select(NavBarItemViewModel? value)
