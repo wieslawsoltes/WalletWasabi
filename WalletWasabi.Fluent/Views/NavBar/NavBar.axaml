@@ -24,6 +24,7 @@
         </Panel>
       </Border>
       <Separator />
+      <Label Content="{Binding SelectedItem.Title, FallbackValue=null}"/>
       <!-- Selected Wallet List -->
       <ListBox Items="{Binding SelectedWallets}"
                SelectedItem="{Binding SelectedItem, Mode=TwoWay}"
