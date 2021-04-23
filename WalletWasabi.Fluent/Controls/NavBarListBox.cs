@@ -3,6 +3,8 @@ using Avalonia.Controls.Generators;
 using Avalonia.Styling;
 using System;
 using Avalonia;
+using Avalonia.Controls.Primitives;
+using Avalonia.Data;
 using Avalonia.Input;
 
 namespace WalletWasabi.Fluent.Controls
@@ -28,6 +30,11 @@ namespace WalletWasabi.Fluent.Controls
 				ContentControl.ContentTemplateProperty);
 		}
 
+		static NavBarListBox()
+		{
+			//SelectedItemProperty.OverrideMetadata<SelectingItemsControl>(new DirectPropertyMetadata<object?>(null, BindingMode.TwoWay, false));
+		}
+
 		public NavBarListBox()
 		{
 			this.GetObservable(SelectedItemProperty).Subscribe(x =>
@@ -44,6 +51,11 @@ namespace WalletWasabi.Fluent.Controls
 			{
 				Console.WriteLine($"[Selection.NavBarListBox.OnPropertyChanged] [{Name}].SelectedItem='{SelectedItem}'");
 			}
+		}
+
+		protected override void UpdateDataValidation<T>(AvaloniaProperty<T> property, BindingValue<T> value)
+		{
+			//base.UpdateDataValidation(property, value);
 		}
 
 		protected override void OnPointerPressed(PointerPressedEventArgs e)
