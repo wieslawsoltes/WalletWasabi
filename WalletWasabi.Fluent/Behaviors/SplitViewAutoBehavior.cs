@@ -45,7 +45,7 @@ namespace WalletWasabi.Fluent.Behaviors
 				.DistinctUntilChanged()
 				.Subscribe(x =>
 				{
-					Debug.WriteLine($"[SplitViewAutoBehavior] IsPaneOpen='{x}'");
+					Console.WriteLine($"[SplitViewAutoBehavior] IsPaneOpen='{x}'");
 				});
 
 			AssociatedObject!.WhenAnyValue(x => x.Bounds)
@@ -62,7 +62,7 @@ namespace WalletWasabi.Fluent.Behaviors
 			if (AssociatedObject!.Bounds.Width <= CollapseThreshold && AssociatedObject!.IsPaneOpen)
 			{
 				AssociatedObject!.IsPaneOpen = false;
-				Debug.WriteLine($"[SplitViewAutoBehavior.OnCollapseOnClickAction] IsPaneOpen='{AssociatedObject!.IsPaneOpen}'");
+				Console.WriteLine($"[SplitViewAutoBehavior.OnCollapseOnClickAction] IsPaneOpen='{AssociatedObject!.IsPaneOpen}'");
 			}
 		}
 
@@ -74,7 +74,7 @@ namespace WalletWasabi.Fluent.Behaviors
 			}
 
 			AssociatedObject!.IsPaneOpen = !AssociatedObject!.IsPaneOpen;
-			Debug.WriteLine($"[SplitViewAutoBehavior.OnToggleAction] IsPaneOpen='{AssociatedObject!.IsPaneOpen}'");
+			Console.WriteLine($"[SplitViewAutoBehavior.OnToggleAction] IsPaneOpen='{AssociatedObject!.IsPaneOpen}'");
 		}
 
 		private void SplitViewBoundsChanged(Rect x)
@@ -91,7 +91,7 @@ namespace WalletWasabi.Fluent.Behaviors
 				if (!_sidebarWasForceClosed && AssociatedObject.IsPaneOpen)
 				{
 					AssociatedObject.IsPaneOpen = false;
-					Debug.WriteLine($"[SplitViewAutoBehavior.SplitViewBoundsChanged] IsPaneOpen='{AssociatedObject!.IsPaneOpen}'");
+					Console.WriteLine($"[SplitViewAutoBehavior.SplitViewBoundsChanged] IsPaneOpen='{AssociatedObject!.IsPaneOpen}'");
 				}
 			}
 			else
@@ -101,7 +101,7 @@ namespace WalletWasabi.Fluent.Behaviors
 				if (!_sidebarWasForceClosed && !AssociatedObject.IsPaneOpen)
 				{
 					AssociatedObject.IsPaneOpen = true;
-					Debug.WriteLine($"[SplitViewAutoBehavior.SplitViewBoundsChanged] IsPaneOpen='{AssociatedObject!.IsPaneOpen}'");
+					Console.WriteLine($"[SplitViewAutoBehavior.SplitViewBoundsChanged] IsPaneOpen='{AssociatedObject!.IsPaneOpen}'");
 				}
 			}
 		}
