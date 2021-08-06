@@ -31,6 +31,12 @@ namespace WalletWasabi.Fluent.ViewModels.NavBar
 
 		public NavBarViewModel(TargettedNavigationStack mainScreen)
 		{
+			this.WhenAnyValue(x => x.IsOpen)
+				.Subscribe(x =>
+				{
+					Console.WriteLine($"[NavBarViewModel] IsOpen='{x}'");
+				});
+
 			_topItems = new ObservableCollection<NavBarItemViewModel>();
 			_bottomItems = new ObservableCollection<NavBarItemViewModel>();
 
