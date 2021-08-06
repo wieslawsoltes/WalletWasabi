@@ -42,7 +42,6 @@ namespace WalletWasabi.Fluent.Behaviors
 		protected override void OnAttached(CompositeDisposable disposables)
 		{
 			AssociatedObject!.WhenAnyValue(x => x.IsPaneOpen)
-				.DistinctUntilChanged()
 				.Subscribe(x =>
 				{
 					Console.WriteLine($"[SplitViewAutoBehavior] IsPaneOpen='{x}'");
