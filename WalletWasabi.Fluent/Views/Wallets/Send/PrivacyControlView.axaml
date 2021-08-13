@@ -3,6 +3,8 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:c="using:WalletWasabi.Fluent.Controls"
+             xmlns:g="clr-namespace:TemplatedDataGrid;assembly=TemplatedDataGrid"
+             xmlns:p="clr-namespace:TemplatedDataGrid.Primitives;assembly=TemplatedDataGrid"
              xmlns:vm="using:WalletWasabi.Fluent.ViewModels.Wallets.Send"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:DataType="vm:PrivacyControlViewModel"
@@ -29,29 +31,29 @@
                     Content="Not in a hurry? Consider making more of your funds private by CoinJoining before making this transaction."
                     HorizontalAlignment="Center" />
             </Panel>
-            <DataGrid AutoGenerateColumns="False"
-                      Items="{Binding Pockets}">
-                <DataGrid.Resources>
+            <g:DataGrid AutoGenerateColumns="False"
+                        Items="{Binding Pockets}">
+                <g:DataGrid.Resources>
                     <SolidColorBrush x:Key="DataGridRowIndicatorBrush" Color="Transparent" />
                     <SolidColorBrush x:Key="DataGridRowSelectedBackgroundColor" Color="Transparent" />
                     <StaticResource x:Key="DataGridRowSelectedUnfocusedBackgroundColor"
                                     ResourceKey="DataGridRowSelectedBackgroundColor" />
-                </DataGrid.Resources>
-                <DataGrid.Columns>
-                    <DataGridTemplateColumn CanUserSort="False" CanUserResize="False" CanUserReorder="False">
-                        <DataGridTemplateColumn.CellTemplate>
+                </g:DataGrid.Resources>
+                <g:DataGrid.Columns>
+                    <g:DataGridTemplateColumn CanUserSort="False" CanUserResize="False" CanUserReorder="False">
+                        <g:DataGridTemplateColumn.CellTemplate>
                             <DataTemplate x:DataType="vm:PocketViewModel">
                                 <CheckBox HorizontalAlignment="Center" IsChecked="{Binding IsSelected}" Focusable="False" />
                             </DataTemplate>
-                        </DataGridTemplateColumn.CellTemplate>
-                    </DataGridTemplateColumn>
+                        </g:DataGridTemplateColumn.CellTemplate>
+                    </g:DataGridTemplateColumn>
 
-                    <DataGridTextColumn x:DataType="vm:PocketViewModel"
-                                        CanUserSort="False"
-                                        Header="Total (BTC)"
-                                        Binding="{Binding TotalBtc}" />
+                    <g:DataGridTextColumn x:DataType="vm:PocketViewModel"
+                                          CanUserSort="False"
+                                          Header="Total (BTC)"
+                                          Binding="{Binding TotalBtc}" />
 
-                    <DataGridTemplateColumn CanUserSort="False" Width="*" Header="Labels">
+                    <g:DataGridTemplateColumn CanUserSort="False" Width="*" Header="Labels">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate x:DataType="vm:PocketViewModel">
                                 <Panel x:Name="ContainerPanel" HorizontalAlignment="Left">
@@ -64,9 +66,9 @@
                                 </Panel>
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
-                    </DataGridTemplateColumn>
-                </DataGrid.Columns>
-            </DataGrid>
+                    </g:DataGridTemplateColumn>
+                </g:DataGrid.Columns>
+            </g:DataGrid>
         </DockPanel>
     </c:ContentArea>
 </UserControl>
