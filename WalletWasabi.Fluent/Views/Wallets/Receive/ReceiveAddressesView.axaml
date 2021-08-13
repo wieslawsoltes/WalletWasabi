@@ -3,6 +3,8 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:c="using:WalletWasabi.Fluent.Controls"
+             xmlns:g="clr-namespace:TemplatedDataGrid;assembly=TemplatedDataGrid"
+             xmlns:p="clr-namespace:TemplatedDataGrid.Primitives;assembly=TemplatedDataGrid"
              xmlns:receive="clr-namespace:WalletWasabi.Fluent.ViewModels.Wallets.Receive"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:DataType="receive:ReceiveAddressesViewModel"
@@ -12,9 +14,9 @@
                  EnableCancel="{Binding EnableCancel}"
                  EnableBack="{Binding EnableBack}"
                  ScrollViewer.VerticalScrollBarVisibility="Disabled">
-    <DataGrid Items="{Binding Addresses}"
+    <g:DataGrid Items="{Binding Addresses}"
               CanUserSortColumns="True">
-      <DataGrid.Styles>
+      <g:DataGrid.Styles>
         <Style Selector="c|AnimatedButton.addressActionButton">
           <Setter Property="DockPanel.Dock" Value="Right"/>
           <Setter Property="Margin" Value="5 0 0 0"/>
@@ -31,14 +33,14 @@
           <Setter Property="Height" Value="15"/>
           <Setter Property="Foreground" Value="{DynamicResource SystemAccentColor}"/>
         </Style>
-      </DataGrid.Styles>
+      </g:DataGrid.Styles>
 
-      <DataGrid.Columns>
-        <DataGridTemplateColumn Header="Labels"
-                                Width="*"
-                                CanUserSort="True"
-                                SortMemberPath="Label">
-          <DataGridTemplateColumn.CellTemplate>
+      <g:DataGrid.Columns>
+        <g:DataGridTemplateColumn Header="Labels"
+                                  Width="*"
+                                  CanUserSort="True"
+                                  SortMemberPath="Label">
+          <g:DataGridTemplateColumn.CellTemplate>
             <DataTemplate>
               <DockPanel LastChildFill="True" Margin="10 0" x:DataType="receive:AddressViewModel">
                 <Button Classes="plain addressActionButton" ToolTip.Tip="Edit" DockPanel.Dock="Right" Command="{Binding EditLabelCommand}">
@@ -49,14 +51,14 @@
                 </c:PrivacyContentControl>
               </DockPanel>
             </DataTemplate>
-          </DataGridTemplateColumn.CellTemplate>
-        </DataGridTemplateColumn>
+          </g:DataGridTemplateColumn.CellTemplate>
+        </g:DataGridTemplateColumn>
 
-        <DataGridTemplateColumn Header="Address"
-                                Width="2*"
-                                CanUserSort="True"
-                                SortMemberPath="Address">
-          <DataGridTemplateColumn.CellTemplate>
+        <g:DataGridTemplateColumn Header="Address"
+                                  Width="2*"
+                                  CanUserSort="True"
+                                  SortMemberPath="Address">
+          <g:DataGridTemplateColumn.CellTemplate>
             <DataTemplate>
               <DockPanel LastChildFill="True" Margin="10 0" x:DataType="receive:AddressViewModel">
                 <Button Classes="plain addressActionButton" Command="{Binding HideAddressCommand}"
@@ -78,9 +80,9 @@
                 <c:PrivacyContentControl Content="{Binding Address}" VerticalAlignment="Center" NumberOfPrivacyChars="38" />
               </DockPanel>
             </DataTemplate>
-          </DataGridTemplateColumn.CellTemplate>
-        </DataGridTemplateColumn>
-      </DataGrid.Columns>
-    </DataGrid>
+          </g:DataGridTemplateColumn.CellTemplate>
+        </g:DataGridTemplateColumn>
+      </g:DataGrid.Columns>
+    </g:DataGrid>
   </c:ContentArea>
 </UserControl>
