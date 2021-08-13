@@ -54,7 +54,7 @@
                                           Binding="{Binding TotalBtc}" />
 
                     <g:DataGridTemplateColumn CanUserSort="False" Width="*" Header="Labels">
-                        <DataGridTemplateColumn.CellTemplate>
+                        <g:DataGridTemplateColumn.CellTemplate>
                             <DataTemplate x:DataType="vm:PocketViewModel">
                                 <Panel x:Name="ContainerPanel" HorizontalAlignment="Left">
                                     <c:TagsBox Items="{Binding Labels}" IsReadOnly="True" HorizontalAlignment="Left" />
@@ -65,7 +65,7 @@
                                     </Popup>
                                 </Panel>
                             </DataTemplate>
-                        </DataGridTemplateColumn.CellTemplate>
+                        </g:DataGridTemplateColumn.CellTemplate>
                     </g:DataGridTemplateColumn>
                 </g:DataGrid.Columns>
             </g:DataGrid>
