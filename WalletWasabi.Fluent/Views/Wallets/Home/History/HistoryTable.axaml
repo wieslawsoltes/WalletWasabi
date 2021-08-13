@@ -73,7 +73,7 @@
           </ControlTemplate>
         </Setter>
       </Style>
-      <Style Selector="DataGridRow /template/ Rectangle#BackgroundRectangle.selectAnimation">
+      <Style Selector="g|DataGridRow /template/ Rectangle#BackgroundRectangle.selectAnimation">
         <Setter Property="Fill" Value="{DynamicResource SystemAccentColor}"/>
         <Setter Property="Opacity" Value="0" />
         <Style.Animations>
