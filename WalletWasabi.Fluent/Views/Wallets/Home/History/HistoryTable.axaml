@@ -5,17 +5,19 @@
              xmlns:i="clr-namespace:Avalonia.Xaml.Interactivity;assembly=Avalonia.Xaml.Interactivity"
              xmlns:ir="clr-namespace:Avalonia.Xaml.Interactions.Responsive;assembly=Avalonia.Xaml.Interactions"
              xmlns:c="using:WalletWasabi.Fluent.Controls"
+             xmlns:g="clr-namespace:TemplatedDataGrid;assembly=TemplatedDataGrid"
+             xmlns:p="clr-namespace:TemplatedDataGrid.Primitives;assembly=TemplatedDataGrid"
              xmlns:history="clr-namespace:WalletWasabi.Fluent.ViewModels.Wallets.Home.History"
              xmlns:converters="clr-namespace:WalletWasabi.Fluent.Converters"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:DataType="history:HistoryViewModel"
              x:CompileBindings="True"
              x:Class="WalletWasabi.Fluent.Views.Wallets.Home.History.HistoryTable">
-  <DataGrid Items="{Binding CollectionView}"
-            SelectedItem="{Binding SelectedItem}"
-            CanUserResizeColumns="False"
-            DockPanel.Dock="Bottom">
-    <DataGrid.Styles>
+  <g:DataGrid Items="{Binding CollectionView}"
+              SelectedItem="{Binding SelectedItem}"
+              CanUserResizeColumns="False"
+              DockPanel.Dock="Bottom">
+    <g:DataGrid.Styles>
       <Style Selector="PathIcon">
         <Setter Property="Height" Value="13" />
         <Setter Property="VerticalAlignment" Value="Center" />
@@ -29,7 +31,7 @@
         <Setter Property="Spacing" Value="10" />
         <Setter Property="Margin" Value="10 0" />
       </Style>
-      <Style Selector="DataGridRow">
+      <Style Selector="g|DataGridRow">
         <Setter Property="Focusable" Value="False" />
         <Setter Property="Height" Value="36" />
         <Setter Property="Template">
@@ -39,34 +41,34 @@
                       BorderThickness="2 0 0 0"
                       DockPanel.Dock="Left"
                       VerticalAlignment="Stretch" />
-              <DataGridFrozenGrid Name="PART_Root"
+              <Grid Name="PART_Root"
                                   RowDefinitions="*,Auto,Auto"
                                   ColumnDefinitions="Auto,*">
 
                 <Rectangle Name="BackgroundRectangle"
                            Grid.RowSpan="2"
                            Grid.ColumnSpan="2" x:CompileBindings="False" Classes.selectAnimation="{Binding IsFlashing}" />
-                <Rectangle x:Name="InvalidVisualElement"
+                <!--<Rectangle x:Name="InvalidVisualElement"
                            Grid.ColumnSpan="2"
-                           Fill="{DynamicResource DataGridRowInvalidBrush}" />
+                           Fill="{DynamicResource DataGridRowInvalidBrush}" />-->
 
-                <DataGridRowHeader Name="PART_RowHeader"
+                <!--<DataGridRowHeader Name="PART_RowHeader"
                                    Grid.RowSpan="3"
-                                   DataGridFrozenGrid.IsFrozen="True" />
-                <DataGridCellsPresenter Name="PART_CellsPresenter"
+                                   DataGridFrozenGrid.IsFrozen="True" />-->
+                <p:DataGridCellsPresenter Name="PART_CellsPresenter"
                                         Grid.Column="1"
                                         DataGridFrozenGrid.IsFrozen="True" />
-                <DataGridDetailsPresenter Name="PART_DetailsPresenter"
+                <!--<DataGridDetailsPresenter Name="PART_DetailsPresenter"
                                           Grid.Row="1"
                                           Grid.Column="1"
-                                          Background="{DynamicResource DataGridDetailsPresenterBackgroundBrush}" />
+                                          Background="{DynamicResource DataGridDetailsPresenterBackgroundBrush}" />-->
                 <Rectangle Name="PART_BottomGridLine"
                            Grid.Row="2"
                            Grid.Column="1"
                            HorizontalAlignment="Stretch"
                            Height="1" />
 
-              </DataGridFrozenGrid>
+              </Grid>
             </DockPanel>
           </ControlTemplate>
         </Setter>
@@ -133,15 +135,16 @@
       <Style Selector="PathIcon.hidden">
         <Setter Property="IsVisible" Value="False"/>
       </Style>
-    </DataGrid.Styles>
+    </g:DataGrid.Styles>
 
-    <DataGrid.Columns>
+    <g:DataGrid.Columns>
 
       <!-- Date -->
-      <DataGridTemplateColumn Header="Date / Time"
-                              Width="Auto"
+      <g:DataGridTemplateColumn Header="Date / Time"
+                              Width="1*"
+                              MinWidth="100"
                               SortMemberPath="OrderIndex">
-        <DataGridTemplateColumn.CellTemplate>
+        <g:DataGridTemplateColumn.CellTemplate>
           <DataTemplate>
             <c:PrivacyContentControl x:DataType="history:HistoryItemViewModel"
                                      Content="{Binding Date, StringFormat='{}{0:MM/dd/yyyy HH:mm}'}"
@@ -150,14 +153,15 @@
                                      Margin="10 0"
                                      NumberOfPrivacyChars="15" />
           </DataTemplate>
-        </DataGridTemplateColumn.CellTemplate>
-      </DataGridTemplateColumn>
+        </g:DataGridTemplateColumn.CellTemplate>
+      </g:DataGridTemplateColumn>
 
       <!-- Type -->
-      <DataGridTemplateColumn Header="Type"
-                              Width="Auto"
-                              SortMemberPath="IsCoinJoin">
-        <DataGridTemplateColumn.CellTemplate>
+      <g:DataGridTemplateColumn Header="Type"
+                                Width="1*"
+                                MinWidth="100"
+                                SortMemberPath="IsCoinJoin">
+        <g:DataGridTemplateColumn.CellTemplate>
           <DataTemplate>
             <c:PrivacyContentControl PrivacyReplacementMode="Icon">
               <c:PrivacyContentControl.Styles>
@@ -174,17 +178,18 @@
               </Panel>
             </c:PrivacyContentControl>
           </DataTemplate>
-        </DataGridTemplateColumn.CellTemplate>
-      </DataGridTemplateColumn>
+        </g:DataGridTemplateColumn.CellTemplate>
+      </g:DataGridTemplateColumn>
 
       <!-- Labels -->
-      <DataGridTemplateColumn Header="Labels"
-                              Width="Auto"
-                              CanUserSort="False"
-                              SortMemberPath="Label">
-        <DataGridTemplateColumn.CellTemplate>
+      <g:DataGridTemplateColumn Header="Labels"
+                                Width="3*"
+                                MinWidth="100"
+                                CanUserSort="False"
+                                SortMemberPath="Label">
+        <g:DataGridTemplateColumn.CellTemplate>
           <DataTemplate>
-            <c:PrivacyContentControl PrivacyReplacementMode="Text" NumberOfPrivacyChars="15" Classes="monoSpacedPrivacyReplacement">  
+            <c:PrivacyContentControl PrivacyReplacementMode="Text" NumberOfPrivacyChars="15" Classes="monoSpacedPrivacyReplacement">
               <DockPanel Margin="0,4,0,0" LastChildFill="False" x:DataType="history:HistoryItemViewModel">
                 <c:TagsBox Padding="0"
                           Margin="0"
@@ -216,16 +221,16 @@
               </DockPanel>
             </c:PrivacyContentControl>
           </DataTemplate>
-        </DataGridTemplateColumn.CellTemplate>
-      </DataGridTemplateColumn>
+        </g:DataGridTemplateColumn.CellTemplate>
+      </g:DataGridTemplateColumn>
 
       <!-- Incoming -->
-      <DataGridTemplateColumn Header="Incoming (BTC)"
-                              Width="*"
-                              MinWidth="160"
-                              MaxWidth="210"
-                              SortMemberPath="IncomingAmount">
-        <DataGridTemplateColumn.CellTemplate>
+      <g:DataGridTemplateColumn Header="Incoming (BTC)"
+                                Width="2*"
+                                MinWidth="160"
+                                MaxWidth="210"
+                                SortMemberPath="IncomingAmount">
+        <g:DataGridTemplateColumn.CellTemplate>
           <DataTemplate>
             <Panel Name="Panel" HorizontalAlignment="Stretch">
               <StackPanel x:DataType="history:HistoryItemViewModel"
@@ -245,16 +250,16 @@
               </StackPanel>
             </Panel>
           </DataTemplate>
-        </DataGridTemplateColumn.CellTemplate>
-      </DataGridTemplateColumn>
+        </g:DataGridTemplateColumn.CellTemplate>
+      </g:DataGridTemplateColumn>
 
       <!-- Outgoing -->
-      <DataGridTemplateColumn Header="Outgoing (BTC)"
-                              Width="*"
-                              MinWidth="160"
-                              MaxWidth="210"
-                              SortMemberPath="OutgoingAmount">
-        <DataGridTemplateColumn.CellTemplate>
+      <g:DataGridTemplateColumn Header="Outgoing (BTC)"
+                                Width="2*"
+                                MinWidth="160"
+                                MaxWidth="210"
+                                SortMemberPath="OutgoingAmount">
+        <g:DataGridTemplateColumn.CellTemplate>
           <DataTemplate>
             <Panel Name="Panel" HorizontalAlignment="Stretch">
               <StackPanel x:DataType="history:HistoryItemViewModel"
@@ -274,14 +279,15 @@
               </StackPanel>
             </Panel>
           </DataTemplate>
-        </DataGridTemplateColumn.CellTemplate>
-      </DataGridTemplateColumn>
+        </g:DataGridTemplateColumn.CellTemplate>
+      </g:DataGridTemplateColumn>
 
       <!-- Balance -->
-      <DataGridTemplateColumn Header="Balance (BTC)"
-                              Width="Auto"
-                              SortMemberPath="Balance">
-        <DataGridTemplateColumn.CellTemplate>
+      <g:DataGridTemplateColumn Header="Balance (BTC)"
+                                MinWidth="100"
+                                Width="2*"
+                                SortMemberPath="Balance">
+        <g:DataGridTemplateColumn.CellTemplate>
           <DataTemplate>
             <c:PrivacyContentControl x:DataType="history:HistoryItemViewModel"
                                      Content="{Binding Balance, Converter={x:Static converters:MoneyConverters.ToFormattedString}}"
@@ -291,16 +297,16 @@
                                      HorizontalAlignment="Right"
                                      Margin="10 0" />
           </DataTemplate>
-        </DataGridTemplateColumn.CellTemplate>
-      </DataGridTemplateColumn>
+        </g:DataGridTemplateColumn.CellTemplate>
+      </g:DataGridTemplateColumn>
 
       <!-- Status -->
-      <DataGridTemplateColumn Header="Status"
-                              Width="*"
-                              MinWidth="120"
-                              MaxWidth="120"
-                              SortMemberPath="IsConfirmed">
-        <DataGridTemplateColumn.CellTemplate>
+      <g:DataGridTemplateColumn Header="Status"
+                                Width="2*"
+                                MinWidth="120"
+                                MaxWidth="120"
+                                SortMemberPath="IsConfirmed">
+        <g:DataGridTemplateColumn.CellTemplate>
           <DataTemplate>
             <Panel x:DataType="history:HistoryItemViewModel">
               <!-- Confirmed -->
@@ -334,22 +340,23 @@
               </StackPanel>
             </Panel>
           </DataTemplate>
-        </DataGridTemplateColumn.CellTemplate>
-      </DataGridTemplateColumn>
+        </g:DataGridTemplateColumn.CellTemplate>
+      </g:DataGridTemplateColumn>
 
       <!-- Details -->
-      <DataGridTemplateColumn Width="Auto"
-                              CanUserSort="False">
-        <DataGridTemplateColumn.CellTemplate>
+      <g:DataGridTemplateColumn Width="*"
+                                MinWidth="100"
+                                CanUserSort="False">
+        <g:DataGridTemplateColumn.CellTemplate>
           <DataTemplate>
             <Button x:DataType="history:HistoryItemViewModel" Classes="plain" ToolTip.Tip="Show Details"
                     Command="{Binding ShowDetailsCommand}">
               <PathIcon Data="{StaticResource details_regular}" Height="15" Opacity="0.6" />
             </Button>
           </DataTemplate>
-        </DataGridTemplateColumn.CellTemplate>
-      </DataGridTemplateColumn>
+        </g:DataGridTemplateColumn.CellTemplate>
+      </g:DataGridTemplateColumn>
 
-    </DataGrid.Columns>
-  </DataGrid>
+    </g:DataGrid.Columns>
+  </g:DataGrid>
 </UserControl>

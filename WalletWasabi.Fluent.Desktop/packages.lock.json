@@ -998,6 +998,12 @@
           "System.Security.Principal.Windows": "4.7.0"
         }
       },
+      "templateddatagrid": {
+        "type": "Project",
+        "dependencies": {
+          "Avalonia": "0.10.6"
+        }
+      },
       "walletwasabi": {
         "type": "Project",
         "dependencies": {
@@ -1016,6 +1022,7 @@
           "Avalonia.Xaml.Behaviors": "0.10.6.10",
           "OpenCvSharp4": "4.5.2.20210404",
           "OpenCvSharp4.runtime.win": "4.5.2.20210404",
+          "TemplatedDataGrid": "0.10.6-alpha1",
           "WalletWasabi": "1.0.0",
           "Wasabi Wallet": "1.0.0"
         }

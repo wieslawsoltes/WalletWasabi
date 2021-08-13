@@ -2104,6 +2104,12 @@
           "System.Security.Principal.Windows": "4.5.0"
         }
       },
+      "templateddatagrid": {
+        "type": "Project",
+        "dependencies": {
+          "Avalonia": "0.10.6"
+        }
+      },
       "walletwasabi": {
         "type": "Project",
         "dependencies": {
