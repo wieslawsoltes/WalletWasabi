@@ -141,7 +141,7 @@
 
       <!-- Date -->
       <g:DataGridTemplateColumn Header="Date / Time"
-                              Width="1*"
+                              Width="Auto"
                               MinWidth="100"
                               SortMemberPath="OrderIndex">
         <g:DataGridTemplateColumn.CellTemplate>
@@ -158,7 +158,7 @@
 
       <!-- Type -->
       <g:DataGridTemplateColumn Header="Type"
-                                Width="1*"
+                                Width="Auto"
                                 MinWidth="100"
                                 SortMemberPath="IsCoinJoin">
         <g:DataGridTemplateColumn.CellTemplate>
@@ -183,7 +183,7 @@
 
       <!-- Labels -->
       <g:DataGridTemplateColumn Header="Labels"
-                                Width="3*"
+                                Width="Auto"
                                 MinWidth="100"
                                 CanUserSort="False"
                                 SortMemberPath="Label">
@@ -226,7 +226,7 @@
 
       <!-- Incoming -->
       <g:DataGridTemplateColumn Header="Incoming (BTC)"
-                                Width="2*"
+                                Width="*"
                                 MinWidth="160"
                                 MaxWidth="210"
                                 SortMemberPath="IncomingAmount">
@@ -255,7 +255,7 @@
 
       <!-- Outgoing -->
       <g:DataGridTemplateColumn Header="Outgoing (BTC)"
-                                Width="2*"
+                                Width="*"
                                 MinWidth="160"
                                 MaxWidth="210"
                                 SortMemberPath="OutgoingAmount">
@@ -285,7 +285,7 @@
       <!-- Balance -->
       <g:DataGridTemplateColumn Header="Balance (BTC)"
                                 MinWidth="100"
-                                Width="2*"
+                                Width="Auto"
                                 SortMemberPath="Balance">
         <g:DataGridTemplateColumn.CellTemplate>
           <DataTemplate>
@@ -302,7 +302,7 @@
 
       <!-- Status -->
       <g:DataGridTemplateColumn Header="Status"
-                                Width="2*"
+                                Width="*"
                                 MinWidth="120"
                                 MaxWidth="120"
                                 SortMemberPath="IsConfirmed">
@@ -344,7 +344,7 @@
       </g:DataGridTemplateColumn>
 
       <!-- Details -->
-      <g:DataGridTemplateColumn Width="*"
+      <g:DataGridTemplateColumn Width="Auto"
                                 MinWidth="100"
                                 CanUserSort="False">
         <g:DataGridTemplateColumn.CellTemplate>
