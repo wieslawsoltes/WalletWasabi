@@ -142,7 +142,6 @@
       <!-- Date -->
       <g:DataGridTemplateColumn Header="Date / Time"
                               Width="Auto"
-                              MinWidth="100"
                               SortMemberPath="OrderIndex">
         <g:DataGridTemplateColumn.CellTemplate>
           <DataTemplate>
@@ -159,7 +158,6 @@
       <!-- Type -->
       <g:DataGridTemplateColumn Header="Type"
                                 Width="Auto"
-                                MinWidth="100"
                                 SortMemberPath="IsCoinJoin">
         <g:DataGridTemplateColumn.CellTemplate>
           <DataTemplate>
@@ -184,7 +182,6 @@
       <!-- Labels -->
       <g:DataGridTemplateColumn Header="Labels"
                                 Width="Auto"
-                                MinWidth="100"
                                 CanUserSort="False"
                                 SortMemberPath="Label">
         <g:DataGridTemplateColumn.CellTemplate>
@@ -284,7 +281,6 @@
 
       <!-- Balance -->
       <g:DataGridTemplateColumn Header="Balance (BTC)"
-                                MinWidth="100"
                                 Width="Auto"
                                 SortMemberPath="Balance">
         <g:DataGridTemplateColumn.CellTemplate>
@@ -345,7 +341,6 @@
 
       <!-- Details -->
       <g:DataGridTemplateColumn Width="Auto"
-                                MinWidth="100"
                                 CanUserSort="False">
         <g:DataGridTemplateColumn.CellTemplate>
           <DataTemplate>
