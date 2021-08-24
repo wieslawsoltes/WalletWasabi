@@ -2107,7 +2107,7 @@
       "templateddatagrid": {
         "type": "Project",
         "dependencies": {
-          "Avalonia": "0.10.6"
+          "Avalonia": "0.10.7"
         }
       },
       "walletwasabi": {

@@ -1001,7 +1001,7 @@
       "templateddatagrid": {
         "type": "Project",
         "dependencies": {
-          "Avalonia": "0.10.6"
+          "Avalonia": "0.10.7"
         }
       },
       "walletwasabi": {
@@ -1022,7 +1022,7 @@
           "Avalonia.Xaml.Behaviors": "0.10.7",
           "OpenCvSharp4": "4.5.2.20210404",
           "OpenCvSharp4.runtime.win": "4.5.2.20210404",
-          "TemplatedDataGrid": "0.10.6-alpha1",
+          "TemplatedDataGrid": "0.10.7-alpha1",
           "WalletWasabi": "1.0.0",
           "Wasabi Wallet": "1.0.0"
         }
