@@ -1,27 +1,13 @@
 <Styles xmlns="https://github.com/avaloniaui"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:g="clr-namespace:TemplatedDataGrid;assembly=TemplatedDataGrid"
-        xmlns:p="clr-namespace:TemplatedDataGrid.Primitives;assembly=TemplatedDataGrid">
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
-  <!--<Style Selector="p|DataGridRowsPresenter">
-    <Setter Property="Template">
-      <ControlTemplate>
-        <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
-          <ItemsRepeater Name="PART_ItemsRepeater"
-                         Items="{TemplateBinding Items}"
-                         ItemTemplate="{TemplateBinding ItemTemplate}"/>
-        </ScrollViewer>
-      </ControlTemplate>
-    </Setter>
-  </Style>-->
-
-  <Style Selector="g|DataGrid">
+  <Style Selector="TemplatedDataGrid">
     <Setter Property="GridLinesVisibility" Value="Horizontal"/>
     <Setter Property="IsReadOnly" Value="True"/>
     <Setter Property="CanUserResizeColumns" Value="True"/>
   </Style>
 
-  <Style Selector="DataGridRow">
+  <Style Selector="TemplatedDataGridRow">
     <Setter Property="Focusable" Value="False" />
     <Setter Property="Template">
       <ControlTemplate>
@@ -63,21 +49,21 @@
     </Setter>
   </Style>
 
-  <Style Selector="g|DataGridRow:pointerover /template/ Rectangle#BackgroundRectangle">
+  <Style Selector="TemplatedDataGridRow:pointerover /template/ Rectangle#BackgroundRectangle">
     <Setter Property="Fill" Value="{DynamicResource DataGridRowSelectedBackgroundColor}" />
   </Style>
-  <Style Selector="g|DataGridRow:selected /template/ Border#PART_SelectionIndicator">
+  <Style Selector="TemplatedDataGridRow:selected /template/ Border#PART_SelectionIndicator">
     <Setter Property="BorderBrush" Value="{DynamicResource DataGridRowIndicatorBrush}" />
   </Style>
-  <Style Selector="g|DataGridRow /template/ Border#PART_SelectionIndicator">
+  <Style Selector="TemplatedDataGridRow /template/ Border#PART_SelectionIndicator">
     <Setter Property="BorderBrush" Value="Transparent" />
   </Style>
 
-  <Style Selector="g|DataGridCell">
+  <Style Selector="TemplatedDataGridCell">
     <Setter Property="Padding" Value="0"/>
   </Style>
 
-  <Style Selector="g|DataGridColumnHeader">
+  <Style Selector="TemplatedDataGridColumnHeader">
     <Setter Property="FontSize" Value="{StaticResource FontSizeH7}" />
     <Setter Property="FontWeight" Value="Bold" />
     <Setter Property="Padding" Value="12 10 10 10" />
