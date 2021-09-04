@@ -30,9 +30,9 @@
             <!--<DataGridRowHeader Name="PART_RowHeader"
                                Grid.RowSpan="3"
                                DataGridFrozenGrid.IsFrozen="True" />-->
-            <DataGridCellsPresenter Name="PART_CellsPresenter"
-                                    Grid.Column="1"
-                                    DataGridFrozenGrid.IsFrozen="True" />
+            <TemplatedDataGridCellsPresenter Name="PART_CellsPresenter"
+                                             Grid.Column="1"
+                                             DataGridFrozenGrid.IsFrozen="True" />
             <!--<DataGridDetailsPresenter Name="PART_DetailsPresenter"
                                       Grid.Row="1"
                                       Grid.Column="1"
