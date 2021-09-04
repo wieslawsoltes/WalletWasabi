@@ -16,9 +16,9 @@
                   BorderThickness="2 0 0 0"
                   DockPanel.Dock="Left"
                   VerticalAlignment="Stretch" />
-          <DataGridFrozenGrid Name="PART_Root"
-                              RowDefinitions="*,Auto,Auto"
-                              ColumnDefinitions="Auto,*">
+          <Grid Name="PART_Root"
+                RowDefinitions="*,Auto,Auto"
+                ColumnDefinitions="Auto,*">
 
             <Rectangle Name="BackgroundRectangle"
                        Grid.RowSpan="2"
@@ -43,7 +43,7 @@
                        HorizontalAlignment="Stretch"
                        Height="1" />
 
-          </DataGridFrozenGrid>
+          </Grid>
         </DockPanel>
       </ControlTemplate>
     </Setter>
