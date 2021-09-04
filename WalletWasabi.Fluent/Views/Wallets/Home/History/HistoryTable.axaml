@@ -11,7 +11,7 @@
              x:DataType="history:HistoryViewModel"
              x:CompileBindings="True"
              x:Class="WalletWasabi.Fluent.Views.Wallets.Home.History.HistoryTable">
-  <TemplatedDataGrid Items="{Binding CollectionView}"
+  <TemplatedDataGrid Items="{Binding Transactions}"
                      SelectedItem="{Binding SelectedItem}"
                      CanUserResizeColumns="False"
                      DockPanel.Dock="Bottom">
