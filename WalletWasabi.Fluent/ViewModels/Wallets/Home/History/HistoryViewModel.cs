@@ -40,7 +40,7 @@ namespace WalletWasabi.Fluent.ViewModels.Wallets.Home.History
 			this.WhenAnyValue(x => x.UnfilteredTransactions.Count)
 				.Subscribe(x => IsTransactionHistoryEmpty = x <= 0);
 
-			var sortDescription = DataGridSortDescription.FromPath(nameof(HistoryItemViewModel.OrderIndex), ListSortDirection.Descending);
+			//var sortDescription = DataGridSortDescription.FromPath(nameof(HistoryItemViewModel.OrderIndex), ListSortDirection.Descending);
 			//CollectionView = new DataGridCollectionView(Transactions);
 			//CollectionView.SortDescriptions.Add(sortDescription);
 
