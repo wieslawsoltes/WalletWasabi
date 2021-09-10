@@ -11,6 +11,7 @@ using WalletWasabi.Fluent.Behaviors;
 using WalletWasabi.Fluent.Providers;
 using WalletWasabi.Fluent.ViewModels;
 using WalletWasabi.Fluent.Views;
+using WalletWasabi.Logging;
 
 namespace WalletWasabi.Fluent
 {
@@ -27,6 +28,7 @@ namespace WalletWasabi.Fluent
 		public App()
 		{
 			Name = "Wasabi Wallet";
+			DataContext = new ApplicationViewModel();
 		}
 
 		public App(Func<Task> backendInitialiseAsync) : this()
@@ -79,7 +81,9 @@ namespace WalletWasabi.Fluent
 		{
 			if (CanShutdownProvider is { } provider)
 			{
+				// Shutdown prevention will only work if you directly run the executable.
 				e.Cancel = !provider.CanShutdown();
+				Logger.LogDebug($"Cancellation of the shutdown set to: {e.Cancel}.");
 			}
 		}
 	}
