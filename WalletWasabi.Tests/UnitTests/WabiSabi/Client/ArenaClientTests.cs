@@ -61,7 +61,7 @@ namespace WalletWasabi.Tests.UnitTests.WabiSabi.Client
 			using Arena arena = await WabiSabiFactory.CreateAndStartArenaAsync(config, mockRpc, round);
 			await arena.TriggerAndWaitRoundAsync(TimeSpan.FromMinutes(1));
 
-			await using var coordinator = new ArenaRequestHandler(config, new Prison(), arena, mockRpc.Object);
+			await using var coordinator = new ArenaRequestHandler(config, new Prison(), arena);
 			var wabiSabiApi = new WabiSabiController(coordinator);
 			var insecureRandom = new InsecureRandom();
 			var roundState = RoundState.FromRound(round);
@@ -69,8 +69,9 @@ namespace WalletWasabi.Tests.UnitTests.WabiSabi.Client
 				roundState.CreateAmountCredentialClient(insecureRandom),
 				roundState.CreateVsizeCredentialClient(insecureRandom),
 				wabiSabiApi);
+			var ownershipProof = WabiSabiFactory.CreateOwnershipProof(key, round.Id);
 
-			var inputRegistrationResponse = await aliceArenaClient.RegisterInputAsync(round.Id, outpoint, key, CancellationToken.None);
+			var inputRegistrationResponse = await aliceArenaClient.RegisterInputAsync(round.Id, outpoint, ownershipProof, CancellationToken.None);
 			var aliceId = inputRegistrationResponse.Value;
 
 			var inputVsize = Constants.P2wpkhInputVirtualSize;
@@ -173,9 +174,10 @@ namespace WalletWasabi.Tests.UnitTests.WabiSabi.Client
 			var coin = fundingTx.WalletOutputs.First().Coin;
 			var alice = new Alice(coin, new OwnershipProof(), round, Guid.NewGuid());
 			round.Alices.Add(alice);
-			using Arena arena = await WabiSabiFactory.CreateAndStartArenaAsync(config, round);
 
-			await using var coordinator = new ArenaRequestHandler(config, new Prison(), arena, arena.Rpc);
+			using Arena arena = await ArenaBuilder.From(config).CreateAndStartAsync(round);
+
+			await using var coordinator = new ArenaRequestHandler(config, new Prison(), arena);
 			var wabiSabiApi = new WabiSabiController(coordinator);
 			var apiClient = new ArenaClient(null!, null!, wabiSabiApi);
 
@@ -202,7 +204,7 @@ namespace WalletWasabi.Tests.UnitTests.WabiSabi.Client
 			using Arena arena = await WabiSabiFactory.CreateAndStartArenaAsync(config, round);
 
 			var mockRpc = new Mock<IRPCClient>();
-			await using var coordinator = new ArenaRequestHandler(config, new Prison(), arena, mockRpc.Object);
+			await using var coordinator = new ArenaRequestHandler(config, new Prison(), arena);
 			var wabiSabiApi = new WabiSabiController(coordinator);
 
 			var rnd = new InsecureRandom();
