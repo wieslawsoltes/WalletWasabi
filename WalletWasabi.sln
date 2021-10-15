@@ -35,6 +35,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WalletWasabi.Fluent", "Wall
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TemplatedDataGrid", "..\TemplatedDataGrid\src\TemplatedDataGrid\TemplatedDataGrid.csproj", "{27C69276-E5AF-49DE-9271-B45028DBB055}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "TemplatedDataGrid", "TemplatedDataGrid", "{B377AAE0-0A15-4478-BCE8-C47ED60AB507}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TemplatedDataGridDemo", "..\TemplatedDataGrid\samples\TemplatedDataGridDemo\TemplatedDataGridDemo.csproj", "{2BA7C0D6-EF65-4CA2-8B7C-F6D06351EB9B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -112,11 +116,23 @@ Global
 		{27C69276-E5AF-49DE-9271-B45028DBB055}.Release|Any CPU.Build.0 = Release|Any CPU
 		{27C69276-E5AF-49DE-9271-B45028DBB055}.Release|x64.ActiveCfg = Release|Any CPU
 		{27C69276-E5AF-49DE-9271-B45028DBB055}.Release|x64.Build.0 = Release|Any CPU
+		{2BA7C0D6-EF65-4CA2-8B7C-F6D06351EB9B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2BA7C0D6-EF65-4CA2-8B7C-F6D06351EB9B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2BA7C0D6-EF65-4CA2-8B7C-F6D06351EB9B}.Debug|x64.ActiveCfg = Debug|x64
+		{2BA7C0D6-EF65-4CA2-8B7C-F6D06351EB9B}.Debug|x64.Build.0 = Debug|x64
+		{2BA7C0D6-EF65-4CA2-8B7C-F6D06351EB9B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2BA7C0D6-EF65-4CA2-8B7C-F6D06351EB9B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2BA7C0D6-EF65-4CA2-8B7C-F6D06351EB9B}.Release|x64.ActiveCfg = Release|x64
+		{2BA7C0D6-EF65-4CA2-8B7C-F6D06351EB9B}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {F367BF06-2061-479C-9FE1-184C87CD39B4}
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{2BA7C0D6-EF65-4CA2-8B7C-F6D06351EB9B} = {B377AAE0-0A15-4478-BCE8-C47ED60AB507}
+		{27C69276-E5AF-49DE-9271-B45028DBB055} = {B377AAE0-0A15-4478-BCE8-C47ED60AB507}
 	EndGlobalSection
 EndGlobal
