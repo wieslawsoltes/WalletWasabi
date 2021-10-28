@@ -52,7 +52,7 @@
                    c|QuestionControl[HighlightButton=YesButton] /template/ Button#PART_YesButton,
                    c|QuestionControl[HighlightButton=Both] /template/ Button#PART_NoButton,
                    c|QuestionControl[HighlightButton=Both] /template/ Button#PART_YesButton">
-    <Setter Property="Background" Value="{DynamicResource ActionButtonBackgroundColor}" />
+    <Setter Property="Background" Value="{ThemeResource ActionButtonBackgroundColor}" />
   </Style>
 
   <!-- YesNo Button pointerover -->
@@ -61,7 +61,7 @@
                    c|QuestionControl[HighlightButton=NoButton] /template/ Button#PART_NoButton.yesNo:pointerover /template/ ContentPresenter,
                    c|QuestionControl[HighlightButton=Both] /template/ Button#PART_NoButton.yesNo:pointerover /template/ ContentPresenter,
                    c|QuestionControl[HighlightButton=Both] /template/ Button#PART_YesButton.yesNo:pointerover /template/ ContentPresenter">
-    <Setter Property="Background" Value="{DynamicResource ActionButtonPointerOverBackgroundColor}" />
+    <Setter Property="Background" Value="{ThemeResource ActionButtonPointerOverBackgroundColor}" />
   </Style>
 
   <!-- YesNo Button pressed -->
@@ -70,7 +70,7 @@
                    c|QuestionControl[HighlightButton=NoButton] /template/ Button#PART_NoButton.yesNo:pressed /template/ ContentPresenter,
                    c|QuestionControl[HighlightButton=Both] /template/ Button#PART_NoButton.yesNo:pressed /template/ ContentPresenter,
                    c|QuestionControl[HighlightButton=Both] /template/ Button#PART_YesButton.yesNo:pressed /template/ ContentPresenter">
-    <Setter Property="Background" Value="{DynamicResource ActionButtonPressedBackgroundColor}" />
+    <Setter Property="Background" Value="{ThemeResource ActionButtonPressedBackgroundColor}" />
   </Style>
 
   <!-- IsDefault -->

@@ -18,7 +18,7 @@
     <ItemsControl Items="{Binding MnemonicWords}" VerticalAlignment="Center" HorizontalAlignment="Center">
       <ItemsControl.Styles>
         <Style Selector="TextBlock">
-          <Setter Property="FontSize" Value="{DynamicResource FontSizeH6}" />
+          <Setter Property="FontSize" Value="{ThemeResource FontSizeH6}" />
           <Setter Property="Height" Value="42" />
         </Style>
       </ItemsControl.Styles>

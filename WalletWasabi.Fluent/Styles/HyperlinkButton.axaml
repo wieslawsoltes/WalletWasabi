@@ -1,6 +1,6 @@
 <Styles xmlns="https://github.com/avaloniaui">
   <Style Selector="Button.activeHyperLink">
-    <Setter Property="TextBlock.Foreground" Value="{DynamicResource SystemAccentColor}" />
+    <Setter Property="TextBlock.Foreground" Value="{ThemeResource SystemAccentColor}" />
     <Setter Property="Cursor" Value="Hand" />
     <Setter Property="BorderThickness" Value="0" />
     <Setter Property="Padding" Value="0" />
@@ -13,7 +13,7 @@
 
   <Style Selector="Button.activeHyperLink:pointerover /template/ ContentPresenter">
     <Setter Property="Background" Value="Transparent" />
-    <Setter Property="TextBlock.Foreground" Value="{DynamicResource HyperLinkForeground}" />
+    <Setter Property="TextBlock.Foreground" Value="{ThemeResource HyperLinkForeground}" />
   </Style>
 
   <Style Selector="Button.activeHyperLink:pressed /template/ ContentPresenter">

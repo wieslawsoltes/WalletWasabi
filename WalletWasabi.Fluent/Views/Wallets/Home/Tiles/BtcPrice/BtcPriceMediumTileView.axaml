@@ -10,7 +10,7 @@
     <TextBlock Text="BTC Price" DockPanel.Dock="Top" />
     <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" Spacing="5" VerticalAlignment="Center">
       <PathIcon Data="{StaticResource paper_cash_regular}" Height="30" Width="35" Margin="0 0 20 0"
-                Foreground="{DynamicResource SystemAccentColor}" />
+                Foreground="{ThemeResource SystemAccentColor}" />
       <TextBlock Text="{Binding BtcPrice, FallbackValue='53 540.00'}" FontSize="24" />
       <TextBlock Text="USD" FontSize="24" />
     </StackPanel>

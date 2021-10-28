@@ -5,11 +5,11 @@
       <ResourceDictionary.MergedDictionaries>
         <ResourceDictionary>
           <SolidColorBrush x:Key="RegionBrush"
-                           Color="{DynamicResource RegionColor}" />
+                           Color="{ThemeResource RegionColor}" />
           <SolidColorBrush x:Key="SystemControlTransientBackgroundBrush"
-                           Color="{DynamicResource SystemChromeMediumLowColor}" />
+                           Color="{ThemeResource SystemChromeMediumLowColor}" />
           <SolidColorBrush x:Key="SystemControlBackgroundChromeMediumLowBrush"
-                           Color="{DynamicResource SystemBaseLowColor}" />
+                           Color="{ThemeResource SystemBaseLowColor}" />
         </ResourceDictionary>
       </ResourceDictionary.MergedDictionaries>
     </ResourceDictionary>
@@ -17,30 +17,30 @@
     <Color x:Key="NavBarTintColor">#134074</Color>
     <Color x:Key="AcrylicFallbackColor">#1F1F1F</Color>
 
-    <SolidColorBrush x:Key="InvisibleButtonBackgroundColor" Opacity="0" Color="{DynamicResource SystemBaseHighColor}" />
+    <SolidColorBrush x:Key="InvisibleButtonBackgroundColor" Opacity="0" Color="{ThemeResource SystemBaseHighColor}" />
     <SolidColorBrush x:Key="InvisibleButtonPointerOverBackgroundColor" Opacity="0.15"
-                     Color="{DynamicResource SystemBaseHighColor}" />
+                     Color="{ThemeResource SystemBaseHighColor}" />
     <SolidColorBrush x:Key="InvisibleButtonPressedBackgroundColor" Opacity="0.25"
-                     Color="{DynamicResource SystemBaseHighColor}" />
+                     Color="{ThemeResource SystemBaseHighColor}" />
 
-    <SolidColorBrush x:Key="TextControlBackground" Color="{DynamicResource SystemChromeMediumColor}" />
-    <SolidColorBrush x:Key="TextControlBackgroundFocused" Color="{DynamicResource SystemChromeMediumColor}" />
-    <SolidColorBrush x:Key="TextControlBackgroundPointerOver" Color="{DynamicResource SystemChromeMediumColor}" />
+    <SolidColorBrush x:Key="TextControlBackground" Color="{ThemeResource SystemChromeMediumColor}" />
+    <SolidColorBrush x:Key="TextControlBackgroundFocused" Color="{ThemeResource SystemChromeMediumColor}" />
+    <SolidColorBrush x:Key="TextControlBackgroundPointerOver" Color="{ThemeResource SystemChromeMediumColor}" />
 
-    <SolidColorBrush x:Key="PopupBackground" Color="{DynamicResource SystemBaseLowColor}" />
-    <SolidColorBrush x:Key="OptionButtonBackground" Color="{DynamicResource TileRegionColor}" />
-    <SolidColorBrush x:Key="OptionButtonBorderBrush" Opacity="0.5" Color="{DynamicResource SystemBaseHighColor}" />
-    <SolidColorBrush x:Key="SeparatorBackgroundBrush" Opacity="0.5" Color="{DynamicResource SystemBaseHighColor}" />
-    <SolidColorBrush x:Key="TagsBoxBorderBrush" Opacity="0.5" Color="{DynamicResource SystemBaseHighColor}" />
-    <SolidColorBrush x:Key="HeaderRegionColor" Color="{DynamicResource RegionColor}" />
+    <SolidColorBrush x:Key="PopupBackground" Color="{ThemeResource SystemBaseLowColor}" />
+    <SolidColorBrush x:Key="OptionButtonBackground" Color="{ThemeResource TileRegionColor}" />
+    <SolidColorBrush x:Key="OptionButtonBorderBrush" Opacity="0.5" Color="{ThemeResource SystemBaseHighColor}" />
+    <SolidColorBrush x:Key="SeparatorBackgroundBrush" Opacity="0.5" Color="{ThemeResource SystemBaseHighColor}" />
+    <SolidColorBrush x:Key="TagsBoxBorderBrush" Opacity="0.5" Color="{ThemeResource SystemBaseHighColor}" />
+    <SolidColorBrush x:Key="HeaderRegionColor" Color="{ThemeResource RegionColor}" />
     <SolidColorBrush x:Key="DataGridRowSelectedBackgroundColor" Opacity="0.25"
-                     Color="{DynamicResource SystemBaseMediumLowColor}" />
+                     Color="{ThemeResource SystemBaseMediumLowColor}" />
 
     <SolidColorBrush x:Key="ActionButtonForegroundColor" Color="White" />
-    <SolidColorBrush x:Key="ActionButtonBackgroundColor" Color="{DynamicResource SystemAccentColor}" />
-    <SolidColorBrush x:Key="ActionButtonPressedBackgroundColor" Color="{DynamicResource SystemAccentColorDark1}" />
-    <SolidColorBrush x:Key="ActionButtonPointerOverBackgroundColor" Color="{DynamicResource SystemAccentColorLight1}" />
-    <SolidColorBrush x:Key="ActionButtonDisabledBackgroundColor" Color="{DynamicResource SystemChromeDisabledLowColor}" />
+    <SolidColorBrush x:Key="ActionButtonBackgroundColor" Color="{ThemeResource SystemAccentColor}" />
+    <SolidColorBrush x:Key="ActionButtonPressedBackgroundColor" Color="{ThemeResource SystemAccentColorDark1}" />
+    <SolidColorBrush x:Key="ActionButtonPointerOverBackgroundColor" Color="{ThemeResource SystemAccentColorLight1}" />
+    <SolidColorBrush x:Key="ActionButtonDisabledBackgroundColor" Color="{ThemeResource SystemChromeDisabledLowColor}" />
 
     <SolidColorBrush x:Key="NavBarAccentColor">#97D234</SolidColorBrush>
     <SolidColorBrush x:Key="NavBarAccentColorPressed">#719B2A</SolidColorBrush>

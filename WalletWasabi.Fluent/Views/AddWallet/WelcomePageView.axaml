@@ -35,7 +35,7 @@
               <Setter Property="Background" Value="Transparent" />
             </Style>
             <Style Selector="ListBoxItem:selected /template/ ContentPresenter">
-              <Setter Property="TextBlock.Foreground" Value="{DynamicResource SystemChromeAltLowColor}" />
+              <Setter Property="TextBlock.Foreground" Value="{ThemeResource SystemChromeAltLowColor}" />
             </Style>
             <Style Selector="ListBoxItem">
               <Setter Property="Opacity" Value="0.3" />
@@ -44,7 +44,7 @@
               <Setter Property="Opacity" Value="1" />
             </Style>
             <Style Selector="Ellipse">
-              <Setter Property="Fill" Value="{DynamicResource SystemChromeAltLowColor}" />
+              <Setter Property="Fill" Value="{ThemeResource SystemChromeAltLowColor}" />
               <Setter Property="Width" Value="9" />
               <Setter Property="Height" Value="9" />
             </Style>
@@ -66,8 +66,8 @@
           <StackPanel.Styles>
             <Style Selector="Button">
               <Setter Property="Width" Value="30" />
-              <Setter Property="Foreground" Value="{DynamicResource SystemChromeAltLowColor}" />
-              <Setter Property="Background" Value="{DynamicResource WelcomeScreenButtonBackground}" />
+              <Setter Property="Foreground" Value="{ThemeResource SystemChromeAltLowColor}" />
+              <Setter Property="Background" Value="{ThemeResource WelcomeScreenButtonBackground}" />
               <Setter Property="Height" Value="30" />
               <Setter Property="HorizontalContentAlignment" Value="Center" />
               <Setter Property="VerticalContentAlignment" Value="Center" />
@@ -78,12 +78,12 @@
               <Setter Property="Opacity" Value="0.2" />
             </Style>
             <Style Selector="Button:pointerover /template/ ContentPresenter#PART_ContentPresenter">
-              <Setter Property="Background" Value="{DynamicResource WelcomeScreenButtonBackgroundPointerOver}" />
-              <Setter Property="TextBlock.Foreground" Value="{DynamicResource SystemChromeAltLowColor}" />
+              <Setter Property="Background" Value="{ThemeResource WelcomeScreenButtonBackgroundPointerOver}" />
+              <Setter Property="TextBlock.Foreground" Value="{ThemeResource SystemChromeAltLowColor}" />
             </Style>
             <Style Selector="Button:pressed  /template/ ContentPresenter#PART_ContentPresenter">
-              <Setter Property="Background" Value="{DynamicResource WelcomeScreenButtonBackgroundPressed}" />
-              <Setter Property="TextBlock.Foreground" Value="{DynamicResource SystemChromeAltLowColor}" />
+              <Setter Property="Background" Value="{ThemeResource WelcomeScreenButtonBackgroundPressed}" />
+              <Setter Property="TextBlock.Foreground" Value="{ThemeResource SystemChromeAltLowColor}" />
             </Style>
             <Style Selector="Button > PathIcon">
               <Setter Property="Width" Value="5" />
@@ -139,7 +139,7 @@
             <TextBlock Text="Welcome to Wasabi Wallet"
                        Classes="title" />
             <Viewbox Classes="icon">
-              <ContentControl Template="{DynamicResource wasabi_logo_dynamic}" />
+              <ContentControl Template="{ThemeResource wasabi_logo_dynamic}" />
             </Viewbox>
           </DockPanel>
           <Viewbox Grid.Column="1" VerticalAlignment="Center">
@@ -154,7 +154,7 @@
             <TextBlock Text="Trustless by design"
                        Classes="title" />
             <Viewbox Classes="icon">
-              <PathIcon Data="{StaticResource shield_regular}" Foreground="{DynamicResource SliderTrackValueFill}" />
+              <PathIcon Data="{StaticResource shield_regular}" Foreground="{ThemeResource SliderTrackValueFill}" />
             </Viewbox>
           </DockPanel>
           <Viewbox Grid.Column="1" VerticalAlignment="Center">
@@ -169,7 +169,7 @@
             <TextBlock Text="Anonymous"
                        Classes="title" />
             <Viewbox Classes="icon">
-              <PathIcon Data="{StaticResource incognito_regular}" Foreground="{DynamicResource SliderTrackValueFill}" />
+              <PathIcon Data="{StaticResource incognito_regular}" Foreground="{ThemeResource SliderTrackValueFill}" />
             </Viewbox>
           </DockPanel>
           <Viewbox Grid.Column="1" VerticalAlignment="Center">
@@ -184,7 +184,7 @@
             <TextBlock Text="Free and Open Source"
                        Classes="title" />
             <Viewbox Classes="icon">
-              <PathIcon Data="{StaticResource heart_regular}" Foreground="{DynamicResource SliderTrackValueFill}" />
+              <PathIcon Data="{StaticResource heart_regular}" Foreground="{ThemeResource SliderTrackValueFill}" />
             </Viewbox>
           </DockPanel>
           <Viewbox Grid.Column="1" VerticalAlignment="Center">
@@ -210,7 +210,7 @@
           <TextBlock Text="Start using Wasabi Wallet" FontSize="30" HorizontalAlignment="Center"
                      DockPanel.Dock="Bottom" />
           <Viewbox MaxHeight="60" HorizontalAlignment="Center" DockPanel.Dock="Bottom" Margin="0 0 0 15">
-            <ContentControl Template="{DynamicResource wasabi_logo_dynamic}" />
+            <ContentControl Template="{ThemeResource wasabi_logo_dynamic}" />
           </Viewbox>
         </DockPanel>
 

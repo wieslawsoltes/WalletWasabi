@@ -11,8 +11,8 @@
           CornerRadius="5"
           Margin="6"
           Padding="16"
-          Background="{DynamicResource TileRegionColor}"
-          BoxShadow="{DynamicResource InfoBoxShadow}">
+          Background="{ThemeResource TileRegionColor}"
+          BoxShadow="{ThemeResource InfoBoxShadow}">
     <DockPanel HorizontalAlignment="Center" VerticalAlignment="Center">
       <Label Content="Transactions will appear here after they are created or when your wallet finishes loading."
              Classes="wrap center"

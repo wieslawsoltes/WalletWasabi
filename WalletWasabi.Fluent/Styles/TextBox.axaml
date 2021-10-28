@@ -22,9 +22,9 @@
           <ContentPresenter x:Name="PART_HeaderContentPresenter"
                             DockPanel.Dock="Top"
                             TextBlock.FontWeight="Normal"
-                            TextBlock.Foreground="{DynamicResource TextControlHeaderForeground}"
+                            TextBlock.Foreground="{ThemeResource TextControlHeaderForeground}"
                             IsVisible="False"
-                            Margin="{DynamicResource TextBoxTopHeaderMargin}" />
+                            Margin="{ThemeResource TextBoxTopHeaderMargin}" />
 
           <DataValidationErrors DockPanel.Dock="Bottom" Margin="0 5 0 0" />
 
@@ -55,7 +55,7 @@
                   <ContentPresenter Grid.Column="0" Grid.ColumnSpan="1" Content="{TemplateBinding InnerLeftContent}" />
                   <DockPanel x:Name="PART_InnerDockPanel" Grid.Column="1" Grid.ColumnSpan="1" Margin="{TemplateBinding Padding}">
                     <TextBlock Name="PART_FloatingWatermark"
-                               Foreground="{DynamicResource SystemAccentColor}"
+                               Foreground="{ThemeResource SystemAccentColor}"
                                FontSize="{TemplateBinding FontSize}"
                                Text="{TemplateBinding Watermark}"
                                DockPanel.Dock="Top" />

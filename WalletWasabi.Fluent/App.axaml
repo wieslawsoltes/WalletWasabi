@@ -9,7 +9,7 @@
   <Application.DataTemplates>
     <local:ViewLocator />
     <DataTemplate DataType="models:ErrorDescriptor" x:DataType="models:ErrorDescriptor">
-      <TextBlock x:CompileBindings="True" Text="{Binding Message}" Foreground="{DynamicResource SystemControlErrorTextForegroundBrush}" TextWrapping="Wrap" />
+      <TextBlock x:CompileBindings="True" Text="{Binding Message}" Foreground="{ThemeResource SystemControlErrorTextForegroundBrush}" TextWrapping="Wrap" />
     </DataTemplate>
   </Application.DataTemplates>
 

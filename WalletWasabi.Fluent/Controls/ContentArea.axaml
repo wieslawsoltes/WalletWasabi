@@ -4,7 +4,7 @@
         xmlns:behaviors="using:WalletWasabi.Fluent.Behaviors"
         xmlns:i="using:Avalonia.Xaml.Interactivity">
     <Design.PreviewWith>
-        <Panel Background="{DynamicResource RegionColor}">
+        <Panel Background="{ThemeResource RegionColor}">
             <c:ContentArea Width="500" Height="300"
                            IsBusy="False"
                            Title="Add a Wallet"
@@ -21,7 +21,7 @@
     <Style Selector="c|ContentArea">
         <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Disabled" />
         <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto" />
-        <Setter Property="Background" Value="{DynamicResource RegionColor}" />
+        <Setter Property="Background" Value="{ThemeResource RegionColor}" />
         <Setter Property="IsHitTestVisible" Value="{Binding IsActive}" />
         <Setter Property="Template">
             <ControlTemplate>
@@ -109,8 +109,8 @@
     </Style>
 
     <Style Selector="c|ContentArea /template/ ContentPresenter#PART_TitlePresenter">
-        <Setter Property="TextBlock.Foreground" Value="{DynamicResource TextControlForeground}" />
-        <Setter Property="TextBlock.FontSize" Value="{DynamicResource FontSizeH3}" />
+        <Setter Property="TextBlock.Foreground" Value="{ThemeResource TextControlForeground}" />
+        <Setter Property="TextBlock.FontSize" Value="{ThemeResource FontSizeH3}" />
     </Style>
 
     <Style Selector="c|ContentArea :is(Control).title TextBlock, c|ContentArea :is(TextBlock).title">
@@ -118,8 +118,8 @@
     </Style>
 
     <Style Selector="c|ContentArea :is(Control).caption TextBlock, c|ContentArea :is(TextBlock).caption">
-        <Setter Property="Foreground" Value="{DynamicResource TextControlForeground}" />
-        <Setter Property="FontSize" Value="{DynamicResource FontSizeH7}" />
+        <Setter Property="Foreground" Value="{ThemeResource TextControlForeground}" />
+        <Setter Property="FontSize" Value="{ThemeResource FontSizeH7}" />
         <Setter Property="TextWrapping" Value="Wrap" />
         <Setter Property="Opacity" Value="0.6" />
     </Style>
@@ -130,7 +130,7 @@
     </Style>
 
     <Style Selector="Button.skip:pointerover /template/ ContentPresenter">
-        <Setter Property="TextBlock.Foreground" Value="{DynamicResource SystemAccentColor}" />
+        <Setter Property="TextBlock.Foreground" Value="{ThemeResource SystemAccentColor}" />
     </Style>
 
 </Styles>

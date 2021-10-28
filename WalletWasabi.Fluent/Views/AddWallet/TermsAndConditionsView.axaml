@@ -29,7 +29,7 @@
                            Padding="0" IsHitTestVisible="False" />
                     <Button Classes="plain" Command="{Binding ViewTermsCommand}">
                         <TextBlock Text="Terms and conditions" TextDecorations="Underline"
-                                   Foreground="{DynamicResource SystemAccentColor}" />
+                                   Foreground="{ThemeResource SystemAccentColor}" />
                     </Button>
                 </StackPanel>
             </CheckBox>

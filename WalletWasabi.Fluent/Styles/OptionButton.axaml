@@ -1,8 +1,8 @@
 <Styles xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
   <Style Selector="Button.option">
-    <Setter Property="Background" Value="{DynamicResource OptionButtonBackground}" />
-    <Setter Property="BorderBrush" Value="{DynamicResource OptionButtonBorderBrush}" />
+    <Setter Property="Background" Value="{ThemeResource OptionButtonBackground}" />
+    <Setter Property="BorderBrush" Value="{ThemeResource OptionButtonBorderBrush}" />
     <Setter Property="BorderThickness" Value="0" />
     <Setter Property="ClipToBounds" Value="False" />
     <Setter Property="Transitions">
@@ -14,17 +14,17 @@
 
   <!-- PointerOverState -->
   <Style Selector="Button.option:pointerover /template/ ContentPresenter#PART_ContentPresenter">
-    <Setter Property="Background" Value="{DynamicResource ButtonBackgroundPointerOver}" />
-    <Setter Property="BorderBrush" Value="{DynamicResource ButtonBorderBrushPointerOver}" />
-    <Setter Property="TextBlock.Foreground" Value="{DynamicResource ButtonForegroundPointerOver}" />
+    <Setter Property="Background" Value="{ThemeResource ButtonBackgroundPointerOver}" />
+    <Setter Property="BorderBrush" Value="{ThemeResource ButtonBorderBrushPointerOver}" />
+    <Setter Property="TextBlock.Foreground" Value="{ThemeResource ButtonForegroundPointerOver}" />
   </Style>
 
   <Style Selector="Button.option:pressed /template/ ContentPresenter#PART_ContentPresenter">
-    <Setter Property="TextBlock.Foreground" Value="{DynamicResource ButtonForegroundPressed}" />
+    <Setter Property="TextBlock.Foreground" Value="{ThemeResource ButtonForegroundPressed}" />
   </Style>
 
   <Style Selector="Button.option /template/ ContentPresenter#PART_ContentPresenter">
-    <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}" />
-    <Setter Property="BoxShadow" Value="{DynamicResource OptionButtonShadow}" />
+    <Setter Property="CornerRadius" Value="{ThemeResource ControlCornerRadius}" />
+    <Setter Property="BoxShadow" Value="{ThemeResource OptionButtonShadow}" />
   </Style>
 </Styles>

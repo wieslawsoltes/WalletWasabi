@@ -53,12 +53,12 @@
   </Style>
 
   <Style Selector="c|InfoMessage.overlay">
-    <Setter Property="Background" Value="{DynamicResource PopupBackground}" />
+    <Setter Property="Background" Value="{ThemeResource PopupBackground}" />
   </Style>
 
   <Style Selector="c|InfoMessage.overlay /template/ Border#PART_Border">
     <Setter Property="CornerRadius" Value="4" />
-    <Setter Property="BoxShadow" Value="{DynamicResource InfoBoxShadow}" />
+    <Setter Property="BoxShadow" Value="{ThemeResource InfoBoxShadow}" />
     <Setter Property="Margin" Value="6" />
   </Style>
 </Styles>

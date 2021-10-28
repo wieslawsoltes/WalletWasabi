@@ -12,8 +12,8 @@
           CornerRadius="5"
           Margin="6"
           Padding="16"
-          Background="{DynamicResource TileRegionColor}"
-          BoxShadow="{DynamicResource InfoBoxShadow}">
+          Background="{ThemeResource TileRegionColor}"
+          BoxShadow="{ThemeResource InfoBoxShadow}">
     <StackPanel>
       <Label Content="Since this is an empty wallet, there isn't a lot going on here. Click below to receive Bitcoin."
              Classes="wrap center"

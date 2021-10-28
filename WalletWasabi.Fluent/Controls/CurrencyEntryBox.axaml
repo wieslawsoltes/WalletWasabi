@@ -14,16 +14,16 @@
   </Styles.Resources>
 
   <Style Selector="c|CurrencyEntryBox">
-    <Setter Property="Foreground" Value="{DynamicResource TextControlForeground}" />
-    <Setter Property="Background" Value="{DynamicResource TextControlBackground}" />
-    <Setter Property="CaretBrush" Value="{DynamicResource TextControlForeground}" />
-    <Setter Property="BorderBrush" Value="{DynamicResource TextControlBorderBrush}" />
-    <Setter Property="SelectionBrush" Value="{DynamicResource TextControlSelectionHighlightColor}" />
-    <Setter Property="BorderThickness" Value="{DynamicResource TextControlBorderThemeThickness}" />
-    <Setter Property="FontSize" Value="{DynamicResource ControlContentThemeFontSize}" />
-    <Setter Property="MinHeight" Value="{DynamicResource TextControlThemeMinHeight}" />
-    <Setter Property="MinWidth" Value="{DynamicResource TextControlThemeMinWidth}" />
-    <Setter Property="Padding" Value="{DynamicResource TextControlThemePadding}" />
+    <Setter Property="Foreground" Value="{ThemeResource TextControlForeground}" />
+    <Setter Property="Background" Value="{ThemeResource TextControlBackground}" />
+    <Setter Property="CaretBrush" Value="{ThemeResource TextControlForeground}" />
+    <Setter Property="BorderBrush" Value="{ThemeResource TextControlBorderBrush}" />
+    <Setter Property="SelectionBrush" Value="{ThemeResource TextControlSelectionHighlightColor}" />
+    <Setter Property="BorderThickness" Value="{ThemeResource TextControlBorderThemeThickness}" />
+    <Setter Property="FontSize" Value="{ThemeResource ControlContentThemeFontSize}" />
+    <Setter Property="MinHeight" Value="{ThemeResource TextControlThemeMinHeight}" />
+    <Setter Property="MinWidth" Value="{ThemeResource TextControlThemeMinWidth}" />
+    <Setter Property="Padding" Value="{ThemeResource TextControlThemePadding}" />
     <Setter Property="FocusAdorner" Value="{x:Null}" />
     <Setter Property="ContextMenu">
       <ContextMenu>
@@ -41,9 +41,9 @@
           <ContentPresenter x:Name="PART_HeaderContentPresenter"
                             DockPanel.Dock="Top"
                             TextBlock.FontWeight="Normal"
-                            TextBlock.Foreground="{DynamicResource TextControlHeaderForeground}"
+                            TextBlock.Foreground="{ThemeResource TextControlHeaderForeground}"
                             IsVisible="False"
-                            Margin="{DynamicResource TextBoxTopHeaderMargin}" />
+                            Margin="{ThemeResource TextBoxTopHeaderMargin}" />
 
           <DataValidationErrors DockPanel.Dock="Bottom" Margin="0 5 0 0" />
           <Panel IsVisible="{Binding !$parent[c:CurrencyEntryBox].IsReadOnly}">
@@ -131,9 +131,9 @@
           <ContentPresenter x:Name="PART_HeaderContentPresenter"
                             DockPanel.Dock="Top"
                             TextBlock.FontWeight="Normal"
-                            TextBlock.Foreground="{DynamicResource TextControlHeaderForeground}"
+                            TextBlock.Foreground="{ThemeResource TextControlHeaderForeground}"
                             IsVisible="False"
-                            Margin="{DynamicResource TextBoxTopHeaderMargin}" />
+                            Margin="{ThemeResource TextBoxTopHeaderMargin}" />
 
           <DataValidationErrors DockPanel.Dock="Bottom" Margin="0 10 0 0" />
 
@@ -202,52 +202,52 @@
 
   <!-- Disabled State -->
   <Style Selector="c|CurrencyEntryBox:disabled">
-    <Setter Property="Foreground" Value="{DynamicResource TextControlForegroundDisabled}" />
+    <Setter Property="Foreground" Value="{ThemeResource TextControlForegroundDisabled}" />
   </Style>
 
   <Style Selector="c|CurrencyEntryBox:disabled /template/ Border#PART_BorderElement">
-    <Setter Property="Background" Value="{DynamicResource TextControlBackgroundDisabled}" />
-    <Setter Property="BorderBrush" Value="{DynamicResource TextControlBorderBrushDisabled}" />
+    <Setter Property="Background" Value="{ThemeResource TextControlBackgroundDisabled}" />
+    <Setter Property="BorderBrush" Value="{ThemeResource TextControlBorderBrushDisabled}" />
   </Style>
 
   <Style
       Selector="c|CurrencyEntryBox:disabled /template/ TextBlock#PART_Watermark">
-    <Setter Property="Foreground" Value="{DynamicResource TextControlPlaceholderForegroundDisabled}" />
+    <Setter Property="Foreground" Value="{ThemeResource TextControlPlaceholderForegroundDisabled}" />
   </Style>
 
   <!-- PointerOver State-->
   <Style Selector="c|CurrencyEntryBox:disabled">
-    <Setter Property="Foreground" Value="{DynamicResource TextControlForegroundPointerOver}" />
+    <Setter Property="Foreground" Value="{ThemeResource TextControlForegroundPointerOver}" />
   </Style>
 
   <Style Selector="c|CurrencyEntryBox:pointerover /template/ Border#PART_BorderElement">
-    <Setter Property="BorderBrush" Value="{DynamicResource TextControlBorderBrushPointerOver}" />
-    <Setter Property="Background" Value="{DynamicResource TextControlBackgroundPointerOver}" />
+    <Setter Property="BorderBrush" Value="{ThemeResource TextControlBorderBrushPointerOver}" />
+    <Setter Property="Background" Value="{ThemeResource TextControlBackgroundPointerOver}" />
   </Style>
 
   <Style
       Selector="c|CurrencyEntryBox:pointerover /template/ TextBlock#PART_Watermark">
-    <Setter Property="Foreground" Value="{DynamicResource TextControlPlaceholderForegroundPointerOver}" />
+    <Setter Property="Foreground" Value="{ThemeResource TextControlPlaceholderForegroundPointerOver}" />
   </Style>
 
   <!-- Focused State -->
   <Style Selector="c|CurrencyEntryBox:focus">
-    <Setter Property="Foreground" Value="{DynamicResource TextControlForegroundFocused}" />
+    <Setter Property="Foreground" Value="{ThemeResource TextControlForegroundFocused}" />
   </Style>
 
   <Style
       Selector="c|CurrencyEntryBox:focus /template/ TextBlock#PART_Watermark">
-    <Setter Property="Foreground" Value="{DynamicResource TextControlPlaceholderForegroundFocused}" />
+    <Setter Property="Foreground" Value="{ThemeResource TextControlPlaceholderForegroundFocused}" />
   </Style>
 
   <Style Selector="c|CurrencyEntryBox:focus /template/ Border#PART_BorderElement">
-    <Setter Property="Background" Value="{DynamicResource TextControlBackgroundFocused}" />
-    <Setter Property="BorderBrush" Value="{DynamicResource TextControlBorderBrushFocused}" />
-    <Setter Property="BorderThickness" Value="{DynamicResource TextControlBorderThemeThicknessFocused}" />
+    <Setter Property="Background" Value="{ThemeResource TextControlBackgroundFocused}" />
+    <Setter Property="BorderBrush" Value="{ThemeResource TextControlBorderBrushFocused}" />
+    <Setter Property="BorderThickness" Value="{ThemeResource TextControlBorderThemeThicknessFocused}" />
   </Style>
 
   <Style Selector="c|CurrencyEntryBox:error /template/ Border#PART_BorderElement">
-    <Setter Property="BorderBrush" Value="{DynamicResource SystemControlErrorTextForegroundBrush}" />
+    <Setter Property="BorderBrush" Value="{ThemeResource SystemControlErrorTextForegroundBrush}" />
   </Style>
 
   <Style Selector="c|CurrencyEntryBox /template/ Button#PART_SwapButton">

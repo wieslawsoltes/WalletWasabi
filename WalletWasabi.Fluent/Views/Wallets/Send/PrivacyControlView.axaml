@@ -27,7 +27,7 @@
           </Style>
         </Panel.Styles>
 
-        <c:InfoMessage Foreground="{DynamicResource WarningMessageForeground}"
+        <c:InfoMessage Foreground="{ThemeResource WarningMessageForeground}"
                        IsVisible="{Binding !EnoughSelected}">
           <StackPanel Orientation="Horizontal">
             <TextBlock Text="Insufficient funds selected. Select at least another " />
@@ -37,7 +37,7 @@
         </c:InfoMessage>
 
         <c:InfoMessage Content="Warning, using both private and non-private funds in the same transaction can destroy your privacy."
-                       IsVisible="{Binding IsWarningOpen}" Foreground="{DynamicResource SystemErrorTextColor}" />
+                       IsVisible="{Binding IsWarningOpen}" Foreground="{ThemeResource SystemErrorTextColor}" />
 
         <c:InfoMessage Content="Not in a hurry? Consider making more of your funds private by CoinJoining before making this transaction.">
           <c:InfoMessage.IsVisible>

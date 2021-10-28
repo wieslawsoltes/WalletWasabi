@@ -25,7 +25,7 @@
                        Grid.ColumnSpan="2" />
             <Rectangle x:Name="InvalidVisualElement"
                        Grid.ColumnSpan="2"
-                       Fill="{DynamicResource DataGridRowInvalidBrush}" />
+                       Fill="{ThemeResource DataGridRowInvalidBrush}" />
 
             <DataGridRowHeader Name="PART_RowHeader"
                                Grid.RowSpan="3"
@@ -36,7 +36,7 @@
             <DataGridDetailsPresenter Name="PART_DetailsPresenter"
                                       Grid.Row="1"
                                       Grid.Column="1"
-                                      Background="{DynamicResource DataGridDetailsPresenterBackgroundBrush}" />
+                                      Background="{ThemeResource DataGridDetailsPresenterBackgroundBrush}" />
             <Rectangle Name="PART_BottomGridLine"
                        Grid.Row="2"
                        Grid.Column="1"
@@ -50,10 +50,10 @@
   </Style>
 
   <Style Selector="DataGridRow:pointerover /template/ Rectangle#BackgroundRectangle">
-    <Setter Property="Fill" Value="{DynamicResource DataGridRowSelectedBackgroundColor}" />
+    <Setter Property="Fill" Value="{ThemeResource DataGridRowSelectedBackgroundColor}" />
   </Style>
   <Style Selector="DataGridRow:selected /template/ Border#PART_SelectionIndicator">
-    <Setter Property="BorderBrush" Value="{DynamicResource DataGridRowIndicatorBrush}" />
+    <Setter Property="BorderBrush" Value="{ThemeResource DataGridRowIndicatorBrush}" />
   </Style>
   <Style Selector="DataGridRow /template/ Border#PART_SelectionIndicator">
     <Setter Property="BorderBrush" Value="Transparent" />

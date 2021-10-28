@@ -10,12 +10,12 @@
 
   <Style Selector="c|TagControl">
     <Setter Property="Cursor" Value="Arrow" />
-    <Setter Property="Foreground" Value="{DynamicResource TextControlForeground}" />
+    <Setter Property="Foreground" Value="{ThemeResource TextControlForeground}" />
     <Setter Property="Background" Value="Transparent" />
-    <Setter Property="BorderBrush" Value="{DynamicResource TagsBoxBorderBrush}" />
+    <Setter Property="BorderBrush" Value="{ThemeResource TagsBoxBorderBrush}" />
     <Setter Property="BorderThickness" Value="1" />
     <Setter Property="(ToolTip.Tip)" Value="{Binding .}" />
-    <Setter Property="FontSize" Value="{DynamicResource ControlContentThemeFontSize}" />
+    <Setter Property="FontSize" Value="{ThemeResource ControlContentThemeFontSize}" />
     <Setter Property="VerticalAlignment" Value="Center" />
     <Setter Property="Template">
       <ControlTemplate>

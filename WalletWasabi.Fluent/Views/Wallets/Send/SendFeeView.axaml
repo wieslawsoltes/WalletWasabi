@@ -19,29 +19,29 @@
       </Setter>
     </Style>
     <Style Selector="Slider.cursor /template/ RepeatButton#PART_IncreaseButton">
-      <Setter Property="Background" Value="{DynamicResource SliderTrackValueFill}" />
+      <Setter Property="Background" Value="{ThemeResource SliderTrackValueFill}" />
     </Style>
     <Style Selector="Slider:pressed.cursor /template/ RepeatButton#PART_IncreaseButton">
-      <Setter Property="Background" Value="{DynamicResource SliderTrackValueFillPressed}" />
+      <Setter Property="Background" Value="{ThemeResource SliderTrackValueFillPressed}" />
     </Style>
     <Style Selector="Slider:pointerover.cursor /template/ RepeatButton#PART_IncreaseButton">
-      <Setter Property="Background" Value="{DynamicResource SliderTrackValueFillPointerOver}" />
+      <Setter Property="Background" Value="{ThemeResource SliderTrackValueFillPointerOver}" />
     </Style>
     <Style Selector="Slider.cursor /template/ RepeatButton#PART_DecreaseButton">
-      <Setter Property="Background" Value="{DynamicResource SliderTrackFill}" />
+      <Setter Property="Background" Value="{ThemeResource SliderTrackFill}" />
     </Style>
     <Style Selector="Slider:pressed.cursor /template/ RepeatButton#PART_DecreaseButton">
-      <Setter Property="Background" Value="{DynamicResource SliderTrackFillPressed}" />
+      <Setter Property="Background" Value="{ThemeResource SliderTrackFillPressed}" />
     </Style>
     <Style Selector="Slider:pointerover.cursor /template/ RepeatButton#PART_DecreaseButton">
-      <Setter Property="Background" Value="{DynamicResource SliderTrackFillPointerOver}" />
+      <Setter Property="Background" Value="{ThemeResource SliderTrackFillPointerOver}" />
     </Style>
     <Style Selector="Slider:horizontal.cursor">
-      <Setter Property="Background" Value="{DynamicResource SliderTrackFill}" />
+      <Setter Property="Background" Value="{ThemeResource SliderTrackFill}" />
     </Style>
     <!-- LineChart Labels -->
     <Style Selector="c|LineChart.xAxisLabels">
-      <Setter Property="XAxisLabelForeground" Value="{DynamicResource TextForegroundColor}" />
+      <Setter Property="XAxisLabelForeground" Value="{ThemeResource TextForegroundColor}" />
       <Setter Property="XAxisLabelOpacity" Value="0.5" />
       <Setter Property="XAxisLabelAngle" Value="0" />
       <Setter Property="XAxisLabelOffset" Value="0,20" />
@@ -53,7 +53,7 @@
     </Style>
     <!-- LineChart YAxis Labels -->
     <Style Selector="c|LineChart.yAxisLabels">
-      <Setter Property="YAxisLabelForeground" Value="{DynamicResource TextForegroundColor}" />
+      <Setter Property="YAxisLabelForeground" Value="{ThemeResource TextForegroundColor}" />
       <Setter Property="YAxisLabelAngle" Value="0" />
       <Setter Property="YAxisLabelOffset" Value="-25,0" />
       <Setter Property="YAxisLabelAlignment" Value="Auto" />
@@ -62,7 +62,7 @@
     </Style>
     <!-- LineChart Cursor -->
     <Style Selector="c|LineChart.cursor">
-      <Setter Property="CursorStroke" Value="{DynamicResource SliderThumbBackground}" />
+      <Setter Property="CursorStroke" Value="{ThemeResource SliderThumbBackground}" />
       <Setter Property="CursorStrokeThickness" Value="2" />
       <!-- <Setter Property="CursorStrokeDashStyle" Value="{x:Static DashStyle.Dash}" /> -->
       <Setter Property="CursorStrokeLineCap" Value="Round" />
@@ -71,7 +71,7 @@
     <Style Selector="c|LineChart.xAxis">
       <Setter Property="XAxisOffset" Value="0,0" />
       <Setter Property="XAxisOpacity" Value="0.5" />
-      <Setter Property="XAxisStroke" Value="{DynamicResource TextForegroundColor}" />
+      <Setter Property="XAxisStroke" Value="{ThemeResource TextForegroundColor}" />
       <Setter Property="XAxisStrokeThickness" Value="0.7" />
       <Setter Property="XAxisArrowSize" Value="3.5" />
       <Setter Property="XAxisMinViableWidth" Value="0" />
@@ -81,7 +81,7 @@
     <Style Selector="c|LineChart.yAxis">
       <Setter Property="YAxisOffset" Value="-10,-150" />
       <Setter Property="YAxisOpacity" Value="0.5" />
-      <Setter Property="YAxisStroke" Value="{DynamicResource TextForegroundColor}" />
+      <Setter Property="YAxisStroke" Value="{ThemeResource TextForegroundColor}" />
       <Setter Property="YAxisStrokeThickness" Value="0.7" />
       <Setter Property="YAxisArrowSize" Value="3.5" />
       <Setter Property="YAxisMinViableWidth" Value="0" />
@@ -89,7 +89,7 @@
     </Style>
     <!-- LineChart YAxis Title -->
     <Style Selector="c|LineChart.yAxisTitle">
-      <Setter Property="YAxisTitleForeground" Value="{DynamicResource TextForegroundColor}" />
+      <Setter Property="YAxisTitleForeground" Value="{ThemeResource TextForegroundColor}" />
       <Setter Property="YAxisTitleOpacity" Value="0.5" />
       <Setter Property="YAxisTitleAngle" Value="-90" />
       <Setter Property="YAxisTitleOffset" Value="-55,-75" />
@@ -112,12 +112,12 @@
       <Setter Property="AreaFill">
         <LinearGradientBrush StartPoint="50%,0%" EndPoint="50%,100%" Opacity="0.2">
           <LinearGradientBrush.GradientStops>
-            <GradientStop Offset="0.0" Color="{DynamicResource LineChartAreaGradientStartStopColor}" />
-            <GradientStop Offset="1.0" Color="{DynamicResource LineChartAreaGradientEndStopColor}" />
+            <GradientStop Offset="0.0" Color="{ThemeResource LineChartAreaGradientStartStopColor}" />
+            <GradientStop Offset="1.0" Color="{ThemeResource LineChartAreaGradientEndStopColor}" />
           </LinearGradientBrush.GradientStops>
         </LinearGradientBrush>
       </Setter>
-      <Setter Property="AreaStroke" Value="{DynamicResource LineChartLineColor}" />
+      <Setter Property="AreaStroke" Value="{ThemeResource LineChartLineColor}" />
     </Style>
   </UserControl.Styles>
   <UserControl.KeyBindings>

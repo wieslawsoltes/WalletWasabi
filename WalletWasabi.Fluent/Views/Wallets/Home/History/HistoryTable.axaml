@@ -49,7 +49,7 @@
                            Grid.ColumnSpan="2" x:CompileBindings="False" Classes.selectAnimation="{Binding IsFlashing}" />
                 <!--<Rectangle x:Name="InvalidVisualElement"
                            Grid.ColumnSpan="2"
-                           Fill="{DynamicResource DataGridRowInvalidBrush}" />-->
+                           Fill="{ThemeResource DataGridRowInvalidBrush}" />-->
 
                 <!--<DataGridRowHeader Name="PART_RowHeader"
                                    Grid.RowSpan="3"
@@ -60,7 +60,7 @@
                 <!--<DataGridDetailsPresenter Name="PART_DetailsPresenter"
                                           Grid.Row="1"
                                           Grid.Column="1"
-                                          Background="{DynamicResource DataGridDetailsPresenterBackgroundBrush}" />-->
+                                          Background="{ThemeResource DataGridDetailsPresenterBackgroundBrush}" />-->
                 <Rectangle Name="PART_BottomGridLine"
                            Grid.Row="2"
                            Grid.Column="1"
@@ -73,7 +73,7 @@
         </Setter>
       </Style>
       <Style Selector="DataBoxRow /template/ Rectangle#BackgroundRectangle.selectAnimation">
-        <Setter Property="Fill" Value="{DynamicResource SystemAccentColor}"/>
+        <Setter Property="Fill" Value="{ThemeResource SystemAccentColor}"/>
         <Setter Property="Opacity" Value="0" />
         <Style.Animations>
           <Animation Duration="1.5">
@@ -280,7 +280,7 @@
               <!-- Confirmed -->
               <StackPanel IsVisible="{Binding IsConfirmed}">
                 <PathIcon Data="{StaticResource checkmark_filled}"
-                          Foreground="{DynamicResource SystemAccentColor}"
+                          Foreground="{ThemeResource SystemAccentColor}"
                           Height="11"
                           ToolTip.Tip="Confirmed"/>
                 <TextBlock Classes="monoSpaced" Text="Confirmed">

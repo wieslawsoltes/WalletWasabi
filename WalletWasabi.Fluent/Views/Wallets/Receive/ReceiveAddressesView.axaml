@@ -21,7 +21,7 @@
         </Style>
         <Style Selector="c|AnimatedButton /template/ PathIcon">
           <Setter Property="Height" Value="15"/>
-          <Setter Property="Foreground" Value="{DynamicResource SystemAccentColor}"/>
+          <Setter Property="Foreground" Value="{ThemeResource SystemAccentColor}"/>
         </Style>
         <Style Selector="Button.addressActionButton">
           <Setter Property="DockPanel.Dock" Value="Right"/>
@@ -29,7 +29,7 @@
         </Style>
         <Style Selector="PathIcon.addressActionIcon">
           <Setter Property="Height" Value="15"/>
-          <Setter Property="Foreground" Value="{DynamicResource SystemAccentColor}"/>
+          <Setter Property="Foreground" Value="{ThemeResource SystemAccentColor}"/>
         </Style>
       </DataBox.Styles>
 

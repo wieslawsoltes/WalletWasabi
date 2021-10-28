@@ -13,12 +13,12 @@
       <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="16" Margin="0,20">
         <Viewbox Height="47" Width="47" DockPanel.Dock="Left">
           <Panel>
-            <Ellipse Stroke="{DynamicResource SystemAccentColor}" StrokeThickness="4"
+            <Ellipse Stroke="{ThemeResource SystemAccentColor}" StrokeThickness="4"
                      Height="115" Width="115" />
-            <Ellipse Stroke="{DynamicResource SystemAccentColor}" StrokeThickness="4" StrokeDashArray="2, 1"
+            <Ellipse Stroke="{ThemeResource SystemAccentColor}" StrokeThickness="4" StrokeDashArray="2, 1"
                      Height="100" Width="100" />
             <PathIcon Data="{StaticResource btc_logo}"
-                      Height="50" Width="50" Foreground="{DynamicResource SystemAccentColor}" />
+                      Height="50" Width="50" Foreground="{ThemeResource SystemAccentColor}" />
           </Panel>
         </Viewbox>
         <StackPanel VerticalAlignment="Center">
@@ -80,7 +80,7 @@
               <DockPanel>
                 <Viewbox Height="14" Width="14" DockPanel.Dock="Left">
                   <PathIcon Data="{StaticResource transaction_date}"
-                            Height="14" Width="14" Foreground="{DynamicResource SystemAccentColor}" />
+                            Height="14" Width="14" Foreground="{ThemeResource SystemAccentColor}" />
                 </Viewbox>
                 <TextBlock
                   Text="{Binding RecentTransactionDate, FallbackValue='7/12/2020'}"
@@ -90,9 +90,9 @@
               <DockPanel Margin="0,4,0,0">
                 <Viewbox Height="14" Width="14" DockPanel.Dock="Left">
                   <Panel>
-                    <Ellipse Stroke="{DynamicResource SystemAccentColor}" StrokeThickness="1"
+                    <Ellipse Stroke="{ThemeResource SystemAccentColor}" StrokeThickness="1"
                              Height="20" Width="20" />
-                    <Ellipse Stroke="{DynamicResource SystemAccentColor}" StrokeThickness="1" StrokeDashArray="2, 2"
+                    <Ellipse Stroke="{ThemeResource SystemAccentColor}" StrokeThickness="1" StrokeDashArray="2, 2"
                              Height="16" Width="16" />
                   </Panel>
                 </Viewbox>
@@ -113,11 +113,11 @@
             <RotateTransform Angle="-12.17" />
           </TransformGroup>
         </Panel.RenderTransform>
-        <Ellipse Stroke="{DynamicResource TextControlForeground}" StrokeThickness="12" Height="240" Width="240" />
-        <Ellipse Stroke="{DynamicResource TextControlForeground}" StrokeThickness="12" StrokeDashArray="1, 1"
+        <Ellipse Stroke="{ThemeResource TextControlForeground}" StrokeThickness="12" Height="240" Width="240" />
+        <Ellipse Stroke="{ThemeResource TextControlForeground}" StrokeThickness="12" StrokeDashArray="1, 1"
                  Height="200" Width="200" />
         <PathIcon Data="{StaticResource btc_logo}"
-                  Height="100" Width="100" Foreground="{DynamicResource TextControlForeground}" />
+                  Height="100" Width="100" Foreground="{ThemeResource TextControlForeground}" />
       </Panel>
     </Panel>
   </Panel>

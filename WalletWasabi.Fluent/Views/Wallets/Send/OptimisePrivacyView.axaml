@@ -24,7 +24,7 @@
           Opacity="{Binding ExactAmountWarningVisible, Converter={x:Static converters:BoolOpacityConverters.BoolToOpacity}}"
           VerticalAlignment="Bottom" HorizontalAlignment="Center"
           Content="Some services only accept the exact amount that was requested."
-          Foreground="{DynamicResource PrivacyLevelMediumBrush}" />
+          Foreground="{ThemeResource PrivacyLevelMediumBrush}" />
       </Panel>
       <ListBox DockPanel.Dock="Top" Background="Transparent" VerticalAlignment="Center" HorizontalAlignment="Center"
                Items="{Binding PrivacySuggestions}" SelectedItem="{Binding SelectedPrivacySuggestion}">

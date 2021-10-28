@@ -39,7 +39,7 @@
         <Setter Property="Opacity" Value="0.6" />
     </Style>
     <Style Selector="RadioButton.text:checked /template/ ContentPresenter#PART_ContentPresenter">
-        <Setter Property="(TextBlock.Foreground)" Value="{DynamicResource SystemAccentColor}" />
+        <Setter Property="(TextBlock.Foreground)" Value="{ThemeResource SystemAccentColor}" />
     </Style>
     <Style Selector="RadioButton.text:pointerover:not(:pressed) /template/ ContentPresenter#PART_ContentPresenter, RadioButton.text:checked /template/ ContentPresenter#PART_ContentPresenter, RadioButton.text:pressed /template/ ContentPresenter#PART_ContentPresenter">
         <Setter Property="Opacity" Value="1" />

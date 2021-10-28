@@ -14,7 +14,7 @@
              x:CompileBindings="True"
              ClipToBounds="False"
              x:Class="WalletWasabi.Fluent.Views.Wallets.WalletView">
-  <c:ContentArea ScrollViewer.VerticalScrollBarVisibility="Disabled" ClipToBounds="False" HeaderBackground="{DynamicResource HeaderRegionColor}" IsBusy="{Binding !History.IsInitialized}">
+  <c:ContentArea ScrollViewer.VerticalScrollBarVisibility="Disabled" ClipToBounds="False" HeaderBackground="{ThemeResource HeaderRegionColor}" IsBusy="{Binding !History.IsInitialized}">
     <c:ContentArea.Title>
       <StackPanel>
         <DockPanel>
@@ -63,7 +63,7 @@
                   </MenuItem>
                 </MenuFlyout>
               </Button.Flyout>
-              <PathIcon Data="{StaticResource more_regular}" Foreground="{DynamicResource TextForegroundColor}" />
+              <PathIcon Data="{StaticResource more_regular}" Foreground="{ThemeResource TextForegroundColor}" />
             </Button>
           </StackPanel>
           <TextBlock TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" Text="{Binding WalletName, FallbackValue=My Wallet with a very long name}" />

@@ -17,7 +17,7 @@
     <!-- Set Defaults -->
     <Setter Property="Template">
       <ControlTemplate>
-        <Border ClipToBounds="False" CornerRadius="5" Background="{DynamicResource TileRegionColor}" Margin="6" Padding="16" BoxShadow="{DynamicResource InfoBoxShadow}">
+        <Border ClipToBounds="False" CornerRadius="5" Background="{ThemeResource TileRegionColor}" Margin="6" Padding="16" BoxShadow="{ThemeResource InfoBoxShadow}">
           <ContentPresenter Name="PART_ContentPresenter"
                             Background="{TemplateBinding Background}"
                             Padding="{TemplateBinding Padding}"

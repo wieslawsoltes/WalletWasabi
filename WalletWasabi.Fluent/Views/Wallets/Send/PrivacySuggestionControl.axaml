@@ -17,11 +17,11 @@
         <Panel MinHeight="150" MinWidth="150">
           <StackPanel Spacing="10" VerticalAlignment="Top">
             <Panel>
-              <Ellipse Stroke="{DynamicResource TextForegroundColor}" StrokeThickness="4" Height="115" Width="115" />
-              <Ellipse Stroke="{DynamicResource TextForegroundColor}" StrokeThickness="3" StrokeDashArray="2.0, 1.5"
+              <Ellipse Stroke="{ThemeResource TextForegroundColor}" StrokeThickness="4" Height="115" Width="115" />
+              <Ellipse Stroke="{ThemeResource TextForegroundColor}" StrokeThickness="3" StrokeDashArray="2.0, 1.5"
                        Height="100" Width="100" />
               <PathIcon Data="{StaticResource btc_logo}" Height="50" Width="50"
-                        Foreground="{DynamicResource TextForegroundColor}" />
+                        Foreground="{ThemeResource TextForegroundColor}" />
 
               <Viewbox IsVisible="{Binding OptimisationLevelGood}" Height="48" Width="48" Margin="0 0  10 2"
                        HorizontalAlignment="Right" VerticalAlignment="Bottom">
@@ -45,7 +45,7 @@
             <TextBlock Text="{Binding AmountFiat}" FontSize="12" HorizontalAlignment="Center" Opacity="0.6" />
           </StackPanel>
         </Panel>
-        <Separator Height="1" Background="{DynamicResource SeparatorBackgroundBrush}" Opacity="0.2" />
+        <Separator Height="1" Background="{ThemeResource SeparatorBackgroundBrush}" Opacity="0.2" />
         <ItemsControl HorizontalAlignment="Center" Items="{Binding Benefits}">
           <ItemsControl.Styles>
             <Style Selector="TextBlock">
@@ -57,7 +57,7 @@
             <DataTemplate x:DataType="models:PrivacySuggestionBenefit">
               <Panel HorizontalAlignment="Center">
                 <TextBlock IsVisible="{Binding !Highlight}" Text="{Binding Message}" />
-                <TextBlock IsVisible="{Binding Highlight}" Foreground="{DynamicResource SystemAccentColor}"
+                <TextBlock IsVisible="{Binding Highlight}" Foreground="{ThemeResource SystemAccentColor}"
                            Text="{Binding Message}" />
               </Panel>
             </DataTemplate>

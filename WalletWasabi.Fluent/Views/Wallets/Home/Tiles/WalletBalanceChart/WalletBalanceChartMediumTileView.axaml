@@ -33,7 +33,7 @@
             </ItemsControl>
           </Flyout>
         </Button.Flyout>
-        <PathIcon Data="{StaticResource more_regular}" Foreground="{DynamicResource TextForegroundColor}" />
+        <PathIcon Data="{StaticResource more_regular}" Foreground="{ThemeResource TextForegroundColor}" />
       </Button>
     </DockPanel>
     <c:PrivacyContentControl PrivacyReplacementMode="Icon">

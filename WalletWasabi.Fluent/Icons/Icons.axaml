@@ -2,8 +2,8 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
   <Design.PreviewWith>
     <WrapPanel Margin="10" Orientation="Vertical" ItemHeight="50" ItemWidth="50" MaxHeight="400">
-      <ContentControl Template="{DynamicResource wasabi_logo_dynamic}" />
-      <ContentControl Template="{DynamicResource wasabi_logo_fixed}" />
+      <ContentControl Template="{ThemeResource wasabi_logo_dynamic}" />
+      <ContentControl Template="{ThemeResource wasabi_logo_fixed}" />
       <PathIcon Data="{StaticResource settings_regular}" />
       <PathIcon Data="{StaticResource settings_general_regular}" />
       <PathIcon Data="{StaticResource settings_privacy_regular}" />

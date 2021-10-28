@@ -25,8 +25,8 @@
       </ListBox.ItemsPanel>
       <ListBox.ItemTemplate>
         <DataTemplate>
-          <Border BoxShadow="{DynamicResource OptionButtonShadow}"
-                  Background="{DynamicResource OptionButtonBackground}"
+          <Border BoxShadow="{ThemeResource OptionButtonShadow}"
+                  Background="{ThemeResource OptionButtonBackground}"
                   ToolTip.Tip="{Binding Converter={x:Static conv:EnumConverters.ToCharset}}"
                   Margin="15"
                   Width="180"

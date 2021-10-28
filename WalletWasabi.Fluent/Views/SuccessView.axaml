@@ -29,7 +29,7 @@
               </Style.Animations>
             </Style>
           </Viewbox.Styles>
-          <PathIcon Data="{StaticResource copy_confirmed}" Opacity="0.6" Foreground="{DynamicResource SystemAccentColor}" Classes="fadeIn"/>
+          <PathIcon Data="{StaticResource copy_confirmed}" Opacity="0.6" Foreground="{ThemeResource SystemAccentColor}" Classes="fadeIn"/>
         </Viewbox>
       </DockPanel>
     </c:ContentArea>

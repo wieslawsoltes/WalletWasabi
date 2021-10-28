@@ -19,20 +19,20 @@
       <Setter Property="Margin" Value="13 0 0 0" />
       <Setter Property="Height" Value="18" />
       <Setter Property="Width" Value="18" />
-      <Setter Property="Foreground" Value="{DynamicResource NavBarItemForegroundBrush}" />
+      <Setter Property="Foreground" Value="{ThemeResource NavBarItemForegroundBrush}" />
     </Style>
     <Style Selector="TextBlock.headerText">
       <Setter Property="FontSize" Value="14" />
       <Setter Property="Margin" Value="25 15 0 12" />
       <Setter Property="Opacity" Value="0.8" />
       <Setter Property="FontWeight" Value="Light" />
-      <Setter Property="Foreground" Value="{DynamicResource NavBarItemForegroundBrush}" />
+      <Setter Property="Foreground" Value="{ThemeResource NavBarItemForegroundBrush}" />
     </Style>
     <Style Selector="Separator">
-      <Setter Property="Background" Value="{DynamicResource NavBarSeparatorBrush}" />
+      <Setter Property="Background" Value="{ThemeResource NavBarSeparatorBrush}" />
       <Setter Property="HorizontalAlignment" Value="Stretch" />
-      <Setter Property="Margin" Value="{DynamicResource MenuFlyoutSeparatorThemePadding}" />
-      <Setter Property="Height" Value="{DynamicResource MenuFlyoutSeparatorThemeHeight}" />
+      <Setter Property="Margin" Value="{ThemeResource MenuFlyoutSeparatorThemePadding}" />
+      <Setter Property="Height" Value="{ThemeResource MenuFlyoutSeparatorThemeHeight}" />
     </Style>
     <Style Selector="ListBox">
       <Setter Property="Margin" Value="0" />
@@ -49,7 +49,7 @@
       <Setter Property="Padding" Value="12 6 12 6" />
     </Style>
     <Style Selector="ListBox.vertical > c|NavBarItem:disabled PathIcon">
-      <Setter Property="Foreground" Value="{DynamicResource NavBarItemDisabledBrush}" />
+      <Setter Property="Foreground" Value="{ThemeResource NavBarItemDisabledBrush}" />
     </Style>
     <Style Selector="ListBox.horizontal > c|NavBarItem">
       <Setter Property="IndicatorOrientation" Value="Horizontal" />
@@ -59,18 +59,18 @@
       <Setter Property="IsEnabled" Value="{Binding IsEnabled}" x:CompileBindings="False" />
     </Style>
     <Style Selector="ListBox.horizontal > c|NavBarItem:disabled PathIcon">
-      <Setter Property="Foreground" Value="{DynamicResource NavBarItemDisabledBrush}" />
+      <Setter Property="Foreground" Value="{ThemeResource NavBarItemDisabledBrush}" />
     </Style>
     <Style Selector="c|NavBarTreeItem">
       <Setter Property="IsExpanded" Value="{Binding IsExpanded}" x:CompileBindings="False" />
-      <Setter Property="TextBlock.Foreground" Value="{DynamicResource NavBarItemForegroundBrush}" />
+      <Setter Property="TextBlock.Foreground" Value="{ThemeResource NavBarItemForegroundBrush}" />
     </Style>
     <Style Selector=":is(Button).NavButton">
-      <Setter Property="Width" Value="{DynamicResource SplitViewCompactPaneLength}" />
+      <Setter Property="Width" Value="{ThemeResource SplitViewCompactPaneLength}" />
       <Setter Property="Padding" Value="12,9,12,12" />
     </Style>
     <Style Selector=":is(Button).NavButton:disabled > PathIcon">
-      <Setter Property="Foreground" Value="{DynamicResource NavBarItemDisabledBrush}" />
+      <Setter Property="Foreground" Value="{ThemeResource NavBarItemDisabledBrush}" />
     </Style>
     <Style Selector=":is(Button).NavButton /template/ ContentPresenter">
       <Setter Property="Background" Value="Transparent" />
@@ -88,7 +88,7 @@
       <Setter Property="Background" Value="Transparent" />
     </Style>
     <Style Selector=":is(Button):pointerover /template/ ContentPresenter#PART_ContentPresenter">
-      <Setter Property="Background" Value="{DynamicResource NavBarItemPointerOverBackgroundBrush}" />
+      <Setter Property="Background" Value="{ThemeResource NavBarItemPointerOverBackgroundBrush}" />
     </Style>
   </UserControl.Styles>
   <DockPanel Margin="0 0 0 4">
@@ -112,7 +112,7 @@
                 <Setter Property="Opacity" Value="0" />
               </Style>
             </Panel.Styles>
-            <ContentControl Template="{DynamicResource wasabi_logo_fixed}" IsVisible="{Binding !#NavBarUserControl.IsPointerOver}"/>
+            <ContentControl Template="{ThemeResource wasabi_logo_fixed}" IsVisible="{Binding !#NavBarUserControl.IsPointerOver}"/>
             <Button Classes="plain" x:CompileBindings="False" Command="{Binding ToggleAction}" IsVisible="{Binding #NavBarUserControl.IsPointerOver}">
               <Button.Styles>
                 <Style Selector=":is(Button):pointerover /template/ ContentPresenter#PART_ContentPresenter">
@@ -122,7 +122,7 @@
               <PathIcon Margin="0 0 3 0" Height="16" Data="{StaticResource navigation_regular}"/>
             </Button>
           </Panel>
-          <ContentControl Template="{DynamicResource wasabi_logo_text_fixed}" Margin="22,0,0,0"
+          <ContentControl Template="{ThemeResource wasabi_logo_text_fixed}" Margin="22,0,0,0"
                           VerticalAlignment="Center" ClipToBounds="False" />
         </StackPanel>
       </Border>
