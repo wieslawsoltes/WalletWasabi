@@ -15,7 +15,8 @@
 
   <ItemsRepeater Items="{Binding Transactions}">
     <ItemsRepeater.Layout>
-      <StackLayout Orientation="Vertical"/>
+      <!-- <StackLayout Orientation="Vertical"/> -->
+      <UniformGridLayout MaximumRowsOrColumns="1" Orientation="Horizontal" />
     </ItemsRepeater.Layout>
       <ItemsRepeater.ItemTemplate>
         <DataTemplate x:DataType="historyItems:HistoryItemViewModelBase">
