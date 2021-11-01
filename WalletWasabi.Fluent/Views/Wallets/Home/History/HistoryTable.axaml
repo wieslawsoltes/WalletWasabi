@@ -12,129 +12,23 @@
              x:DataType="history:HistoryViewModel"
              x:CompileBindings="True"
              x:Class="WalletWasabi.Fluent.Views.Wallets.Home.History.HistoryTable">
-  <DataBox Items="{Binding Transactions}"
-           SelectedItem="{Binding SelectedItem}"
-           CanUserResizeColumns="False"
-           DockPanel.Dock="Bottom">
-    <DataBox.Styles>
-      <Style Selector="PathIcon">
-        <Setter Property="Height" Value="13" />
-        <Setter Property="VerticalAlignment" Value="Center" />
-        <Setter Property="HorizontalAlignment" Value="Center" />
-      </Style>
-      <Style Selector="TextBlock, c|PrivacyContentControl">
-        <Setter Property="VerticalAlignment" Value="Center" />
-      </Style>
-      <Style Selector="StackPanel">
-        <Setter Property="Orientation" Value="Horizontal" />
-        <Setter Property="Spacing" Value="10" />
-        <Setter Property="Margin" Value="10 0" />
-      </Style>
-      <Style Selector="DataBoxRow">
-        <Setter Property="Focusable" Value="False" />
-        <Setter Property="Height" Value="37.5" />
-        <Setter Property="Template">
-          <ControlTemplate>
-            <DockPanel LastChildFill="True">
-              <Border Name="PART_SelectionIndicator"
-                      BorderThickness="2 0 0 0"
-                      DockPanel.Dock="Left"
-                      VerticalAlignment="Stretch" />
-              <DataGridFrozenGrid Name="PART_Root"
-                                  RowDefinitions="*,Auto,Auto"
-                                  ColumnDefinitions="Auto,*">
 
-                <Rectangle Name="BackgroundRectangle"
-                           Grid.RowSpan="2"
-                           Grid.ColumnSpan="2" x:CompileBindings="False" Classes.selectAnimation="{Binding IsFlashing}" />
-                <!--<Rectangle x:Name="InvalidVisualElement"
-                           Grid.ColumnSpan="2"
-                           Fill="{DynamicResource DataGridRowInvalidBrush}" />-->
+  <ItemsRepeater Items="{Binding Transactions}">
+    <ItemsRepeater.Layout>
+      <StackLayout Orientation="Vertical"/>
+    </ItemsRepeater.Layout>
+      <ItemsRepeater.ItemTemplate>
+        <DataTemplate x:DataType="historyItems:HistoryItemViewModelBase">
+          <StackPanel Orientation="Horizontal">
 
-                <!--<DataGridRowHeader Name="PART_RowHeader"
-                                   Grid.RowSpan="3"
-                                   DataGridFrozenGrid.IsFrozen="True" />-->
-                <DataBoxCellsPresenter Name="PART_CellsPresenter"
-                                       Grid.Column="1"
-                                       DataGridFrozenGrid.IsFrozen="True" />
-                <!--<DataGridDetailsPresenter Name="PART_DetailsPresenter"
-                                          Grid.Row="1"
-                                          Grid.Column="1"
-                                          Background="{DynamicResource DataGridDetailsPresenterBackgroundBrush}" />-->
-                <Rectangle Name="PART_BottomGridLine"
-                           Grid.Row="2"
-                           Grid.Column="1"
-                           HorizontalAlignment="Stretch"
-                           Height="1" />
 
-              </DataGridFrozenGrid>
-            </DockPanel>
-          </ControlTemplate>
-        </Setter>
-      </Style>
-      <Style Selector="DataBoxRow /template/ Rectangle#BackgroundRectangle.selectAnimation">
-        <Setter Property="Fill" Value="{DynamicResource SystemAccentColor}"/>
-        <Setter Property="Opacity" Value="0" />
-        <Style.Animations>
-          <Animation Duration="1.5">
-            <KeyFrame KeyTime="0:0:0.0">
-              <Setter Property="Opacity" Value="0" />
-            </KeyFrame>
-            <KeyFrame KeyTime="0:0:0.25">
-              <Setter Property="Opacity" Value="0.5" />
-            </KeyFrame>
-            <KeyFrame KeyTime="0:0:0.50">
-              <Setter Property="Opacity" Value="0" />
-            </KeyFrame>
-            <KeyFrame KeyTime="0:0:0.75">
-              <Setter Property="Opacity" Value="0.5" />
-            </KeyFrame>
-            <KeyFrame KeyTime="0:0:1">
-              <Setter Property="Opacity" Value="0" />
-            </KeyFrame>
-            <KeyFrame KeyTime="0:0:1.25">
-              <Setter Property="Opacity" Value="0.5" />
-            </KeyFrame>
-            <KeyFrame KeyTime="0:0:1.5">
-              <Setter Property="Opacity" Value="0" />
-            </KeyFrame>
-          </Animation>
-        </Style.Animations>
-      </Style>
-      <Style Selector="TextBlock.hidden">
-        <Setter Property="IsVisible" Value="False"/>
-      </Style>
-      <Style Selector="TextBlock.visible">
-        <Setter Property="IsVisible" Value="True"/>
-      </Style>
-      <Style Selector="PathIcon.hidden">
-        <Setter Property="IsVisible" Value="False"/>
-      </Style>
-    </DataBox.Styles>
-
-    <DataBox.Columns>
-
-      <!-- Date -->
-      <DataBoxTemplateColumn Header="Date / Time"
-                             Width="Auto">
-        <DataBoxTemplateColumn.CellTemplate>
-          <DataTemplate>
             <c:PrivacyContentControl x:DataType="historyItems:HistoryItemViewModelBase"
                                      Content="{Binding DateString}"
                                      Classes="monoSpaced"
                                      FontSize="15"
                                      Margin="10 0"
                                      NumberOfPrivacyChars="15" />
-          </DataTemplate>
-        </DataBoxTemplateColumn.CellTemplate>
-      </DataBoxTemplateColumn>
 
-      <!-- Type -->
-      <DataBoxTemplateColumn Header="Type"
-                             MinWidth="90"
-                             Width="Auto">
-        <DataBoxTemplateColumn.CellTemplate>
-          <DataTemplate>
             <c:PrivacyContentControl PrivacyReplacementMode="Icon">
               <c:PrivacyContentControl.Styles>
                 <Style Selector="c|PrivacyContentControl /template/ Viewbox#PART_Icon">
@@ -149,28 +43,19 @@
                           IsVisible="{Binding IsCoinJoin}" />
               </Panel>
             </c:PrivacyContentControl>
-          </DataTemplate>
-        </DataBoxTemplateColumn.CellTemplate>
-      </DataBoxTemplateColumn>
 
-      <!-- Labels -->
-      <DataBoxTemplateColumn Header="Labels"
-                             MinWidth="75"
-                             Width="Auto"
-                             CanUserSort="False">
-        <DataBoxTemplateColumn.CellTemplate>
-          <DataTemplate>
+
             <c:PrivacyContentControl PrivacyReplacementMode="Text" NumberOfPrivacyChars="15" Classes="monoSpacedPrivacyReplacement">
               <DockPanel LastChildFill="False" x:DataType="historyItems:HistoryItemViewModelBase">
                 <c:TagsBox Padding="0"
-                          Margin="0"
-                          MinWidth="0"
-                          BorderThickness="0"
-                          DockPanel.Dock="Left"
-                          IsReadOnly="True"
-                          Items="{Binding Label}"
-                          HorizontalAlignment="Stretch"
-                          VerticalAlignment="Center" />
+                           Margin="0"
+                           MinWidth="0"
+                           BorderThickness="0"
+                           DockPanel.Dock="Left"
+                           IsReadOnly="True"
+                           Items="{Binding Label}"
+                           HorizontalAlignment="Stretch"
+                           VerticalAlignment="Center" />
                 <Button Classes="labelFlyout"
                         DockPanel.Dock="Left"
                         IsVisible="{Binding !!FilteredLabel.Count}"
@@ -179,85 +64,59 @@
                   <Button.Flyout>
                     <Flyout Placement="BottomEdgeAlignedLeft" ShowMode="TransientWithDismissOnPointerMoveAway">
                       <c:TagsBox IsReadOnly="True"
-                                Items="{Binding FilteredLabel}" />
+                                 Items="{Binding FilteredLabel}" />
                     </Flyout>
                   </Button.Flyout>
                   <ToolTip.Tip>
                     <Panel>
                       <c:TagsBox IsReadOnly="True"
-                                Margin="4,6,0,0"
-                                Items="{Binding FilteredLabel}" />
+                                 Margin="4,6,0,0"
+                                 Items="{Binding FilteredLabel}" />
                     </Panel>
                   </ToolTip.Tip>
                 </Button>
               </DockPanel>
             </c:PrivacyContentControl>
-          </DataTemplate>
-        </DataBoxTemplateColumn.CellTemplate>
-      </DataBoxTemplateColumn>
 
-      <!-- Incoming -->
-      <DataBoxTemplateColumn Header="Incoming (BTC)"
-                             Width="*"
-                             MinWidth="160"
-                             MaxWidth="210">
-        <DataBoxTemplateColumn.CellTemplate>
-          <DataTemplate>
-            <Panel Name="Panel" HorizontalAlignment="Stretch">
+
+            <Panel Name="Panel1" HorizontalAlignment="Stretch">
               <StackPanel x:DataType="historyItems:HistoryItemViewModelBase"
                           IsVisible="{Binding !!IncomingAmount}"
                           HorizontalAlignment="Right">
                 <PathIcon Data="{StaticResource arrow_down_right_regular}" Opacity="0.6">
                   <i:Interaction.Behaviors>
-                    <ir:AdaptiveBehavior SourceControl="{Binding #Panel}" x:CompileBindings="False">
+                    <ir:AdaptiveBehavior SourceControl="{Binding #Panel1}" x:CompileBindings="False">
                       <ir:AdaptiveClassSetter MinWidth="0" MaxWidth="120" ClassName="hidden"/>
                     </ir:AdaptiveBehavior>
                   </i:Interaction.Behaviors>
                 </PathIcon>
                 <c:PrivacyContentControl Content="{Binding IncomingAmount, Converter={x:Static converters:MoneyConverters.ToFormattedString}}"
-                                       Classes="monoSpaced"
-                                       FontSize="15"
-                                       NumberOfPrivacyChars="9" />
+                                         Classes="monoSpaced"
+                                         FontSize="15"
+                                         NumberOfPrivacyChars="9" />
               </StackPanel>
             </Panel>
-          </DataTemplate>
-        </DataBoxTemplateColumn.CellTemplate>
-      </DataBoxTemplateColumn>
 
-      <!-- Outgoing -->
-      <DataBoxTemplateColumn Header="Outgoing (BTC)"
-                             Width="*"
-                             MinWidth="160"
-                             MaxWidth="210">
-        <DataBoxTemplateColumn.CellTemplate>
-          <DataTemplate>
-            <Panel Name="Panel" HorizontalAlignment="Stretch">
+
+            <Panel Name="Panel2" HorizontalAlignment="Stretch">
               <StackPanel x:DataType="historyItems:HistoryItemViewModelBase"
                           IsVisible="{Binding !!OutgoingAmount}"
                           HorizontalAlignment="Right">
                 <PathIcon Data="{StaticResource arrow_up_right_regular}" Opacity="0.6">
                   <i:Interaction.Behaviors>
-                    <ir:AdaptiveBehavior SourceControl="{Binding #Panel}" x:CompileBindings="False">
+                    <ir:AdaptiveBehavior SourceControl="{Binding #Panel2}" x:CompileBindings="False">
                       <ir:AdaptiveClassSetter MinWidth="0" MaxWidth="120" ClassName="hidden"/>
                     </ir:AdaptiveBehavior>
                   </i:Interaction.Behaviors>
                 </PathIcon>
                 <c:PrivacyContentControl Content="{Binding OutgoingAmount, Converter={x:Static converters:MoneyConverters.ToFormattedString}}"
-                                       Classes="monoSpaced"
-                                       FontSize="15"
-                                       NumberOfPrivacyChars="9" />
+                                         Classes="monoSpaced"
+                                         FontSize="15"
+                                         NumberOfPrivacyChars="9" />
               </StackPanel>
             </Panel>
-          </DataTemplate>
-        </DataBoxTemplateColumn.CellTemplate>
-      </DataBoxTemplateColumn>
 
-      <!-- Balance -->
-      <DataBoxTemplateColumn Header="Balance (BTC)"
-                             MinWidth="160"
-                             Width="Auto">
-        <DataBoxTemplateColumn.CellTemplate>
-          <DataTemplate>
+
             <c:PrivacyContentControl x:DataType="historyItems:HistoryItemViewModelBase"
                                      Content="{Binding Balance, Converter={x:Static converters:MoneyConverters.ToFormattedString}}"
                                      Classes="monoSpaced"
@@ -265,17 +124,7 @@
                                      NumberOfPrivacyChars="9"
                                      HorizontalAlignment="Right"
                                      Margin="10 0" />
-          </DataTemplate>
-        </DataBoxTemplateColumn.CellTemplate>
-      </DataBoxTemplateColumn>
 
-      <!-- Status -->
-      <DataBoxTemplateColumn Header="Status"
-                             Width="*"
-                             MinWidth="120"
-                             MaxWidth="120">
-        <DataBoxTemplateColumn.CellTemplate>
-          <DataTemplate>
             <Panel x:DataType="historyItems:HistoryItemViewModelBase">
               <!-- Confirmed -->
               <StackPanel IsVisible="{Binding IsConfirmed}">
@@ -284,12 +133,6 @@
                           Height="11"
                           ToolTip.Tip="Confirmed"/>
                 <TextBlock Classes="monoSpaced" Text="Confirmed">
-                  <!--<i:Interaction.Behaviors>
-                    <ir:AdaptiveBehavior SourceControl="{Binding $parent[DataGrid]}" x:CompileBindings="False">
-                      <ir:AdaptiveClassSetter MinWidth="0" MaxWidth="940" ClassName="hidden"/>
-                      <ir:AdaptiveClassSetter MinWidth="940" MaxWidth="Infinity" ClassName="visible"/>
-                    </ir:AdaptiveBehavior>
-                  </i:Interaction.Behaviors>-->
                 </TextBlock>
               </StackPanel>
               <!-- Pending -->
@@ -299,33 +142,20 @@
                           Opacity="0.6"
                           ToolTip.Tip="Pending"/>
                 <TextBlock Classes="monoSpaced" Text="Pending">
-                  <!--<i:Interaction.Behaviors>
-                    <ir:AdaptiveBehavior SourceControl="{Binding $parent[DataGrid]}" x:CompileBindings="False">
-                      <ir:AdaptiveClassSetter MinWidth="0" MaxWidth="940" ClassName="hidden"/>
-                      <ir:AdaptiveClassSetter MinWidth="940" MaxWidth="Infinity" ClassName="visible"/>
-                    </ir:AdaptiveBehavior>
-                  </i:Interaction.Behaviors>-->
                 </TextBlock>
               </StackPanel>
             </Panel>
-          </DataTemplate>
-        </DataBoxTemplateColumn.CellTemplate>
-      </DataBoxTemplateColumn>
 
-      <!-- Details -->
-      <DataBoxTemplateColumn Width="Auto"
-                             MinWidth="55"
-                             CanUserSort="False">
-        <DataBoxTemplateColumn.CellTemplate>
-          <DataTemplate>
+
             <Button x:DataType="historyItems:HistoryItemViewModelBase" Classes="plain" ToolTip.Tip="Show Details"
                     Command="{Binding ShowDetailsCommand}">
               <PathIcon Data="{StaticResource details_regular}" Height="15" Opacity="0.6" />
             </Button>
-          </DataTemplate>
-        </DataBoxTemplateColumn.CellTemplate>
-      </DataBoxTemplateColumn>
 
-    </DataBox.Columns>
-  </DataBox>
+
+          </StackPanel>
+        </DataTemplate>
+      </ItemsRepeater.ItemTemplate>
+    </ItemsRepeater>
+
 </UserControl>
