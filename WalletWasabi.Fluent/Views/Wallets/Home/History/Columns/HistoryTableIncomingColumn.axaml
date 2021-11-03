@@ -1,0 +1,33 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:i="clr-namespace:Avalonia.Xaml.Interactivity;assembly=Avalonia.Xaml.Interactivity"
+             xmlns:ir="clr-namespace:Avalonia.Xaml.Interactions.Responsive;assembly=Avalonia.Xaml.Interactions"
+             xmlns:c="using:WalletWasabi.Fluent.Controls"
+             xmlns:converters="clr-namespace:WalletWasabi.Fluent.Converters"
+             xmlns:historyItems="clr-namespace:WalletWasabi.Fluent.ViewModels.Wallets.Home.History.HistoryItems"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:DataType="historyItems:HistoryItemViewModelBase"
+             x:CompileBindings="True"
+             x:Class="WalletWasabi.Fluent.Views.Wallets.Home.History.Columns.HistoryTableIncomingColumn">
+
+  <Panel Name="Panel" HorizontalAlignment="Stretch">
+    <StackPanel x:DataType="historyItems:HistoryItemViewModelBase"
+                IsVisible="{Binding !!IncomingAmount}"
+                HorizontalAlignment="Right">
+      <PathIcon Data="{StaticResource arrow_down_right_regular}" Opacity="0.6">
+        <i:Interaction.Behaviors>
+          <ir:AdaptiveBehavior SourceControl="{Binding #Panel}" x:CompileBindings="False">
+            <ir:AdaptiveClassSetter MinWidth="0" MaxWidth="120" ClassName="hidden"/>
+          </ir:AdaptiveBehavior>
+        </i:Interaction.Behaviors>
+      </PathIcon>
+      <c:PrivacyContentControl Content="{Binding IncomingAmount, Converter={x:Static converters:MoneyConverters.ToFormattedString}}"
+                             Classes="monoSpaced"
+                             FontSize="15"
+                             NumberOfPrivacyChars="9" />
+    </StackPanel>
+  </Panel>
+
+</UserControl>
