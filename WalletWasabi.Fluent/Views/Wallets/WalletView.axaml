@@ -106,15 +106,17 @@
             <Setter Property="VerticalAlignment" Value="Stretch"/>
           </Style>
         </Panel.Styles>
-        <home:WalletTiles IsVisible="{Binding !IsEmptyWallet}"/>
+        <c:Lazy Load="Lazy" Unload="Lazy" Type="{x:Type home:WalletTiles}"
+                IsVisible="{Binding !IsEmptyWallet}"/>
         <home:WalletTilesPlaceholder HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                                      IsVisible="{Binding IsEmptyWallet}"/>
       </Panel>
       <Panel>
-        <history:HistoryTable Name="HistoryTable"
-                              DataContext="{Binding History}"
-                              HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                              IsVisible="{Binding !IsTransactionHistoryEmpty}"/>
+        <c:Lazy Name="HistoryTable"
+                Load="Lazy" Unload="Lazy" Type="{x:Type history:HistoryTable}"
+                DataContext="{Binding History}"
+                HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                IsVisible="{Binding !IsTransactionHistoryEmpty}"/>
         <history:HistoryTablePlaceholder Name="HistoryTablePlaceholder"
                                          DataContext="{Binding History}"
                                          HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
