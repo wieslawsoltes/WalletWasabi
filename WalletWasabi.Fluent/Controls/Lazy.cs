@@ -180,6 +180,9 @@ namespace WalletWasabi.Fluent.Controls
 			base.OnDetachedFromVisualTree(e);
 		}
 
+		private static volatile int s_countLoaded = 0;
+		private static volatile int s_countUnloaded = 0;
+
 		private void LoadChild()
 		{
 			if (Type == null ||
@@ -199,6 +202,7 @@ namespace WalletWasabi.Fluent.Controls
 			IsLoadInProgress = false;
 			if (Child != null)
 			{
+				Console.WriteLine($"[LOADED] {Child} {s_countLoaded++}");
 				Child.IsVisible = true;
 			}
 		}
@@ -241,10 +245,15 @@ namespace WalletWasabi.Fluent.Controls
 			if (!ReferenceEquals(task, _currentUnloadWaitTask) ||
 			    Child == null)
 			{
+				Console.WriteLine($"[UNLOADED] {Child} {s_countUnloaded++}");
 				return;
 			}
 
-			Dispatcher.UIThread.Post(() => Child = null);
+			Dispatcher.UIThread.Post(() =>
+			{
+				Console.WriteLine($"[UNLOADED] {Child} {s_countUnloaded++}");
+				Child = null;
+			});
 		}
 
 		protected override Size MeasureOverride(Size availableSize)
