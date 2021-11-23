@@ -150,6 +150,16 @@
           "Avalonia": "0.10.10"
         }
       },
+      "Core2D.Screenshot": {
+        "type": "Transitive",
+        "resolved": "0.10.10-beta1",
+        "contentHash": "G0SNwbN8+TgZZou2RVnJ0E/3HcgB+BuFK3dWgqcRMH6hCg5msArF58vOkgbc52YdgNQbYy2utaIfdbgtJgaziQ==",
+        "dependencies": {
+          "Avalonia": "0.10.10",
+          "Avalonia.Skia": "0.10.10",
+          "SkiaSharp": "2.88.0-preview.171"
+        }
+      },
       "DataBox": {
         "type": "Transitive",
         "resolved": "0.10.10-beta5",
@@ -346,9 +356,11 @@
       },
       "SkiaSharp": {
         "type": "Transitive",
-        "resolved": "2.80.2",
-        "contentHash": "D25rzdCwh+3L+XyXqpNa+H/yiLJbE3/R3K/XexwHyQjGdzZvSufFW3oqf3En7hhqSIsxsJ8f5NEZ0J5W5wlGBg==",
+        "resolved": "2.88.0-preview.171",
+        "contentHash": "LoQx0mWbXIcC8a9vUaDVAGdgh6v+/ZHXysuJ7cK4DuBtcGslC2QXmiiUR9jyOjbs/KRL4W+NeryW/bECfXrMmQ==",
         "dependencies": {
+          "SkiaSharp.NativeAssets.Win32": "2.88.0-preview.171",
+          "SkiaSharp.NativeAssets.macOS": "2.88.0-preview.171",
           "System.Memory": "4.5.3"
         }
       },
@@ -359,6 +371,16 @@
         "dependencies": {
           "SkiaSharp": "2.80.2"
         }
+      },
+      "SkiaSharp.NativeAssets.macOS": {
+        "type": "Transitive",
+        "resolved": "2.88.0-preview.171",
+        "contentHash": "EGykESzX9Qoqcx99V1OCU3At1QIF5V2ZGELzNkYPsd9yMi70acJtH8jpOJZD1oSXootIV828hM4bcHi/xi9/rQ=="
+      },
+      "SkiaSharp.NativeAssets.Win32": {
+        "type": "Transitive",
+        "resolved": "2.88.0-preview.171",
+        "contentHash": "Wxn+F1taMND5y9fl1kG1ctavahsd3xBXeJwK1GMwj9kPp9kRmitmUlKrztolCdpb11c0NPF4Jy3taV9smo9rFw=="
       },
       "Splat": {
         "type": "Transitive",
@@ -658,6 +680,7 @@
           "Avalonia.Diagnostics": "0.10.10",
           "Avalonia.ReactiveUI": "0.10.10",
           "Avalonia.Xaml.Behaviors": "0.10.10",
+          "Core2D.Screenshot": "0.10.10-beta1",
           "DataBox": "0.10.10-beta5",
           "OpenCvSharp4": "4.5.2.20210404",
           "OpenCvSharp4.runtime.win": "4.5.2.20210404",
@@ -875,14 +898,6 @@
           "runtime.native.System.Security.Cryptography.OpenSsl": "4.3.0"
         }
       },
-      "SkiaSharp": {
-        "type": "Transitive",
-        "resolved": "2.80.2",
-        "contentHash": "D25rzdCwh+3L+XyXqpNa+H/yiLJbE3/R3K/XexwHyQjGdzZvSufFW3oqf3En7hhqSIsxsJ8f5NEZ0J5W5wlGBg==",
-        "dependencies": {
-          "System.Memory": "4.5.3"
-        }
-      },
       "SkiaSharp.NativeAssets.Linux": {
         "type": "Transitive",
         "resolved": "2.80.2",
@@ -890,6 +905,16 @@
         "dependencies": {
           "SkiaSharp": "2.80.2"
         }
+      },
+      "SkiaSharp.NativeAssets.macOS": {
+        "type": "Transitive",
+        "resolved": "2.88.0-preview.171",
+        "contentHash": "EGykESzX9Qoqcx99V1OCU3At1QIF5V2ZGELzNkYPsd9yMi70acJtH8jpOJZD1oSXootIV828hM4bcHi/xi9/rQ=="
+      },
+      "SkiaSharp.NativeAssets.Win32": {
+        "type": "Transitive",
+        "resolved": "2.88.0-preview.171",
+        "contentHash": "Wxn+F1taMND5y9fl1kG1ctavahsd3xBXeJwK1GMwj9kPp9kRmitmUlKrztolCdpb11c0NPF4Jy3taV9smo9rFw=="
       },
       "System.Collections": {
         "type": "Transitive",
@@ -1294,14 +1319,6 @@
           "runtime.native.System.Security.Cryptography.OpenSsl": "4.3.0"
         }
       },
-      "SkiaSharp": {
-        "type": "Transitive",
-        "resolved": "2.80.2",
-        "contentHash": "D25rzdCwh+3L+XyXqpNa+H/yiLJbE3/R3K/XexwHyQjGdzZvSufFW3oqf3En7hhqSIsxsJ8f5NEZ0J5W5wlGBg==",
-        "dependencies": {
-          "System.Memory": "4.5.3"
-        }
-      },
       "SkiaSharp.NativeAssets.Linux": {
         "type": "Transitive",
         "resolved": "2.80.2",
@@ -1309,6 +1326,16 @@
         "dependencies": {
           "SkiaSharp": "2.80.2"
         }
+      },
+      "SkiaSharp.NativeAssets.macOS": {
+        "type": "Transitive",
+        "resolved": "2.88.0-preview.171",
+        "contentHash": "EGykESzX9Qoqcx99V1OCU3At1QIF5V2ZGELzNkYPsd9yMi70acJtH8jpOJZD1oSXootIV828hM4bcHi/xi9/rQ=="
+      },
+      "SkiaSharp.NativeAssets.Win32": {
+        "type": "Transitive",
+        "resolved": "2.88.0-preview.171",
+        "contentHash": "Wxn+F1taMND5y9fl1kG1ctavahsd3xBXeJwK1GMwj9kPp9kRmitmUlKrztolCdpb11c0NPF4Jy3taV9smo9rFw=="
       },
       "System.Collections": {
         "type": "Transitive",
@@ -1629,14 +1656,6 @@
         "resolved": "4.3.0",
         "contentHash": "Q+IBgaPYicSQs2tBlmXqbS25c/JLIthWrgrpMwxKSOobW/OqIMVFruUGfuaz4QABVzV8iKdCAbN7APY7Tclbnw=="
       },
-      "SkiaSharp": {
-        "type": "Transitive",
-        "resolved": "2.80.2",
-        "contentHash": "D25rzdCwh+3L+XyXqpNa+H/yiLJbE3/R3K/XexwHyQjGdzZvSufFW3oqf3En7hhqSIsxsJ8f5NEZ0J5W5wlGBg==",
-        "dependencies": {
-          "System.Memory": "4.5.3"
-        }
-      },
       "SkiaSharp.NativeAssets.Linux": {
         "type": "Transitive",
         "resolved": "2.80.2",
@@ -1644,6 +1663,16 @@
         "dependencies": {
           "SkiaSharp": "2.80.2"
         }
+      },
+      "SkiaSharp.NativeAssets.macOS": {
+        "type": "Transitive",
+        "resolved": "2.88.0-preview.171",
+        "contentHash": "EGykESzX9Qoqcx99V1OCU3At1QIF5V2ZGELzNkYPsd9yMi70acJtH8jpOJZD1oSXootIV828hM4bcHi/xi9/rQ=="
+      },
+      "SkiaSharp.NativeAssets.Win32": {
+        "type": "Transitive",
+        "resolved": "2.88.0-preview.171",
+        "contentHash": "Wxn+F1taMND5y9fl1kG1ctavahsd3xBXeJwK1GMwj9kPp9kRmitmUlKrztolCdpb11c0NPF4Jy3taV9smo9rFw=="
       },
       "System.Collections": {
         "type": "Transitive",
