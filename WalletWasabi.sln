@@ -33,11 +33,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WalletWasabi.Fluent.Generat
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WalletWasabi.Fluent", "WalletWasabi.Fluent\WalletWasabi.Fluent.csproj", "{1E9A8055-DC14-4C7D-8878-887D50B55A10}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VirtualPanel", "..\VirtualScrollDemo\VirtualPanel\VirtualPanel.csproj", "{124048C0-0E05-4971-BBA3-46C87D720892}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VirtualPanel", "..\VirtualPanel\src\VirtualPanel\VirtualPanel.csproj", "{124048C0-0E05-4971-BBA3-46C87D720892}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataBox", "..\DataBox\src\DataBox\DataBox.csproj", "{A7C47560-967D-4019-BC6A-BC07BEDC41A8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VirtualScrollDemo", "..\VirtualScrollDemo\VirtualScrollDemo\VirtualScrollDemo.csproj", "{3FAE1C6E-70F2-45DF-AF38-21D9CD96A188}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VirtualPanelDemo", "..\VirtualPanel\samples\VirtualPanelDemo\VirtualPanelDemo.csproj", "{3FAE1C6E-70F2-45DF-AF38-21D9CD96A188}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
