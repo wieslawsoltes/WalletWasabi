@@ -168,6 +168,30 @@
                    XAxisCurrentValue="{Binding CurrentConfirmationTarget, Mode=TwoWay}"
                    YAxisLabels="{Binding SatoshiPerByteLabels}"
                    YAxisValues="{Binding SatoshiPerByteValues}">
+
+        <c:LineChart.ContextFlyout>
+          <Flyout>
+            <Grid ColumnDefinitions="*,*,*,*" RowDefinitions="Auto,*">
+              <Label Content="ConfirmationTargetLabels" Grid.Column="0" Grid.Row="0"></Label>
+              <ListBox Items="{Binding ConfirmationTargetLabels}" Grid.Column="0" Grid.Row="1">
+
+              </ListBox>
+              <Label Content="ConfirmationTargetValues" Grid.Column="1" Grid.Row="0"></Label>
+              <ListBox Items="{Binding ConfirmationTargetValues}" Grid.Column="1" Grid.Row="1">
+
+              </ListBox>
+              <Label Content="SatoshiPerByteLabels" Grid.Column="2" Grid.Row="0"></Label>
+              <ListBox Items="{Binding SatoshiPerByteLabels}" Grid.Column="2" Grid.Row="1">
+
+              </ListBox>
+              <Label Content="SatoshiPerByteValues" Grid.Column="3" Grid.Row="0"></Label>
+              <ListBox Items="{Binding SatoshiPerByteValues}" Grid.Column="3" Grid.Row="1">
+
+              </ListBox>
+            </Grid>
+          </Flyout>
+        </c:LineChart.ContextFlyout>
+
         <c:LineChart.Styles>
           <Style Selector="c|LineChart">
             <Setter Property="XAxisPlotMode" Value="EvenlySpaced"/>
