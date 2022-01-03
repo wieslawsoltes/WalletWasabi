@@ -54,13 +54,22 @@
       },
       "Avalonia.Xaml.Behaviors": {
         "type": "Direct",
-        "requested": "[0.10.11, )",
-        "resolved": "0.10.11",
-        "contentHash": "FbximsFVGxL7XLew/6Ibuh+LrAhXTaGsBVbiId0KpgBOeceFohlnEcb4Kf51ys08uXnY97YOPirAnj7bfeiavg==",
+        "requested": "[0.10.11.5, )",
+        "resolved": "0.10.11.5",
+        "contentHash": "XHU7/hRYWEdaJOs+weT9ml9/GYqroPrAtePjGzUzUrMoHESbqmkLXmW+fHkaAeXRMJAOAFD1LQUHQu+B6ThF3w==",
         "dependencies": {
           "Avalonia": "0.10.11",
-          "Avalonia.Xaml.Interactions": "0.10.11",
-          "Avalonia.Xaml.Interactivity": "0.10.11"
+          "Avalonia.Xaml.Interactions": "0.10.11.5",
+          "Avalonia.Xaml.Interactivity": "0.10.11.5"
+        }
+      },
+      "DataBox": {
+        "type": "Direct",
+        "requested": "[0.10.11.1, )",
+        "resolved": "0.10.11.1",
+        "contentHash": "cEAKQ6gEDLY8NVHl8HX6cZUpk+SVZyvozxK9KaXhmU+I0jg62E0FecXK/p768lPUpyCqsD0aX2NtzDpgaVV7Mg==",
+        "dependencies": {
+          "Avalonia": "0.10.11"
         }
       },
       "OpenCvSharp4": {
@@ -103,17 +112,17 @@
       },
       "Avalonia.Xaml.Interactions": {
         "type": "Transitive",
-        "resolved": "0.10.11",
-        "contentHash": "35OPUNDUJgMHBuctG7cxdvUSoIfGr5cSoHfhIG9VZXQqdqOTPexfUuVzCyygrlWPvYVDClGyX0napvMXVO0OZg==",
+        "resolved": "0.10.11.5",
+        "contentHash": "MpqS1t1zypDNEW2Pyg113W4AwmfaWai5LfA/K22sDbygXII+KuACaHt2ZPHJWnvKGHgasLEEFhEOGfF5cB9NPA==",
         "dependencies": {
           "Avalonia": "0.10.11",
-          "Avalonia.Xaml.Interactivity": "0.10.11"
+          "Avalonia.Xaml.Interactivity": "0.10.11.5"
         }
       },
       "Avalonia.Xaml.Interactivity": {
         "type": "Transitive",
-        "resolved": "0.10.11",
-        "contentHash": "g2qqWYtpZThGuOQM4LIRNkCARVEnG7VVCHejKOC3PJ8LPSC5s3n2DtUY/K0HB4U+YgT23B4DZtodvCK7NV+7Ug==",
+        "resolved": "0.10.11.5",
+        "contentHash": "MOM6lcPenJZu9LPhai3n67GssBUx3MjoCVLyR2GEJ6lywKQgk4MKOIAC0gLWgy7x1e540oy4lCpeX8jMsqe7mA==",
         "dependencies": {
           "Avalonia": "0.10.11"
         }
@@ -515,19 +524,6 @@
         "type": "Transitive",
         "resolved": "4.5.0",
         "contentHash": "okurQJO6NRE/apDIP23ajJ0hpiNmJ+f0BwOlB/cSqTLQlw5upkf+5+96+iG2Jw40G1fCVCyPz/FhIABUjMR+RQ=="
-      },
-      "databox": {
-        "type": "Project",
-        "dependencies": {
-          "Avalonia": "0.10.11",
-          "VirtualPanel": "0.10.11-preview.0"
-        }
-      },
-      "virtualpanel": {
-        "type": "Project",
-        "dependencies": {
-          "Avalonia": "0.10.11"
-        }
       },
       "walletwasabi": {
         "type": "Project",
