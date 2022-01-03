@@ -63,15 +63,6 @@
           "Avalonia.Xaml.Interactivity": "0.10.11.5"
         }
       },
-      "DataBox": {
-        "type": "Direct",
-        "requested": "[0.10.11.1, )",
-        "resolved": "0.10.11.1",
-        "contentHash": "cEAKQ6gEDLY8NVHl8HX6cZUpk+SVZyvozxK9KaXhmU+I0jg62E0FecXK/p768lPUpyCqsD0aX2NtzDpgaVV7Mg==",
-        "dependencies": {
-          "Avalonia": "0.10.11"
-        }
-      },
       "OpenCvSharp4": {
         "type": "Direct",
         "requested": "[4.5.2.20210404, )",
@@ -524,6 +515,19 @@
         "type": "Transitive",
         "resolved": "4.5.0",
         "contentHash": "okurQJO6NRE/apDIP23ajJ0hpiNmJ+f0BwOlB/cSqTLQlw5upkf+5+96+iG2Jw40G1fCVCyPz/FhIABUjMR+RQ=="
+      },
+      "databox": {
+        "type": "Project",
+        "dependencies": {
+          "Avalonia": "0.10.11",
+          "VirtualPanel": "0.10.11.1"
+        }
+      },
+      "virtualpanel": {
+        "type": "Project",
+        "dependencies": {
+          "Avalonia": "0.10.11"
+        }
       },
       "walletwasabi": {
         "type": "Project",

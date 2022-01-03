@@ -151,14 +151,6 @@
           "Avalonia": "0.10.11"
         }
       },
-      "DataBox": {
-        "type": "Transitive",
-        "resolved": "0.10.11.1",
-        "contentHash": "cEAKQ6gEDLY8NVHl8HX6cZUpk+SVZyvozxK9KaXhmU+I0jg62E0FecXK/p768lPUpyCqsD0aX2NtzDpgaVV7Mg==",
-        "dependencies": {
-          "Avalonia": "0.10.11"
-        }
-      },
       "DynamicData": {
         "type": "Transitive",
         "resolved": "7.1.1",
@@ -674,6 +666,19 @@
         "dependencies": {
           "System.Reflection.Emit": "4.7.0",
           "System.Security.Principal.Windows": "4.7.0"
+        }
+      },
+      "databox": {
+        "type": "Project",
+        "dependencies": {
+          "Avalonia": "0.10.11",
+          "VirtualPanel": "0.10.11.1"
+        }
+      },
+      "virtualpanel": {
+        "type": "Project",
+        "dependencies": {
+          "Avalonia": "0.10.11"
         }
       },
       "walletwasabi": {
