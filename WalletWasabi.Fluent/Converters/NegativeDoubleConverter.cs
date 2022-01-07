@@ -11,7 +11,7 @@ namespace WalletWasabi.Fluent.Converters
 		{
 		}
 
-		object? IValueConverter.Convert(object value, Type targetType, object parameter, CultureInfo culture)
+		object? IValueConverter.Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
 		{
 			if (value is double d)
 			{
@@ -21,9 +21,9 @@ namespace WalletWasabi.Fluent.Converters
 			return null;
 		}
 
-		object IValueConverter.ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+		object? IValueConverter.ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
 		{
-			throw new NotImplementedException();
+			return null;
 		}
 	}
 }

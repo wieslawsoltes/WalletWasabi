@@ -12,14 +12,19 @@ namespace WalletWasabi.Fluent.Converters
 		{
 		}
 
-		object? IValueConverter.Convert(object value, Type targetType, object parameter, CultureInfo culture)
+		object? IValueConverter.Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
 		{
-			return (StatusBarState)value == (StatusBarState)parameter;
+			if (value is StatusBarState state && parameter is StatusBarState paramState)
+			{
+				return state == paramState;
+			}
+
+			return null;
 		}
 
-		object IValueConverter.ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+		object? IValueConverter.ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
 		{
-			throw new NotImplementedException();
+			return null;
 		}
 	}
 }

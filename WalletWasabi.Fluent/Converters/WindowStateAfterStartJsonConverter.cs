@@ -12,7 +12,7 @@ namespace WalletWasabi.Fluent.Converters
 		}
 
 		/// <inheritdoc />
-		public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+		public override object ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer)
 		{
 			try
 			{
@@ -33,7 +33,7 @@ namespace WalletWasabi.Fluent.Converters
 		}
 
 		/// <inheritdoc />
-		public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+		public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
 		{
 			writer.WriteValue(value);
 		}
