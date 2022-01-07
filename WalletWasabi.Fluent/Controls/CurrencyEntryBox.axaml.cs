@@ -44,7 +44,7 @@ namespace WalletWasabi.Fluent.Controls
 		private readonly CultureInfo _customCultureInfo;
 		private readonly char _decimalSeparator = '.';
 		private readonly char _groupSeparator = ' ';
-		private readonly Regex _regexBTCFormat;
+		private readonly Regex _regexBtcFormat;
 		private readonly Regex _regexDecimalCharsOnly;
 		private readonly Regex _regexConsecutiveSpaces;
 		private readonly Regex _regexGroupAndDecimal;
@@ -75,7 +75,7 @@ namespace WalletWasabi.Fluent.Controls
 			Watermark = "0 BTC";
 			Text = string.Empty;
 
-			_regexBTCFormat =
+			_regexBtcFormat =
 				new Regex(
 					$"^(?<Whole>[0-9{_groupSeparator}]*)(\\{_decimalSeparator}?(?<Frac>[0-9{_groupSeparator}]*))$",
 					RegexOptions.Compiled);
@@ -195,7 +195,7 @@ namespace WalletWasabi.Fluent.Controls
 		{
 			// Check if it has a decimal separator.
 			var trailingDecimal = preComposedText.Length > 0 && preComposedText[^1] == _decimalSeparator;
-			var match = _regexBTCFormat.Match(preComposedText);
+			var match = _regexBtcFormat.Match(preComposedText);
 
 			// Ignore group chars on count of the whole part of the decimal.
 			var wholeStr = match.Groups["Whole"].ToString();
@@ -255,16 +255,16 @@ namespace WalletWasabi.Fluent.Controls
 
 		protected override void OnKeyDown(KeyEventArgs e)
 		{
-			DoPasteCheckAsync(e);
+			DoPasteCheck(e);
 		}
 
-		private async void DoPasteCheckAsync(KeyEventArgs e)
+		private void DoPasteCheck(KeyEventArgs e)
 		{
 			var keymap = AvaloniaLocator.Current.GetService<PlatformHotkeyConfiguration>();
 
-			bool Match(List<KeyGesture> gestures) => gestures.Any(g => g.Matches(e));
+			bool Match(IEnumerable<KeyGesture> gestures) => gestures.Any(g => g.Matches(e));
 
-			if (Match(keymap.Paste))
+			if (keymap is { } && Match(keymap.Paste))
 			{
 				ModifiedPasteAsync();
 			}
@@ -276,28 +276,31 @@ namespace WalletWasabi.Fluent.Controls
 
 		public async void ModifiedPasteAsync()
 		{
-			var text = await AvaloniaLocator.Current.GetService<IClipboard>().GetTextAsync();
-
-			if (string.IsNullOrEmpty(text))
+			if (AvaloniaLocator.Current.GetService<IClipboard>() is { } clipboard)
 			{
-				return;
-			}
+				var text = await clipboard.GetTextAsync();
 
-			text = text.Replace("\r", "").Replace("\n", "").Trim();
+				if (string.IsNullOrEmpty(text))
+				{
+					return;
+				}
 
-			// Based on broad M0 money supply figures (80 900 000 000 000.00 USD).
-			// so USD has 14 whole places + the decimal point + 2 decimal places = 17 characters.
-			// Bitcoin has "21 000 000 . 0000 0000".
-			// Coincidentally the same character count as USD... weird.
-			// Plus adding 4 characters for the group separators.
-			if (text.Length > 17 + 4)
-			{
-				text = text[..(17 + 4)];
-			}
+				text = text.Replace("\r", "").Replace("\n", "").Trim();
 
-			if (ValidateEntryText(text))
-			{
-				OnTextInput(new TextInputEventArgs { Text = text });
+				// Based on broad M0 money supply figures (80 900 000 000 000.00 USD).
+				// so USD has 14 whole places + the decimal point + 2 decimal places = 17 characters.
+				// Bitcoin has "21 000 000 . 0000 0000".
+				// Coincidentally the same character count as USD... weird.
+				// Plus adding 4 characters for the group separators.
+				if (text.Length > 17 + 4)
+				{
+					text = text[..(17 + 4)];
+				}
+
+				if (ValidateEntryText(text))
+				{
+					OnTextInput(new TextInputEventArgs { Text = text });
+				}
 			}
 		}
 
@@ -305,7 +308,7 @@ namespace WalletWasabi.Fluent.Controls
 		// be committed to the TextPresenter in this control.
 
 		// An event in Avalonia's TextBox with this function should be implemented there for brevity.
-		private string PreComposeText(string input)
+		private string PreComposeText(string? input)
 		{
 			input = RemoveInvalidCharacters(input);
 			var preComposedText = Text ?? "";

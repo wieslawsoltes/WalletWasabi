@@ -5,8 +5,6 @@ using Avalonia.Media;
 using Avalonia.Rendering;
 using Avalonia.VisualTree;
 
-#nullable enable
-
 namespace WalletWasabi.Fluent.Controls
 {
 	/// <summary>
@@ -145,14 +143,17 @@ namespace WalletWasabi.Fluent.Controls
 			clip.Rect = clipBounds;
 		}
 
-		private void ChildrenCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+		private void ChildrenCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
 		{
 			switch (e.Action)
 			{
 				case NotifyCollectionChangedAction.Add:
-					foreach (Visual i in e.NewItems)
+					if (e.NewItems is { })
 					{
-						UpdateAdornedElement(i, i.GetValue(AdornedElementProperty));
+						foreach (Visual i in e.NewItems)
+						{
+							UpdateAdornedElement(i, i.GetValue(AdornedElementProperty));
+						}
 					}
 
 					break;

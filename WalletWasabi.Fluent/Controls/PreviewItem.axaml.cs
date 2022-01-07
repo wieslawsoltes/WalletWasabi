@@ -40,7 +40,11 @@ namespace WalletWasabi.Fluent.Controls
 				if (obj.ToString() is { } text)
 				{
 					_copyButtonPressedStopwatch = Stopwatch.StartNew();
-					await Application.Current.Clipboard.SetTextAsync(text);
+
+					if (Application.Current is { Clipboard: { } })
+					{
+						await Application.Current.Clipboard.SetTextAsync(text);
+					}
 				}
 			});
 

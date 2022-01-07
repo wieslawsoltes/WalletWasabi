@@ -74,10 +74,15 @@ namespace WalletWasabi.Fluent.Controls
 
 		public Size MeasureArrange(bool isMeasure)
 		{
+			if (ColumnHints is null)
+			{
+				return new Size();
+			}
+
 			var layoutIndex = 0;
 			var totalColumns = ColumnHints[layoutIndex];
 
-			if (!double.IsInfinity(Width))
+			if (!double.IsInfinity(Width) && WidthTriggers is { })
 			{
 				for (var i = WidthTriggers.Count - 1; i >= 0; i--)
 				{
