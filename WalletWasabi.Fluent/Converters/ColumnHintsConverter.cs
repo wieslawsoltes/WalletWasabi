@@ -14,7 +14,7 @@ namespace WalletWasabi.Fluent.Converters
 		{
 		}
 
-		object? IValueConverter.Convert(object value, Type targetType, object parameter, CultureInfo culture)
+		object? IValueConverter.Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
 		{
 			if (value is AvaloniaList<int> columnHints)
 			{
@@ -24,7 +24,7 @@ namespace WalletWasabi.Fluent.Converters
 			return null;
 		}
 
-		object IValueConverter.ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+		object? IValueConverter.ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
 		{
 			if (value is string str)
 			{
@@ -33,7 +33,7 @@ namespace WalletWasabi.Fluent.Converters
 
 				foreach (var s in values)
 				{
-					if (TypeUtilities.TryConvert(typeof(int), s, culture, out var v))
+					if (TypeUtilities.TryConvert(typeof(int), s, culture, out var v) && v is { })
 					{
 						columnHints.Add((int)v);
 					}
