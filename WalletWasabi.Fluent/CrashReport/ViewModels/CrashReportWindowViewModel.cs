@@ -24,7 +24,10 @@ namespace WalletWasabi.Fluent.CrashReport.ViewModels
 
 			CopyTraceCommand = ReactiveCommand.CreateFromTask(async () =>
 			{
-				await Application.Current.Clipboard.SetTextAsync(Trace);
+				if (Application.Current is { } && Application.Current.Clipboard is { })
+				{
+					await Application.Current.Clipboard.SetTextAsync(Trace);
+				}
 			});
 		}
 
