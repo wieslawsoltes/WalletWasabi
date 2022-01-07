@@ -29,7 +29,7 @@ namespace WalletWasabi.Fluent.ViewModels.Login.PasswordFinder
 
 		public ICommand NoCommand { get; }
 
-		public IImage Icon { get; }
+		public IImage? Icon { get; }
 
 		private void SetAnswer(bool ans)
 		{

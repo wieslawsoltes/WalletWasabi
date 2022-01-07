@@ -29,7 +29,12 @@ namespace WalletWasabi.Fluent.ViewModels.Wallets.Home.History
 			NextCommand = CancelCommand;
 
 			CopyCommand = ReactiveCommand.CreateFromTask<uint256>(async txid =>
-				await Application.Current.Clipboard.SetTextAsync(txid.ToString()));
+			{
+				if (Application.Current is { Clipboard: { } clipboard })
+				{
+					await clipboard.SetTextAsync(txid.ToString());
+				}
+			});
 
 			Update();
 		}

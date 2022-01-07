@@ -83,7 +83,7 @@ namespace WalletWasabi.Fluent.ViewModels.Wallets.Send
 
 			PasteCommand = ReactiveCommand.CreateFromTask(async () => await OnPasteAsync());
 			AutoPasteCommand = ReactiveCommand.CreateFromTask(async () => await OnAutoPasteAsync());
-			QRCommand = ReactiveCommand.Create(async () =>
+			QrCommand = ReactiveCommand.Create(async () =>
 			{
 				ShowQrCameraDialogViewModel dialog = new(_wallet.Network);
 				var result = await NavigateDialogAsync(dialog, NavigationTarget.CompactDialogScreen);
@@ -107,7 +107,7 @@ namespace WalletWasabi.Fluent.ViewModels.Wallets.Send
 						return allFilled && !hasError;
 					});
 
-			NextCommand = ReactiveCommand.CreateFromTask(async () =>
+			NextCommand = ReactiveCommand.Create(() =>
 			{
 				_transactionInfo.Amount = new Money(AmountBtc, MoneyUnit.BTC);
 
@@ -121,7 +121,7 @@ namespace WalletWasabi.Fluent.ViewModels.Wallets.Send
 
 		public ICommand AutoPasteCommand { get; }
 
-		public ICommand QRCommand { get; }
+		public ICommand QrCommand { get; }
 
 		public ICommand AdvancedOptionsCommand { get; }
 
@@ -137,16 +137,19 @@ namespace WalletWasabi.Fluent.ViewModels.Wallets.Send
 
 		private async Task OnPasteAsync(bool pasteIfInvalid = true)
 		{
-			var text = await Application.Current.Clipboard.GetTextAsync();
-
-			_parsingUrl = true;
-
-			if (!TryParseUrl(text) && pasteIfInvalid)
+			if (Application.Current is { Clipboard: { } clipboard })
 			{
-				To = text;
-			}
+				var text = await clipboard.GetTextAsync();
 
-			_parsingUrl = false;
+				_parsingUrl = true;
+
+				if (!TryParseUrl(text) && pasteIfInvalid)
+				{
+					To = text;
+				}
+
+				_parsingUrl = false;
+			}
 		}
 
 		private IPayjoinClient? GetPayjoinClient(string endPoint)

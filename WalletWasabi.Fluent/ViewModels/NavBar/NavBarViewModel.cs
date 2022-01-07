@@ -34,9 +34,10 @@ namespace WalletWasabi.Fluent.ViewModels.NavBar
 			_bottomItems = new ObservableCollection<NavBarItemViewModel>();
 
 			mainScreen.WhenAnyValue(x => x.CurrentPage)
+				.WhereNotNull()
 				.OfType<NavBarItemViewModel>()
 				.DistinctUntilChanged()
-				.Subscribe(x => CurrentPageChanged(x));
+				.Subscribe(CurrentPageChanged);
 
 			this.WhenAnyValue(x => x.SelectedItem)
 				.Subscribe(selectedItem =>
@@ -59,7 +60,7 @@ namespace WalletWasabi.Fluent.ViewModels.NavBar
 					{
 						if (!UiServices.WalletManager.IsLoadingWallet)
 						{
-							var lastSelectedItem = Items.FirstOrDefault(x => x is WalletViewModelBase wallet && wallet.WalletName == Services.UiConfig.LastSelectedWallet);
+							var lastSelectedItem = Items.FirstOrDefault(item => item is WalletViewModelBase wallet && wallet.WalletName == Services.UiConfig.LastSelectedWallet);
 
 							SelectedItem = lastSelectedItem ?? Items.FirstOrDefault();
 						}
@@ -84,13 +85,11 @@ namespace WalletWasabi.Fluent.ViewModels.NavBar
 				});
 
 			UiServices.WalletManager.WhenAnyValue(x => x.SelectedWallet)
+				.WhereNotNull()
 				.OfType<NavBarItemViewModel>()
 				.Subscribe(x =>
 				{
-					if (x is not null)
-					{
-						SelectedItem = x;
-					}
+					SelectedItem = x;
 				});
 		}
 

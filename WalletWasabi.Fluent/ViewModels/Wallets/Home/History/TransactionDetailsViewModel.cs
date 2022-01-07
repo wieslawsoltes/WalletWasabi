@@ -40,7 +40,7 @@ namespace WalletWasabi.Fluent.ViewModels.Wallets.Home.History
 			UpdateValues(transactionSummary);
 		}
 
-		public ICommand CopyTransactionIdCommand { get; set; }
+		public ICommand CopyTransactionIdCommand { get; }
 
 		private async Task OnCopyTransactionIdAsync()
 		{
@@ -49,7 +49,10 @@ namespace WalletWasabi.Fluent.ViewModels.Wallets.Home.History
 				return;
 			}
 
-			await Application.Current.Clipboard.SetTextAsync(TransactionId);
+			if (Application.Current is { Clipboard: { } clipboard })
+			{
+				await clipboard.SetTextAsync(TransactionId);
+			}
 		}
 
 		private void UpdateValues(TransactionSummary transactionSummary)

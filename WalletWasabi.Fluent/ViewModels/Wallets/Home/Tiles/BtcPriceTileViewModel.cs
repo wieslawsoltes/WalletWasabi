@@ -14,6 +14,7 @@ namespace WalletWasabi.Fluent.ViewModels.Wallets.Home.Tiles
 		public BtcPriceTileViewModel(Wallet wallet)
 		{
 			_wallet = wallet;
+			_btcPrice = "";
 		}
 
 		protected override void OnActivated(CompositeDisposable disposables)

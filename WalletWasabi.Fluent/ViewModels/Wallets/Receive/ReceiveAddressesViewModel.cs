@@ -83,10 +83,13 @@ namespace WalletWasabi.Fluent.ViewModels.Wallets.Receive
 			model.SetKeyState(KeyState.Locked, Wallet.KeyManager);
 			InitializeAddresses();
 
-			var isAddressCopied = await Application.Current.Clipboard.GetTextAsync() == address;
-			if (isAddressCopied)
+			if (Application.Current is { Clipboard: { } clipboard })
 			{
-				await Application.Current.Clipboard.ClearAsync();
+				var isAddressCopied = await clipboard.GetTextAsync() == address;
+				if (isAddressCopied)
+				{
+					await clipboard.ClearAsync();
+				}
 			}
 		}
 
