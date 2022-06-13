@@ -13,7 +13,7 @@ public class AuraSpectrumDataSource : SpectrumDataSource
 
 	public bool IsActive { get; set; }
 
-	protected override void OnMixData()
+	public override void OnMixData()
 	{
 		for (int i = 0; i < NumBins; i++)
 		{

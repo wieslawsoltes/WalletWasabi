@@ -37,7 +37,7 @@ public abstract class SpectrumDataSource
 		OnMixData();
 	}
 
-	protected abstract void OnMixData();
+	public abstract void OnMixData();
 
 	public void Render(ref float[] data)
 	{

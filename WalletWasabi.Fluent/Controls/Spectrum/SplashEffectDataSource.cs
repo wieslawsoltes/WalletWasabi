@@ -8,7 +8,7 @@ public class SplashEffectDataSource : SpectrumDataSource
 	{
 	}
 
-	protected override void OnMixData()
+	public override void OnMixData()
 	{
 		Bins[MidPointBins - _currentEffectIndex] = 1;
 		Bins[MidPointBins + _currentEffectIndex] = 1;
