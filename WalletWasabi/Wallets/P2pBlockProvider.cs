@@ -75,12 +75,12 @@ public class P2pBlockProvider : IBlockProvider
 				try
 				{
 					// Try to get block information from local running Core node first.
-					block = await TryDownloadBlockFromLocalNodeAsync(hash, cancellationToken).ConfigureAwait(false);
-
-					if (block is { })
-					{
-						break;
-					}
+					//block = await TryDownloadBlockFromLocalNodeAsync(hash, cancellationToken).ConfigureAwait(false);
+//
+					//if (block is { })
+					//{
+					//	break;
+					//}
 
 					// If no connection, wait, then continue.
 					while (Nodes.ConnectedNodes.Count == 0)
@@ -316,9 +316,9 @@ public class P2pBlockProvider : IBlockProvider
 		}
 
 		// Sanity check
-		if (timeout < 32)
+		if (timeout < 2)
 		{
-			timeout = 32;
+			timeout = 2;
 		}
 		else if (timeout > 600)
 		{
