@@ -164,6 +164,7 @@ public partial class WalletViewModel : WalletViewModelBase
 	{
 		base.OnNavigatedTo(isInHistory, disposables);
 
+		// TODO: Does it dispose?
 		History.Activate(disposables);
 
 		foreach (var tile in Tiles)

@@ -80,6 +80,10 @@ public partial class WalletCoinsViewModel : RoutableViewModel
 		Source = CreateGridSource(coinsCollection)
 			.DisposeWith(disposables);
 
+		Disposable
+			.Create(() => Console.WriteLine("[WalletCoinsViewModel] DISPOSED"))
+			.DisposeWith(disposables);
+
 		base.OnNavigatedTo(isInHistory, disposables);
 	}
 

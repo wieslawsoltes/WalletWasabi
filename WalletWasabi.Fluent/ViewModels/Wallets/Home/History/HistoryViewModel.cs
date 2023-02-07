@@ -77,6 +77,8 @@ public partial class HistoryViewModel : ActivatableViewModel
 			}
 		};
 
+		// TODO: Source dispose!
+
 		Source.RowSelection!.SingleSelect = true;
 
 		Source.RowSelection
@@ -223,6 +225,7 @@ public partial class HistoryViewModel : ActivatableViewModel
 	{
 		base.OnActivated(disposables);
 
+		// Called every time wallet switched, should dispose previous one ?
 		_walletVm.UiTriggers.TransactionsUpdateTrigger
 			.DoAsync(async _ => await UpdateAsync())
 			.Subscribe()
