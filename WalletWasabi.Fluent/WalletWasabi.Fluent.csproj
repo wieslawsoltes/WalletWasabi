@@ -13,26 +13,33 @@
 		<InvariantGlobalization>true</InvariantGlobalization>
 		<RuntimeIdentifiers>win7-x64;linux-x64;linux-arm64;osx-x64;osx-arm64</RuntimeIdentifiers>
 		<PathMap>$(MSBuildProjectDirectory)\=WalletWasabi.Fluent</PathMap>
-		<AvaloniaVersion>0.10.19</AvaloniaVersion>
+		<AvaloniaNameGeneratorIsEnabled>false</AvaloniaNameGeneratorIsEnabled>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 	</PropertyGroup>
 	<ItemGroup>
 		<AvaloniaResource Include="Assets\**" />
 	</ItemGroup>
 	<ItemGroup>
-		<PackageReference Include="Avalonia" Version="$(AvaloniaVersion)" />
-		<PackageReference Include="Avalonia.Controls.TreeDataGrid" Version="0.10.18.1" />
-		<PackageReference Include="Avalonia.ReactiveUI" Version="$(AvaloniaVersion)" />
-		<PackageReference Include="Avalonia.Diagnostics" Version="$(AvaloniaVersion)" Condition="'$(Configuration)' == 'Debug'" />
-		<PackageReference Include="Avalonia.Xaml.Behaviors" Version="0.10.19" />
-		<PackageReference Include="Avalonia.Skia" Version="$(AvaloniaVersion)" />
-		<PackageReference Include="System.Drawing.Common" Version="7.0.0" />
-		<PackageReference Include="System.Runtime" Version="4.3.1" />
+		<PackageReference Include="Avalonia" />
+		<PackageReference Include="Avalonia.Controls.TreeDataGrid" />
+		<PackageReference Include="Avalonia.ReactiveUI" />
+		<PackageReference Include="Avalonia.Diagnostics" Condition="'$(Configuration)' == 'Debug'" />
+		<PackageReference Include="Avalonia.Xaml.Behaviors" />
+		<PackageReference Include="Avalonia.Skia" />
+		<PackageReference Include="Avalonia.Themes.Fluent" />
+		<PackageReference Include="Avalonia.Fonts.Inter" />
+		<PackageReference Include="DynamicData" />
+		<PackageReference Include="System.Runtime" />
+		<PackageReference Include="QRackers" />
+		<!-- TODO: Required HarfBuzzSharp version bump to make iossimulator-arm64 RID work for iOS project -->
+		<!-- TODO: Can be removed after Avalonia update and HarfBuzzSharp >= 2.8.2.5 -->
+		<PackageReference Include="HarfBuzzSharp" />
+		<!-- ChatGPT -->
 		<PackageReference Include="ChatGPT.Core" Version="1.0.0-preview.5" />
 		<PackageReference Include="Microsoft.CodeAnalysis.CSharp.Scripting" Version="4.5.0" />
 	</ItemGroup>
 	<ItemGroup>
-		<ProjectReference Include="..\WalletWasabi\WalletWasabi.csproj" />
+		<ProjectReference Include="..\WalletWasabi.Daemon\WalletWasabi.Daemon.csproj" />
 
 		<!-- See explanation of the additional properties here: https://github.com/dotnet/roslyn/issues/60744#issuecomment-1438273464 -->
 		<ProjectReference Include="..\WalletWasabi.Fluent.Generators\WalletWasabi.Fluent.Generators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" AdditionalProperties="IsRidAgnostic=true" />

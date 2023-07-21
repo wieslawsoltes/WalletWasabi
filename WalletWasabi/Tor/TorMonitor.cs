@@ -42,7 +42,7 @@ public class TorMonitor : PeriodicRunner
 	/// <remarks>Guards <see cref="ForceTorRestartCts"/>.</remarks>
 	private readonly object _lock = new();
 
-	public TorMonitor(TimeSpan period, TorProcessManager torProcessManager, HttpClientFactory httpClientFactory) : base(period)
+	public TorMonitor(TimeSpan period, TorProcessManager torProcessManager, WasabiHttpClientFactory httpClientFactory) : base(period)
 	{
 		TorProcessManager = torProcessManager;
 		TorHttpPool = httpClientFactory.TorHttpPool!;
@@ -102,7 +102,7 @@ public class TorMonitor : PeriodicRunner
 
 		try
 		{
-			// We can't use linked CTS here because then we would not obtain Tor control client instance to actually shut down Tor if force restart is signalled.
+			// We can't use linked CTS here because then we would not obtain Tor control client instance to actually shut down Tor if force restart is signaled.
 			(CancellationToken torTerminatedCancellationToken, torControlClient) = await TorProcessManager.WaitForNextAttemptAsync(cancellationToken).ConfigureAwait(false);
 			using CancellationTokenSource linkedCts2 = CancellationTokenSource.CreateLinkedTokenSource(linkedCts.Token, torTerminatedCancellationToken);
 
@@ -145,7 +145,7 @@ public class TorMonitor : PeriodicRunner
 				{
 					CircuitInfo info = circEvent.CircuitInfo;
 
-					if (!circuitEstablished && (info.CircStatus is CircStatus.BUILT or CircStatus.EXTENDED or CircStatus.GUARD_WAIT))
+					if (!circuitEstablished && (info.CircuitStatus is CircuitStatus.BUILT or CircuitStatus.EXTENDED or CircuitStatus.GUARD_WAIT))
 					{
 						Logger.LogInfo("Tor circuit was established.");
 						circuitEstablished = true;

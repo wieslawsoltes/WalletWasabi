@@ -3,6 +3,7 @@ using System.Linq;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
 using DynamicData;
+using WalletWasabi.Fluent.Models.UI;
 using WalletWasabi.Fluent.ViewModels.NavBar;
 using WalletWasabi.Fluent.ViewModels.Navigation;
 using WalletWasabi.Fluent.ViewModels.SearchBar.Patterns;
@@ -12,8 +13,10 @@ namespace WalletWasabi.Fluent.ViewModels.SearchBar.Sources;
 
 public class ActionsSearchSource : ISearchSource
 {
-	public ActionsSearchSource(IObservable<string> query)
+	public ActionsSearchSource(UiContext uiContext, IObservable<string> query)
 	{
+		UiContext = uiContext;
+
 		var filter = query.Select(SearchSource.DefaultFilter);
 
 		Changes = GetItemsFromMetadata()
@@ -24,7 +27,9 @@ public class ActionsSearchSource : ISearchSource
 
 	public IObservable<IChangeSet<ISearchItem, ComposedKey>> Changes { get; }
 
-	private static IEnumerable<ISearchItem> GetItemsFromMetadata()
+	public UiContext UiContext { get; }
+
+	private IEnumerable<ISearchItem> GetItemsFromMetadata()
 	{
 		return NavigationManager.MetaData
 			.Where(m => m.Searchable)
@@ -35,24 +40,25 @@ public class ActionsSearchSource : ISearchSource
 				{
 					Icon = m.IconName,
 					IsDefault = true,
+					Priority = m.Order,
 				};
 				return searchItem;
 			});
 	}
 
-	private static Func<Task> CreateOnActivateFunction(NavigationMetaData navigationMetaData)
+	private Func<Task> CreateOnActivateFunction(NavigationMetaData navigationMetaData)
 	{
 		return async () =>
 		{
-			var vm = await NavigationManager.MaterialiseViewModelAsync(navigationMetaData);
+			var vm = await NavigationManager.MaterializeViewModelAsync(navigationMetaData);
 			if (vm is null)
 			{
 				return;
 			}
 
-			if (vm is NavBarItemViewModel item && item.OpenCommand.CanExecute(default))
+			if (vm is INavBarButton navBarButton)
 			{
-				item.OpenCommand.Execute(default);
+				await navBarButton.Activate();
 			}
 			else if (vm is TriggerCommandViewModel triggerCommandViewModel && triggerCommandViewModel.TargetCommand.CanExecute(default))
 			{
@@ -60,7 +66,7 @@ public class ActionsSearchSource : ISearchSource
 			}
 			else
 			{
-				RoutableViewModel.Navigate(vm.DefaultTarget).To(vm);
+				UiContext.Navigate(vm.DefaultTarget).To(vm);
 			}
 		};
 	}

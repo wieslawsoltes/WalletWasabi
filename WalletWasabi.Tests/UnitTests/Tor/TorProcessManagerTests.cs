@@ -7,10 +7,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using WalletWasabi.Extensions;
 using WalletWasabi.Microservices;
+using WalletWasabi.Tests.UnitTests.Helpers.PowerSaving;
+using WalletWasabi.Tests.UnitTests.Tor.Socks5.Pool;
 using WalletWasabi.Tor;
 using WalletWasabi.Tor.Control;
 using WalletWasabi.Tor.Control.Exceptions;
-using WalletWasabi.Tor.Socks5;
 using Xunit;
 
 namespace WalletWasabi.Tests.UnitTests.Tor;
@@ -38,20 +39,17 @@ public class TorProcessManagerTests
 		TorSettings settings = new(dataDir, distributionFolder, terminateOnExit: true, owningProcessId: 7);
 
 		// Mock Tor process.
-		Mock<ProcessAsync> mockProcess = new(MockBehavior.Strict, new ProcessStartInfo());
-		mockProcess.Setup(p => p.WaitForExitAsync(It.IsAny<CancellationToken>()))
-			.Returns((CancellationToken cancellationToken) => Task.Delay(torProcessCrashPeriod, cancellationToken));
-		mockProcess.Setup(p => p.Dispose());
+		using MockProcessAsync mockProcess = new(new ProcessStartInfo());
+		mockProcess.OnWaitForExitAsync = cancellationToken => Task.Delay(torProcessCrashPeriod, cancellationToken);
 
 		// Set TorTcpConnectionFactory.
-		Mock<TorTcpConnectionFactory> mockTcpConnectionFactory = new(MockBehavior.Strict, DummyTorControlEndpoint);
-		mockTcpConnectionFactory.Setup(c => c.IsTorRunningAsync(It.IsAny<CancellationToken>()))
-			.ReturnsAsync(false);
+		MockTorTcpConnectionFactory mockTcpConnectionFactory = new(DummyTorControlEndpoint);
+		mockTcpConnectionFactory.OnIsTorRunningAsync = () => Task.FromResult(false);
 
 		// Mock TorProcessManager.
-		Mock<TorProcessManager> mockTorProcessManager = new(MockBehavior.Strict, settings, mockTcpConnectionFactory.Object) { CallBase = true };
+		Mock<TorProcessManager> mockTorProcessManager = new(MockBehavior.Strict, settings, mockTcpConnectionFactory) { CallBase = true };
 		mockTorProcessManager.Setup(c => c.StartProcess(It.IsAny<string>()))
-			.Returns(mockProcess.Object);
+			.Returns(mockProcess);
 		mockTorProcessManager.Setup(c => c.EnsureRunningAsync(It.IsAny<ProcessAsync>(), It.IsAny<CancellationToken>()))
 			.ReturnsAsync(true);
 		mockTorProcessManager.SetupSequence(c => c.InitTorControlAsync(It.IsAny<CancellationToken>()))
@@ -64,22 +62,21 @@ public class TorProcessManagerTests
 			(CancellationToken ct1, TorControlClient client1) = await manager.StartAsync(timeoutCts.Token);
 
 			// Wait for the Tor process crash (see (1)).
-			await ct1.WhenCanceled().WithAwaitCancellationAsync(timeoutCts.Token);
+			await ct1.WhenCanceled().WaitAsync(timeoutCts.Token);
 
 			// Wait until TorProcessManager is stopped (see (2)).
 			await Assert.ThrowsAnyAsync<OperationCanceledException>(async () => await manager.WaitForNextAttemptAsync(timeoutCts.Token).ConfigureAwait(false));
 		}
-
-		mockTorProcessManager.Verify(c => c.StartProcess(It.IsAny<string>()), Times.Exactly(2));
-		mockTorProcessManager.VerifyAll();
 	}
 
 	/// <summary>
 	/// Simulates: Tor OS process is started but by a different OS user. We should throw an exception
 	/// in this case as it is an unsupported scenario at the moment.
 	/// </summary>
-	[Fact]
-	public async Task TorProcessStartedByDifferentUserAsync()
+	[Theory]
+	[InlineData(0)] // No process is returned as Tor is running under a different user (on linux/mac you can's see processes of other users)
+	[InlineData(1)] // Single dummy Tor process is found but cannot be killed
+	public async Task TorProcessStartedByDifferentUserAsync(int runningTorOsProcesses)
 	{
 		using CancellationTokenSource timeoutCts = new(TimeSpan.FromMinutes(2));
 
@@ -89,24 +86,21 @@ public class TorProcessManagerTests
 		TorSettings settings = new(dataDir, distributionFolder, terminateOnExit: true, owningProcessId: 7);
 
 		// Mock Tor process.
-		Mock<ProcessAsync> mockProcess = new(MockBehavior.Strict, new ProcessStartInfo());
-		mockProcess.SetupGet(p => p.Handle).Returns(IntPtr.Zero); // Any value is fine.
-		mockProcess.Setup(p => p.Dispose());
+		using MockProcessAsync mockProcess = new(new ProcessStartInfo());
+		mockProcess.OnHandle = () => IntPtr.Zero; // Any value is fine.
 
-		Mock<TorTcpConnectionFactory> mockTcpConnectionFactory = new(MockBehavior.Strict, DummyTorControlEndpoint);
+		MockTorTcpConnectionFactory mockTcpConnectionFactory = new(DummyTorControlEndpoint);
 
 		// Port is a shared resource, so any user can connect to it.
-		mockTcpConnectionFactory.Setup(c => c.IsTorRunningAsync(It.IsAny<CancellationToken>()))
-			.ReturnsAsync(true);
+		mockTcpConnectionFactory.OnIsTorRunningAsync = () => Task.FromResult(true);
 
-		Mock<TorProcessManager> mockTorProcessManager = new(MockBehavior.Strict, settings, mockTcpConnectionFactory.Object) { CallBase = true };
+		Mock<TorProcessManager> mockTorProcessManager = new(MockBehavior.Strict, settings, mockTcpConnectionFactory) { CallBase = true };
 
-		// No process is returned as Tor is running under a different user.
 		mockTorProcessManager.Setup(c => c.GetTorProcesses())
-			.Returns(Array.Empty<Process>());
+			.Returns(runningTorOsProcesses == 0 ? Array.Empty<Process>() : new[] { new Process() /* Dummy process */ });
 
 		// Cookie file is stored in the profile of that different user, not ours.
-		mockTorProcessManager.SetupSequence(c => c.InitTorControlAsync(It.IsAny<CancellationToken>()))
+		mockTorProcessManager.Setup(c => c.InitTorControlAsync(It.IsAny<CancellationToken>()))
 			.ThrowsAsync(new TorControlException("Cookie file does not exist."));
 
 		await using (TorProcessManager torProcessManager = mockTorProcessManager.Object)
