@@ -55,17 +55,17 @@ public class ChatAssistantScriptGlobals
 
 			var LabelSelection = new LabelSelectionViewModel(currentWallet.Wallet.KeyManager, currentWallet.Wallet.Kitchen.SaltSoup(), transactionInfo, true);
 
-			 void InitializeLabels()
+			async Task InitializeLabelsAsync()
 			{
 				var privateThreshold = currentWallet.Wallet.AnonScoreTarget;
 
-				LabelSelection.Reset(currentWallet.Wallet.Coins.GetPockets(privateThreshold).Select(x => new Pocket(x)).ToArray());
-				LabelSelection.SetUsedLabel(new List<SmartCoin>(), privateThreshold);
+				await LabelSelection.ResetAsync(currentWallet.Wallet.Coins.GetPockets(privateThreshold).Select(x => new Pocket(x)).ToArray());
+				await LabelSelection.SetUsedLabelAsync(new List<SmartCoin>(), privateThreshold);
 			}
 
-			 InitializeLabels();
+			 await InitializeLabelsAsync();
 
-			 var autoSelectedPockets = LabelSelection.AutoSelectPockets();
+			 var autoSelectedPockets = await LabelSelection.AutoSelectPocketsAsync();
 			 var coins = Pocket.Merge(autoSelectedPockets.ToArray()).Coins;
 
 			 transactionInfo.Coins = coins;
