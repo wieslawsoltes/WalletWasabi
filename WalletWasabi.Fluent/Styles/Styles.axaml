@@ -5,8 +5,11 @@
     <sys:Double x:Key="IconElementThemeHeight">16</sys:Double>
     <Easing x:Key="FluentEasing">0.4,0,0.6,1</Easing>
     <KeySpline x:Key="FluentKeySpline">0.4,0,0.6,1</KeySpline>
-    <FontFamily x:Key="MonospacedFont">avares://WalletWasabi.Fluent/Assets/Fonts#Roboto Mono</FontFamily>
-    <FontFamily x:Key="WasabiLogoTextFont">avares://WalletWasabi.Fluent/Assets/Fonts#Objectivity</FontFamily>
+    <FontFamily x:Key="DefaultFont">avares://WalletWasabi.Fluent/Assets/Fonts#SpecialAlphabets P04</FontFamily>
+    <FontFamily x:Key="MonospacedFont">avares://WalletWasabi.Fluent/Assets/Fonts#SpecialAlphabets P04</FontFamily>
+    <FontFamily x:Key="WasabiLogoTextFont">avares://WalletWasabi.Fluent/Assets/Fonts#SpecialAlphabets P04</FontFamily>
+    <!--<FontFamily x:Key="MonospacedFont">avares://WalletWasabi.Fluent/Assets/Fonts#Roboto Mono</FontFamily>-->
+    <!--<FontFamily x:Key="WasabiLogoTextFont">avares://WalletWasabi.Fluent/Assets/Fonts#Objectivity</FontFamily>-->
     <sys:Int32 x:Key="MaxLabelLength">50</sys:Int32>
     <x:Double x:Key="LabelMaxWidth">120</x:Double>
   </Styles.Resources>
