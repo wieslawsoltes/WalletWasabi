@@ -17,10 +17,26 @@ public class RestartRendererInLinuxBehavior : DisposingBehavior<Window>
 			return;
 		}
 
-		PropertyInfo rendererProperty = typeof(TopLevel).GetProperty("Renderer", BindingFlags.Instance | BindingFlags.NonPublic);
-		var rendererValue = rendererProperty.GetValue(AssociatedObject);
-		var rendererType = rendererValue.GetType();
+		var property = typeof(TopLevel).GetProperty("Renderer", BindingFlags.Instance | BindingFlags.NonPublic);
+
+		if (property is not { } renderedProperty)
+		{
+			return;
+		}
+
+		var rendererValue = renderedProperty.GetValue(AssociatedObject);
+		if (rendererValue is not { } renderer)
+		{
+			return;
+		}
+
+		var rendererType = renderer.GetType();
 		var startMethod = rendererType.GetMethod("Start");
+
+		if (startMethod is not { } start)
+		{
+			return;
+		}
 
 		AssociatedObject
 			.WhenAnyValue(x => x.WindowState)
@@ -28,7 +44,7 @@ public class RestartRendererInLinuxBehavior : DisposingBehavior<Window>
 			.Where(_ => OperatingSystem.IsLinux())
 			.Do(_ =>
 			{
-				startMethod.Invoke(rendererValue, null);
+				start.Invoke(rendererValue, null);
 				AssociatedObject.Activate();
 			})
 			.Subscribe()
