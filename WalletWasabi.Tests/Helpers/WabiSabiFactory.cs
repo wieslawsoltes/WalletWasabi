@@ -334,8 +334,8 @@ public static class WabiSabiFactory
 			TimeSpan.Zero);
 
 		// Overwrite Maximum Request Delay parameter but still use the original method.
-		mock.Setup(m => m.GetScheduledDates(It.IsAny<int>(), It.IsAny<DateTimeOffset>(), It.IsNotIn(TimeSpan.FromSeconds(1))))
-			.Returns((int howMany, DateTimeOffset endTime, TimeSpan maximumRequestDelay) => mock.Object.GetScheduledDates(howMany, endTime, TimeSpan.FromSeconds(1)));
+		mock.Setup(m => m.GetScheduledDates(It.IsAny<int>(), It.IsAny<DateTimeOffset>(), It.IsAny<DateTimeOffset>(), It.IsNotIn(TimeSpan.FromSeconds(1))))
+			.Returns((int howMany, DateTimeOffset startTime, DateTimeOffset endTime, TimeSpan maximumRequestDelay) => mock.Object.GetScheduledDates(howMany, startTime, endTime, TimeSpan.FromSeconds(1)));
 
 		mock.CallBase = true;
 
@@ -388,6 +388,7 @@ public static class WabiSabiFactory
 			MinTimeForCheating: TimeSpan.FromDays(1),
 			MinTimeInPrison: TimeSpan.FromHours(1),
 			PenaltyFactorForDisruptingConfirmation: 1.0m,
+			PenaltyFactorForDisruptingSignalReadyToSign: 1.5m,
 			PenaltyFactorForDisruptingSigning: 1.5m,
 			PenaltyFactorForDisruptingByDoubleSpending: 3.0m);
 
