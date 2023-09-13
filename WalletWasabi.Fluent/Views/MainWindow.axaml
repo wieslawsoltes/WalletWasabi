@@ -33,7 +33,65 @@
     <behaviors:ContextFlyoutWorkaroundBehavior />
   </i:Interaction.Behaviors>
 
-  <Panel Margin="{Binding #MainWindow.OffScreenMargin}">
-    <shell:Shell />
+  <Panel Margin="{Binding #MainWindow.OffScreenMargin}" Background="Black">
+    <!-- <shell:Shell /> -->
+    <Grid ColumnDefinitions="Auto,Auto,Auto" ShowGridLines="True" HorizontalAlignment="Center" VerticalAlignment="Center">
+      <Grid.Styles>
+        <Style Selector="TextBlock">
+          <Setter Property="Height" Value="20" />
+        </Style>
+      </Grid.Styles>
+      <StackPanel Grid.Column="0" TextElement.FontFamily="Segoe UI" HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="4">
+        <TextBlock Text="Segoe UI"/>
+        <TextBlock Text="Very long sample text. 1232345 - Size 8" FontSize="8"/>
+        <TextBlock Text="Very long sample text. 1232345 - Size 9" FontSize="9"/>
+        <TextBlock Text="Very long sample text. 1232345 - Size 10" FontSize="10"/>
+        <TextBlock Text="Very long sample text. 1232345 - Size 11" FontSize="11"/>
+        <TextBlock Text="Very long sample text. 1232345 - Size 12" FontSize="12"/>
+        <TextBlock Text="Very long sample text. 1232345 - Size 13" FontSize="13"/>
+        <TextBlock Text="Very long sample text. 1232345 - Size 14" FontSize="14"/>
+        <TextBlock Text="Very long sample text. 1232345 - Size 8" FontSize="8" FontWeight="Bold"/>
+        <TextBlock Text="Very long sample text. 1232345 - Size 9" FontSize="9" FontWeight="Bold"/>
+        <TextBlock Text="Very long sample text. 1232345 - Size 10" FontSize="10" FontWeight="Bold"/>
+        <TextBlock Text="Very long sample text. 1232345 - Size 11" FontSize="11" FontWeight="Bold"/>
+        <TextBlock Text="Very long sample text. 1232345 - Size 12" FontSize="12" FontWeight="Bold"/>
+        <TextBlock Text="Very long sample text. 1232345 - Size 13" FontSize="13" FontWeight="Bold"/>
+        <TextBlock Text="Very long sample text. 1232345 - Size 14" FontSize="14" FontWeight="Bold"/>
+      </StackPanel>
+      <StackPanel Grid.Column="1" TextElement.FontFamily="fonts:Hind2#Hind2, $Default" HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="4">
+        <TextBlock Text="Hind2"/>
+        <TextBlock Text="Very long sample text. 1232345 - Size 8" FontSize="8"/>
+        <TextBlock Text="Very long sample text. 1232345 - Size 9" FontSize="9"/>
+        <TextBlock Text="Very long sample text. 1232345 - Size 10" FontSize="10"/>
+        <TextBlock Text="Very long sample text. 1232345 - Size 11" FontSize="11"/>
+        <TextBlock Text="Very long sample text. 1232345 - Size 12" FontSize="12"/>
+        <TextBlock Text="Very long sample text. 1232345 - Size 13" FontSize="13"/>
+        <TextBlock Text="Very long sample text. 1232345 - Size 14" FontSize="14"/>
+        <TextBlock Text="Very long sample text. 1232345 - Size 8" FontSize="8" FontWeight="Bold"/>
+        <TextBlock Text="Very long sample text. 1232345 - Size 9" FontSize="9" FontWeight="Bold"/>
+        <TextBlock Text="Very long sample text. 1232345 - Size 10" FontSize="10" FontWeight="Bold"/>
+        <TextBlock Text="Very long sample text. 1232345 - Size 11" FontSize="11" FontWeight="Bold"/>
+        <TextBlock Text="Very long sample text. 1232345 - Size 12" FontSize="12" FontWeight="Bold"/>
+        <TextBlock Text="Very long sample text. 1232345 - Size 13" FontSize="13" FontWeight="Bold"/>
+        <TextBlock Text="Very long sample text. 1232345 - Size 14" FontSize="14" FontWeight="Bold"/>
+      </StackPanel>
+      <StackPanel Grid.Column="2" TextElement.FontFamily="fonts:Inter#Inter, $Default" HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="4">
+        <TextBlock Text="Inter"/>
+        <TextBlock Text="Very long sample text. 1232345 - Size 8" FontSize="8"/>
+        <TextBlock Text="Very long sample text. 1232345 - Size 9" FontSize="9"/>
+        <TextBlock Text="Very long sample text. 1232345 - Size 10" FontSize="10"/>
+        <TextBlock Text="Very long sample text. 1232345 - Size 11" FontSize="11"/>
+        <TextBlock Text="Very long sample text. 1232345 - Size 12" FontSize="12"/>
+        <TextBlock Text="Very long sample text. 1232345 - Size 13" FontSize="13"/>
+        <TextBlock Text="Very long sample text. 1232345 - Size 14" FontSize="14"/>
+        <TextBlock Text="Very long sample text. 1232345 - Size 8" FontSize="8" FontWeight="Bold"/>
+        <TextBlock Text="Very long sample text. 1232345 - Size 9" FontSize="9" FontWeight="Bold"/>
+        <TextBlock Text="Very long sample text. 1232345 - Size 10" FontSize="10" FontWeight="Bold"/>
+        <TextBlock Text="Very long sample text. 1232345 - Size 11" FontSize="11" FontWeight="Bold"/>
+        <TextBlock Text="Very long sample text. 1232345 - Size 12" FontSize="12" FontWeight="Bold"/>
+        <TextBlock Text="Very long sample text. 1232345 - Size 13" FontSize="13" FontWeight="Bold"/>
+        <TextBlock Text="Very long sample text. 1232345 - Size 14" FontSize="14" FontWeight="Bold"/>
+      </StackPanel>
+    </Grid>
   </Panel>
 </Window>

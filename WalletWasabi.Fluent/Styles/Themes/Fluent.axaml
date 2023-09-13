@@ -3,6 +3,7 @@
         xmlns:converters="clr-namespace:WalletWasabi.Fluent.Converters">
   <Styles.Resources>
     <ResourceDictionary>
+      <FontFamily x:Key="ContentControlThemeFontFamily">fonts:Hind2#Hind2, $Default</FontFamily>
       <ResourceDictionary.MergedDictionaries>
         <MergeResourceInclude Source="avares://WalletWasabi.Fluent/Styles/Themes/ThemeVariants.axaml" />
         <MergeResourceInclude Source="avares://WalletWasabi.Fluent/Controls/AdorningContentControl.axaml" />
