@@ -6,6 +6,7 @@ using Avalonia.Controls.Primitives;
 using Avalonia.Data;
 using Avalonia.Interactivity;
 using Avalonia.Layout;
+using Avalonia.Threading;
 using Avalonia.VisualTree;
 using NBitcoin;
 using WalletWasabi.Fluent.Extensions;
@@ -30,14 +31,14 @@ public class DualCurrencyEntryBox : TemplatedControl
 			enableDataValidation: true,
 			defaultBindingMode: BindingMode.TwoWay);
 
-	public static readonly StyledProperty<string> TextProperty =
-		AvaloniaProperty.Register<DualCurrencyEntryBox, string>(nameof(Text));
+	public static readonly StyledProperty<string?> TextProperty =
+		AvaloniaProperty.Register<DualCurrencyEntryBox, string?>(nameof(Text));
 
 	public static readonly StyledProperty<string> WatermarkProperty =
 		AvaloniaProperty.Register<DualCurrencyEntryBox, string>(nameof(Watermark));
 
-	public static readonly StyledProperty<string> ConversionTextProperty =
-		AvaloniaProperty.Register<DualCurrencyEntryBox, string>(nameof(ConversionText));
+	public static readonly StyledProperty<string?> ConversionTextProperty =
+		AvaloniaProperty.Register<DualCurrencyEntryBox, string?>(nameof(ConversionText));
 
 	public static readonly StyledProperty<decimal> ConversionRateProperty =
 		AvaloniaProperty.Register<DualCurrencyEntryBox, decimal>(nameof(ConversionRate));
@@ -119,7 +120,7 @@ public class DualCurrencyEntryBox : TemplatedControl
 		set => SetAndRaise(AmountBtcProperty, ref _amountBtc, value);
 	}
 
-	public string Text
+	public string? Text
 	{
 		get => GetValue(TextProperty);
 		set => SetValue(TextProperty, value);
@@ -131,7 +132,7 @@ public class DualCurrencyEntryBox : TemplatedControl
 		set => SetValue(WatermarkProperty, value);
 	}
 
-	public string ConversionText
+	public string? ConversionText
 	{
 		get => GetValue(ConversionTextProperty);
 		set => SetValue(ConversionTextProperty, value);
@@ -228,7 +229,7 @@ public class DualCurrencyEntryBox : TemplatedControl
 		UpdateDisplay(true);
 	}
 
-	private void InputText(string text)
+	private void InputText(string? text)
 	{
 		if (!_canUpdateDisplay)
 		{
@@ -246,7 +247,7 @@ public class DualCurrencyEntryBox : TemplatedControl
 		}
 	}
 
-	private void InputConversionText(string text)
+	private void InputConversionText(string? text)
 	{
 		if (!_canUpdateDisplay)
 		{
@@ -306,7 +307,14 @@ public class DualCurrencyEntryBox : TemplatedControl
 		if (updateTextField)
 		{
 			_canUpdateDisplay = false;
-			Text = AmountBtc > 0 ? AmountBtc.FormattedBtc() : string.Empty;
+
+			var oldText = LeftEntryBox?.Text;
+			// var text = AmountBtc > 0 ? AmountBtc.FormattedBtc() : string.Empty;
+			var text = AmountBtc > 0 ? AmountBtc.ToString(CultureInfo.InvariantCulture) : string.Empty;
+			SetCurrentValue(TextProperty, text);
+
+			// TODO: Maintain CaretIndex properly.
+			// SetCaretIndex(LeftEntryBox, text, oldText);
 
 			_canUpdateDisplay = true;
 		}
@@ -325,15 +333,41 @@ public class DualCurrencyEntryBox : TemplatedControl
 
 		var conversion = BitcoinToFiat(AmountBtc);
 
-		IsConversionApproximate = AmountBtc > 0;
-		ConversionWatermark = FullFormatFiat(0, ConversionCurrencyCode, true);
+		SetCurrentValue(IsConversionApproximateProperty, AmountBtc > 0);
+		SetCurrentValue(ConversionWatermarkProperty, FullFormatFiat(0, ConversionCurrencyCode, true));
 
 		if (updateTextField)
 		{
-			ConversionText = AmountBtc > 0 ? conversion.FormattedFiat() : string.Empty;
+			var oldText = RightEntryBox?.Text;
+			// var text = AmountBtc > 0 ? conversion.FormattedFiat() : string.Empty;
+			var formatInfo = new NumberFormatInfo()
+			{
+				CurrencyGroupSeparator = "",
+				NumberGroupSeparator = "",
+				CurrencyDecimalSeparator = ".",
+				NumberDecimalSeparator = "."
+			};
+			var text = AmountBtc > 0 ? conversion.ToString("N2", formatInfo) : string.Empty;
+			SetCurrentValue(ConversionTextProperty, text);
+
+			// TODO: Maintain CaretIndex properly.
+			// SetCaretIndex(RightEntryBox, text, oldText);
 		}
 
 		_canUpdateFiat = true;
+	}
+
+	private void SetCaretIndex(CurrencyEntryBox? entryBox, string newText, string? oldText)
+	{
+		if (entryBox is not null)
+		{
+			var oldTextLength = oldText?.Length ?? 0;
+			var newTextLength = newText.Length;
+			// var oldCaretIndex = entryBox.CaretIndex;
+			var newCaretIndex = entryBox.CaretIndex + (newTextLength - oldTextLength);
+			// Console.WriteLine($"oldText='{oldText}', newText='{newText}', oldCaretIndex={oldCaretIndex}, newCaretIndex={newCaretIndex}, oldTextLength={oldTextLength}, newTextLength={newTextLength}");
+			Dispatcher.UIThread.Post(() => entryBox?.SetCurrentValue(TextBox.CaretIndexProperty, newCaretIndex + 1));
+		}
 	}
 
 	private decimal FiatToBitcoin(decimal fiatValue)
@@ -385,7 +419,7 @@ public class DualCurrencyEntryBox : TemplatedControl
 
 	private void SwapButtonOnClick(object? sender, RoutedEventArgs e)
 	{
-		IsConversionReversed = !IsConversionReversed;
+		SetCurrentValue(IsConversionReversedProperty, !IsConversionReversed);
 		FocusOnLeftEntryBox();
 	}
 

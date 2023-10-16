@@ -59,8 +59,8 @@ public partial class HistoryViewModel : ActivatableViewModel
 		// Indicators		IndicatorsColumnView		-				Auto		80				-			true
 		// Date				DateColumnView				Date / Time		Auto		150				-			true
 		// Labels			LabelsColumnView			Labels			*			75				-			true
-		// Incoming			IncomingColumnView			Incoming (BTC)	Auto		145				210			true
-		// Outgoing			OutgoingColumnView			Outgoing (BTC)	Auto		145				210			true
+		// Received			ReceivedColumnView			Received (BTC)	Auto		145				210			true
+		// Sent				SentColumnView				Sent (BTC)		Auto		145				210			true
 		// Balance			BalanceColumnView			Balance (BTC)	Auto		145				210			true
 
 		// NOTE: When changing column width or min width please also change HistoryPlaceholderPanel column widths.
@@ -72,8 +72,8 @@ public partial class HistoryViewModel : ActivatableViewModel
 				IndicatorsColumn(),
 				DateColumn(),
 				LabelsColumn(),
-				IncomingColumn(),
-				OutgoingColumn(),
+				ReceivedColumn(),
+				SentColumn(),
 				BalanceColumn(),
 			}
 		};
@@ -142,10 +142,10 @@ public partial class HistoryViewModel : ActivatableViewModel
 			width: new GridLength(1, GridUnitType.Star));
 	}
 
-	private static IColumn<HistoryItemViewModelBase> IncomingColumn()
+	private static IColumn<HistoryItemViewModelBase> ReceivedColumn()
 	{
 		return new PrivacyTextColumn<HistoryItemViewModelBase>(
-			"Incoming (BTC)",
+			"Received (BTC)",
 			x => x.IncomingAmount?.ToFormattedString(),
 			options: new ColumnOptions<HistoryItemViewModelBase>
 			{
@@ -160,10 +160,10 @@ public partial class HistoryViewModel : ActivatableViewModel
 			numberOfPrivacyChars: 9);
 	}
 
-	private static IColumn<HistoryItemViewModelBase> OutgoingColumn()
+	private static IColumn<HistoryItemViewModelBase> SentColumn()
 	{
 		return new PrivacyTextColumn<HistoryItemViewModelBase>(
-			"Outgoing (BTC)",
+			"Sent (BTC)",
 			x => x.OutgoingAmount?.ToFormattedString(),
 			options: new ColumnOptions<HistoryItemViewModelBase>
 			{
@@ -202,7 +202,7 @@ public partial class HistoryViewModel : ActivatableViewModel
 		{
 			if (item is CoinJoinsHistoryItemViewModel cjGroup)
 			{
-				return cjGroup.CoinJoinTransactions.Any(x => x.TransactionId == txid);
+				return cjGroup.CoinJoinTransactions.Any(x => x.GetHash() == txid);
 			}
 
 			return item.Id == txid;
@@ -248,9 +248,7 @@ public partial class HistoryViewModel : ActivatableViewModel
 	{
 		try
 		{
-			var historyBuilder = new TransactionHistoryBuilder(_walletVm.Wallet);
-			var rawHistoryList = await Task.Run(historyBuilder.BuildHistorySummary);
-			var orderedRawHistoryList = rawHistoryList.OrderBy(x => x.DateTime).ThenBy(x => x.Height).ThenBy(x => x.BlockIndex).ToList();
+			var orderedRawHistoryList = await Task.Run(() => _walletVm.Wallet.BuildHistorySummary(sortForUI: true));
 			var newHistoryList = GenerateHistoryList(orderedRawHistoryList).ToArray();
 
 			_transactionSourceList.Edit(x =>
@@ -278,12 +276,12 @@ public partial class HistoryViewModel : ActivatableViewModel
 
 			balance += item.Amount;
 
-			if (!item.IsOwnCoinjoin)
+			if (!item.IsOwnCoinjoin())
 			{
 				history.Add(new TransactionHistoryItemViewModel(UiContext, i, item, _walletVm, balance));
 			}
 
-			if (item.IsOwnCoinjoin)
+			if (item.IsOwnCoinjoin())
 			{
 				if (coinJoinGroup is null)
 				{
@@ -296,7 +294,7 @@ public partial class HistoryViewModel : ActivatableViewModel
 			}
 
 			if (coinJoinGroup is { } cjg &&
-				((i + 1 < summaries.Count && !summaries[i + 1].IsOwnCoinjoin) || // The next item is not CJ so add the group.
+				((i + 1 < summaries.Count && !summaries[i + 1].IsOwnCoinjoin()) || // The next item is not CJ so add the group.
 				 i == summaries.Count - 1)) // There is no following item in the list so add the group.
 			{
 				if (cjg.CoinJoinTransactions.Count == 1)
@@ -327,7 +325,7 @@ public partial class HistoryViewModel : ActivatableViewModel
 				// Group creation.
 				var childrenTxs = summary.Transaction.ChildrenPayForThisTx;
 
-				if (!TryFindHistoryItem(summary.TransactionId, history, out var parent))
+				if (!TryFindHistoryItem(summary.GetHash(), history, out var parent))
 				{
 					continue; // If the parent transaction is not found, continue with the next summary.
 				}

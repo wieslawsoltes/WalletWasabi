@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Hosting;
 using NBitcoin;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -60,6 +61,7 @@ public class Wallet : BackgroundService, IWallet
 	}
 
 	public event EventHandler<ProcessedResult>? WalletRelevantTransactionProcessed;
+
 	public event EventHandler<IEnumerable<FilterModel>>? NewFiltersProcessed;
 
 	public event EventHandler<WalletState>? StateChanged;
@@ -79,24 +81,25 @@ public class Wallet : BackgroundService, IWallet
 		}
 	}
 
-	public BitcoinStore BitcoinStore { get; private set; }
+	public BitcoinStore BitcoinStore { get; }
 	public KeyManager KeyManager { get; }
-	public WasabiSynchronizer Synchronizer { get; private set; }
-	public ServiceConfiguration ServiceConfiguration { get; private set; }
+	public WasabiSynchronizer Synchronizer { get; }
+	public ServiceConfiguration ServiceConfiguration { get; }
 	public string WalletName => KeyManager.WalletName;
 
-	public CoinsRegistry Coins { get; private set; }
+	public CoinsRegistry Coins { get; }
 
 	public bool RedCoinIsolation => KeyManager.RedCoinIsolation;
+	public CoinjoinSkipFactors CoinjoinSkipFactors => KeyManager.CoinjoinSkipFactors;
 
 	public Network Network { get; }
-	public TransactionProcessor TransactionProcessor { get; private set; }
+	public TransactionProcessor TransactionProcessor { get; }
 
-	public HybridFeeProvider FeeProvider { get; private set; }
+	public HybridFeeProvider FeeProvider { get; }
 
-	public WalletFilterProcessor WalletFilterProcessor { get; private set; }
+	public WalletFilterProcessor WalletFilterProcessor { get; }
 	public FilterModel? LastProcessedFilter => WalletFilterProcessor?.LastProcessedFilter;
-	public IBlockProvider BlockProvider { get; private set; }
+	public IBlockProvider BlockProvider { get; }
 
 	public bool IsLoggedIn { get; private set; }
 
@@ -107,7 +110,7 @@ public class Wallet : BackgroundService, IWallet
 	public IDestinationProvider DestinationProvider { get; }
 
 	public int AnonScoreTarget => KeyManager.AnonScoreTarget;
-	public bool ConsolidationMode => false;
+	public bool ConsolidationMode { get; set; } = false;
 
 	public bool IsMixable =>
 		State == WalletState.Started // Only running wallets
@@ -130,9 +133,13 @@ public class Wallet : BackgroundService, IWallet
 
 	public IEnumerable<SmartCoin> GetCoinjoinCoinCandidates() => Coins;
 
+	/// <summary>
+	/// Get all the transactions associated to the wallet ordered by blockchain.
+	/// </summary>
 	public IEnumerable<SmartTransaction> GetTransactions()
 	{
-		var walletTransactions = new List<SmartTransaction>();
+		var walletTransactions = new HashSet<SmartTransaction>();
+
 		foreach (SmartCoin coin in GetAllCoins())
 		{
 			walletTransactions.Add(coin.Transaction);
@@ -141,7 +148,72 @@ public class Wallet : BackgroundService, IWallet
 				walletTransactions.Add(coin.SpenderTransaction);
 			}
 		}
+
 		return walletTransactions.OrderByBlockchain().ToList();
+	}
+
+	/// <summary>
+	/// Get all wallet transactions along with corresponding amounts ordered by blockchain.
+	/// </summary>
+	/// <param name="sortForUI"><c>true</c> to sort by "first seen", "height", and "block index", <c>false</c> to sort by "height", "block index", and "first seen".</param>
+	/// <remarks>Transaction amount specifies how it affected your final wallet balance (spend some bitcoin, received some bitcoin, or no change).</remarks>
+	public List<TransactionSummary> BuildHistorySummary(bool sortForUI = false)
+	{
+		Dictionary<uint256, TransactionSummary> mapByTxid = new();
+
+		foreach (SmartCoin coin in GetAllCoins())
+		{
+			if (mapByTxid.TryGetValue(coin.TransactionId, out TransactionSummary? found)) // If found then update.
+			{
+				found.Amount += coin.Amount;
+			}
+			else
+			{
+				mapByTxid.Add(coin.TransactionId, new TransactionSummary(coin.Transaction, coin.Amount));
+			}
+
+			if (coin.SpenderTransaction is { } spenderTransaction)
+			{
+				var spenderTxId = spenderTransaction.GetHash();
+
+				if (mapByTxid.TryGetValue(spenderTxId, out TransactionSummary? foundSpenderCoin)) // If found then update.
+				{
+					foundSpenderCoin.Amount -= coin.Amount;
+				}
+				else
+				{
+					mapByTxid.Add(spenderTxId, new TransactionSummary(spenderTransaction, Money.Zero - coin.Amount));
+				}
+			}
+		}
+
+		return sortForUI
+			? mapByTxid.Values.OrderBy(x => x.FirstSeen).ThenBy(x => x.Height).ThenBy(x => x.BlockIndex).ToList()
+			: mapByTxid.Values.OrderByBlockchain().ToList();
+	}
+
+	/// <summary>
+	/// Gets the wallet transaction with the given txid, if the transaction exists.
+	/// </summary>
+	public bool TryGetTransaction(uint256 txid, [NotNullWhen(true)] out SmartTransaction? smartTransaction)
+	{
+		foreach (SmartCoin coin in GetAllCoins())
+		{
+			if (coin.TransactionId == txid)
+			{
+				smartTransaction = coin.Transaction;
+				return true;
+			}
+
+			if (coin.SpenderTransaction is not null && coin.SpenderTransaction.GetHash() == txid)
+			{
+				smartTransaction = coin.SpenderTransaction;
+				return true;
+			}
+		}
+
+		smartTransaction = null;
+		return false;
 	}
 
 	public HdPubKey GetNextReceiveAddress(IEnumerable<string> destinationLabels)
@@ -406,7 +478,7 @@ public class Wallet : BackgroundService, IWallet
 			lastHashesLeft = BitcoinStore.SmartHeaderChain.HashesLeft;
 			await PerformSynchronizationAsync(KeyManager.UseTurboSync ? SyncType.Turbo : SyncType.Complete, cancel).ConfigureAwait(false);
 		}
-		
+
 		// Request a synchronization once all filters were downloaded.
 		await PerformSynchronizationAsync(KeyManager.UseTurboSync ? SyncType.Turbo : SyncType.Complete, cancel).ConfigureAwait(false);
 	}
@@ -415,6 +487,7 @@ public class Wallet : BackgroundService, IWallet
 	{
 		await WalletFilterProcessor.ProcessAsync(syncType, cancellationToken).ConfigureAwait(false);
 	}
+
 	private async Task LoadDummyMempoolAsync()
 	{
 		if (BitcoinStore.TransactionStore.MempoolStore.IsEmpty())
@@ -480,7 +553,18 @@ public class Wallet : BackgroundService, IWallet
 		return wallet;
 	}
 
-	public void UpdateExcludedCoinFromCoinJoin()
+	public void ExcludeCoinFromCoinJoin(OutPoint outpoint, bool exclude = true)
+	{
+		if (!Coins.TryGetByOutPoint(outpoint, out var coin))
+		{
+			throw new InvalidOperationException($"Coin '{outpoint}' doesn't belong to the wallet or is spent.");
+		}
+
+		coin.IsExcludedFromCoinJoin = exclude;
+		UpdateExcludedCoinFromCoinJoin();
+	}
+
+	private void UpdateExcludedCoinFromCoinJoin()
 	{
 		var excludedOutpoints = Coins.Where(c => c.IsExcludedFromCoinJoin).Select(c => c.Outpoint);
 		KeyManager.SetExcludedCoinsFromCoinJoin(excludedOutpoints);

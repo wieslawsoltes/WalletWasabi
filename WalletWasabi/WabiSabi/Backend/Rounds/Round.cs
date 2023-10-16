@@ -26,7 +26,7 @@ public enum EndRoundState
 	AbortedNotEnoughAlicesSigned,
 	AbortedNotAllAlicesConfirmed,
 	AbortedLoadBalancing,
-	AbortedDoubleSpendingDetected
+	AbortedDoubleSpendingDetected = AbortedNotAllAlicesConfirmed
 }
 
 public class Round
@@ -115,6 +115,7 @@ public class Round
 
 	public void EndRound(EndRoundState finalState)
 	{
+		PublishWitnessesIfPossible();
 		SetPhase(Phase.Ended);
 		EndRoundState = finalState;
 	}
@@ -166,4 +167,12 @@ public class Round
 				Parameters.CoordinationIdentifier,
 				AmountCredentialIssuerParameters,
 				VsizeCredentialIssuerParameters);
+
+	private void PublishWitnessesIfPossible()
+	{
+		if (CoinjoinState is SigningState signingState)
+		{
+			CoinjoinState = signingState.PublishWitnesses();
+		}
+	}
 }
