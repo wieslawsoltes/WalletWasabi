@@ -8,6 +8,7 @@
              xmlns:historyItems="clr-namespace:WalletWasabi.Fluent.ViewModels.Wallets.Home.History.HistoryItems"
              xmlns:behaviors="clr-namespace:WalletWasabi.Fluent.Behaviors"
              xmlns:treeDataGrid="clr-namespace:WalletWasabi.Fluent.TreeDataGrid"
+             xmlns:history1="clr-namespace:WalletWasabi.Fluent.Views.Wallets.Home.History"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:DataType="history:HistoryViewModel"
              x:CompileBindings="True"
@@ -119,10 +120,11 @@
   </UserControl.Resources>
 
   <Panel>
-    <TreeDataGrid Source="{Binding Source}"
-                  CanUserResizeColumns="False"
-                  Margin="0 0 0 0"
-                  IsHitTestVisible="{Binding !IsTransactionHistoryEmpty}">
+    <history1:TreeDataGridEx Source="{Binding Source}"
+                    CanUserResizeColumns="False"
+                    ShowColumnHeaders="False"
+                    Margin="0 0 0 0"
+                    IsHitTestVisible="{Binding !IsTransactionHistoryEmpty}">
       <i:Interaction.Behaviors>
         <behaviors:ScrollToSelectedItemBehavior />
         <behaviors:HistoryItemTypeClassBehavior />
@@ -197,7 +199,7 @@
           <Setter Property="Theme" Value="{StaticResource HistoryTableTreeDataGridExpanderCell}" />
         </Style>
       </TreeDataGrid.Styles>
-    </TreeDataGrid>
+    </history1:TreeDataGridEx>
     <c:HistoryPlaceholderPanel Margin="{StaticResource HistoryTablePlaceholderPanelMargin}"
                                RowHeight="{StaticResource HistoryTableRowHeight}"
                                IsVisible="{Binding IsTransactionHistoryEmpty}"
