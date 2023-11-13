@@ -124,28 +124,37 @@ public class LabelsPanel : Panel
 
 	protected override Size MeasureOverride(Size availableSize)
 	{
-		var ellipsisDesiredWidth = 0.0;
-		if (EllipsisControl is { })
+		try
 		{
-			EllipsisControl.Measure(availableSize);
-			ellipsisDesiredWidth = EllipsisControl.DesiredSize.Width;
+			var ellipsisDesiredWidth = 0.0;
+			if (EllipsisControl is { })
+			{
+				EllipsisControl.Measure(availableSize);
+				ellipsisDesiredWidth = EllipsisControl.DesiredSize.Width;
+			}
+
+			var size = MeasureOverridePanel(availableSize.WithWidth(availableSize.Width));
+
+			_needToTrim = !(size.Width < availableSize.Width);
+
+			var result = CalculateWidth(
+				Children,
+				EllipsisControl,
+				availableSize.Width,
+				ellipsisDesiredWidth,
+				_spacing,
+				_needToTrim);
+
+			size = size.WithWidth(result.Width);
+
+			return InfiniteWidthMeasure ? new Size(double.MaxValue, size.Height) : size;
+		}
+		catch (Exception e)
+		{
+			Console.WriteLine(e);
 		}
 
-		var size = MeasureOverridePanel(availableSize.WithWidth(availableSize.Width));
-
-		_needToTrim = !(size.Width < availableSize.Width);
-
-		var result = CalculateWidth(
-			Children,
-			EllipsisControl,
-			availableSize.Width,
-			ellipsisDesiredWidth,
-			_spacing,
-			_needToTrim);
-
-		size = size.WithWidth(result.Width);
-
-		return InfiniteWidthMeasure ? new Size(double.MaxValue, size.Height) : size;
+		return default;
 	}
 
 	private CalculateResult CalculateWidth(
