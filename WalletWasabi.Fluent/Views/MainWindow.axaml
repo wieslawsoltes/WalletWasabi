@@ -34,6 +34,30 @@
   </i:Interaction.Behaviors>
 
   <Panel Margin="{Binding #MainWindow.OffScreenMargin}">
-    <shell:Shell />
+    <!-- <shell:Shell /> -->
+    <Button Name="AdornerButton"
+            Content="Adorned Button"
+            HorizontalAlignment="Center" HorizontalContentAlignment="Center"
+            VerticalContentAlignment="Center" VerticalAlignment="Stretch"
+            Width="200" Height="42"
+            AdornerLayer.IsClipEnabled="False"
+            ClipToBounds="False">
+      <AdornerLayer.Adorner>
+        <Canvas x:Name="AdornerCanvas"
+                HorizontalAlignment="Stretch"
+                VerticalAlignment="Stretch"
+                Background="Cyan"
+                IsHitTestVisible="False"
+                Opacity="0.3"
+                IsVisible="True"
+                AdornerLayer.IsClipEnabled="False">
+          <TextBlock Text="{Binding #AdornerButton.Bounds}" Canvas.Top="-50"/>
+          <Line StartPoint="-10000,0" EndPoint="10000,0" Stroke="Cyan" StrokeThickness="1" />
+          <Line StartPoint="-10000,42" EndPoint="10000,42" Stroke="Cyan" StrokeThickness="1" />
+          <Line StartPoint="0,-10000" EndPoint="0,10000" Stroke="Cyan" StrokeThickness="1" />
+          <Line StartPoint="200,-10000" EndPoint="200,10000" Stroke="Cyan" StrokeThickness="1" />
+        </Canvas>
+      </AdornerLayer.Adorner>
+    </Button>
   </Panel>
 </Window>
