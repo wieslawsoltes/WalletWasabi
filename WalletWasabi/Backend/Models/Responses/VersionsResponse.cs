@@ -4,16 +4,14 @@ namespace WalletWasabi.Backend.Models.Responses;
 
 public class VersionsResponse
 {
-	public required string ClientVersion { get; init; }
+	public string ClientVersion { get; set; }
 
 	// KEEP THE TYPO IN IT! Otherwise the response would not be backwards compatible.
 	[JsonProperty(PropertyName = "BackenMajordVersion")]
-	public required string BackendMajorVersion { get; init; }
+	public string BackendMajorVersion { get; set; }
 
 	[JsonProperty(PropertyName = "LegalDocumentsVersion")]
-	public required string Ww1LegalDocumentsVersion { get; init; }
+	public string Ww1LegalDocumentsVersion { get; set; }
 
-	public required string Ww2LegalDocumentsVersion { get; init; }
-
-	public required string CommitHash { get; init; }
+	public string Ww2LegalDocumentsVersion { get; set; }
 }

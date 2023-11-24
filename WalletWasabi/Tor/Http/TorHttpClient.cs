@@ -74,7 +74,7 @@ public class TorHttpClient : IHttpClient
 	/// No exception is thrown when the status code of the <see cref="HttpResponseMessage">response</see>
 	/// is, for example, <see cref="HttpStatusCode.NotFound"/>.
 	/// </remarks>
-	public async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+	public async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken = default)
 	{
 		if (Mode is Mode.NewCircuitPerRequest)
 		{

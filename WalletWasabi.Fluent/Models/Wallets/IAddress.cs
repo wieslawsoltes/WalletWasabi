@@ -1,6 +1,6 @@
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using ReactiveUI;
-using WalletWasabi.Blockchain.Analysis.Clustering;
 
 namespace WalletWasabi.Fluent.Models.Wallets;
 
@@ -12,13 +12,13 @@ public interface IAddress : IReactiveObject
 {
 	string Text { get; }
 
-	LabelsArray Labels { get; }
+	IEnumerable<string> Labels { get; }
 
 	bool IsUsed { get; }
 
 	void Hide();
 
-	void SetLabels(LabelsArray labels);
+	void SetLabels(IEnumerable<string> labels);
 
 	Task ShowOnHwWalletAsync();
 }

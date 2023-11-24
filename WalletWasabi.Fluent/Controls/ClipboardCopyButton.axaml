@@ -1,12 +1,11 @@
-<ResourceDictionary xmlns="https://github.com/avaloniaui"
-                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:c="using:WalletWasabi.Fluent.Controls">
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:c="using:WalletWasabi.Fluent.Controls">
   <Design.PreviewWith>
     <c:ClipboardCopyButton Height="100" Width="200" />
   </Design.PreviewWith>
 
-  <ControlTheme x:Key="{x:Type c:ClipboardCopyButton}" TargetType="c:ClipboardCopyButton">
-
+  <Style Selector="c|ClipboardCopyButton">
     <Setter Property="Template">
       <ControlTemplate>
         <c:AnimatedButton x:Name="CopyButton" Command="{TemplateBinding CopyCommand}"
@@ -15,7 +14,5 @@
                           InitialOpacity="0.6" />
       </ControlTemplate>
     </Setter>
-
-  </ControlTheme>
-
-</ResourceDictionary>
+  </Style>
+</Styles>

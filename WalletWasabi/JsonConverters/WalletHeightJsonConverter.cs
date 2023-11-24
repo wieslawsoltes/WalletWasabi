@@ -6,17 +6,10 @@ namespace WalletWasabi.JsonConverters;
 public class WalletHeightJsonConverter : HeightJsonConverter
 {
 	/// <inheritdoc />
-	public override void WriteJson(JsonWriter writer, Height? height, JsonSerializer serializer)
+	public override void WriteJson(JsonWriter writer, Height value, JsonSerializer serializer)
 	{
-		if (height is null)
-		{
-			writer.WriteNull();
-		}
-		else
-		{
-			var safeHeight = Math.Max(0, height.Value.Value - 101 /* maturity */);
+		var safeHeight = Math.Max(0, value.Value - 101 /* maturity */);
 
-			writer.WriteValue(safeHeight.ToString());
-		}
+		writer.WriteValue(safeHeight.ToString());
 	}
 }

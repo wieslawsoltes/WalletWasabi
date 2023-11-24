@@ -1,6 +1,6 @@
 namespace WalletWasabi.Interfaces;
 
-public interface IConfig : IConfigNg
+public interface IConfig
 {
 	/// <summary>Gets the path of the config file.</summary>
 	string FilePath { get; }
@@ -17,4 +17,9 @@ public interface IConfig : IConfigNg
 	/// <summary>Load config from configuration file.</summary>
 	/// <param name="createIfMissing"><c>true</c> if the config file should be created if it does not exist, <c>false</c> otherwise.</param>
 	void LoadFile(bool createIfMissing = false);
+
+	bool AreDeepEqual(object otherConfig);
+
+	/// <summary>Check if the config file differs from the config if the file path of the config file is set, otherwise throw exception.</summary>
+	bool CheckFileChange();
 }

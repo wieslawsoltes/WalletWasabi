@@ -4,10 +4,13 @@ using System.Reactive.Disposables;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using ReactiveUI;
-using WalletWasabi.Fluent.Extensions;
+using WalletWasabi.Extensions;
 using WalletWasabi.Fluent.Helpers;
 using WalletWasabi.Fluent.Models;
 using WalletWasabi.Fluent.ViewModels.Dialogs.Base;
+using WalletWasabi.Fluent.ViewModels.NavBar;
+using WalletWasabi.Fluent.ViewModels.Navigation;
+using WalletWasabi.Helpers;
 using WalletWasabi.Logging;
 
 namespace WalletWasabi.Fluent.ViewModels.AddWallet;
@@ -22,17 +25,18 @@ namespace WalletWasabi.Fluent.ViewModels.AddWallet;
 	IconName = "nav_add_circle_24_regular",
 	IconNameFocused = "nav_add_circle_24_filled",
 	NavigationTarget = NavigationTarget.DialogScreen,
-	NavBarPosition = NavBarPosition.Bottom,
-	NavBarSelectionMode = NavBarSelectionMode.Button)]
+	NavBarPosition = NavBarPosition.Bottom)]
 public partial class AddWalletPageViewModel : DialogViewModelBase<Unit>
 {
-	private AddWalletPageViewModel()
+	public AddWalletPageViewModel()
 	{
+		SelectionMode = NavBarItemSelectionMode.Button;
+
 		CreateWalletCommand = ReactiveCommand.Create(OnCreateWallet);
 
 		ConnectHardwareWalletCommand = ReactiveCommand.Create(OnConnectHardwareWallet);
 
-		ImportWalletCommand = ReactiveCommand.CreateFromTask(OnImportWalletAsync);
+		ImportWalletCommand = ReactiveCommand.CreateFromTask(async () => await OnImportWalletAsync());
 
 		RecoverWalletCommand = ReactiveCommand.Create(OnRecoverWallet);
 	}
@@ -47,13 +51,12 @@ public partial class AddWalletPageViewModel : DialogViewModelBase<Unit>
 
 	private void OnCreateWallet()
 	{
-		var options = new WalletCreationOptions.AddNewWallet().WithNewMnemonic();
-		Navigate().To().WalletNamePage(options);
+		Navigate().To(new WalletNamePageViewModel(WalletCreationOption.AddNewWallet));
 	}
 
 	private void OnConnectHardwareWallet()
 	{
-		Navigate().To().WalletNamePage(new WalletCreationOptions.ConnectToHardwareWallet());
+		Navigate().To(new WalletNamePageViewModel(WalletCreationOption.ConnectToHardwareWallet));
 	}
 
 	private async Task OnImportWalletAsync()
@@ -69,18 +72,15 @@ public partial class AddWalletPageViewModel : DialogViewModelBase<Unit>
 
 			var walletName = Path.GetFileNameWithoutExtension(filePath);
 
-			var options = new WalletCreationOptions.ImportWallet(walletName, filePath);
-
-			var validationError = UiContext.WalletRepository.ValidateWalletName(walletName);
+			var validationError = WalletHelpers.ValidateWalletName(walletName);
 			if (validationError is { })
 			{
-				Navigate().To().WalletNamePage(options);
+				Navigate().To(new WalletNamePageViewModel(WalletCreationOption.ImportWallet, filePath));
 				return;
 			}
 
-			var walletSettings = await UiContext.WalletRepository.NewWalletAsync(options);
-
-			Navigate().To().AddedWalletPage(walletSettings, options);
+			var keyManager = await ImportWalletHelper.ImportWalletAsync(Services.WalletManager, walletName, filePath);
+			Navigate().To(new AddedWalletPageViewModel(keyManager));
 		}
 		catch (Exception ex)
 		{
@@ -91,21 +91,21 @@ public partial class AddWalletPageViewModel : DialogViewModelBase<Unit>
 
 	private void OnRecoverWallet()
 	{
-		Navigate().To().WalletNamePage(new WalletCreationOptions.RecoverWallet());
+		Navigate().To(new WalletNamePageViewModel(WalletCreationOption.RecoverWallet));
+	}
+
+	protected override async Task OnOpen(NavigationMode defaultNavigationMode)
+	{
+		MainViewModel.Instance.IsOobeBackgroundVisible = true;
+		await NavigateDialogAsync(this, NavigationTarget.DialogScreen);
+		MainViewModel.Instance.IsOobeBackgroundVisible = false;
 	}
 
 	protected override void OnNavigatedTo(bool isInHistory, CompositeDisposable disposables)
 	{
 		base.OnNavigatedTo(isInHistory, disposables);
 
-		var enableCancel = UiContext.WalletRepository.HasWallet;
+		var enableCancel = Services.WalletManager.HasWallet();
 		SetupCancel(enableCancel: enableCancel, enableCancelOnEscape: enableCancel, enableCancelOnPressed: enableCancel);
-	}
-
-	public async Task Activate()
-	{
-		MainViewModel.Instance.IsOobeBackgroundVisible = true;
-		await NavigateDialogAsync(this, NavigationTarget.DialogScreen);
-		MainViewModel.Instance.IsOobeBackgroundVisible = false;
 	}
 }

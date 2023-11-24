@@ -41,13 +41,12 @@
                                        InitialOpacity="1.0" />
               <TextBlock Text="to copy the above text and post an issue tracker on our" />
               <Button Margin="5 0" Classes="activeHyperLink" Content="GitHub repo here"
-                      Command="{Binding OpenGitHubRepoCommand}" ToolTip.Tip="{Binding Link}" />
+                      Command="{Binding OpenGitHubRepoCommand}" />
               <TextBlock Text="so we can take a closer look." />
             </WrapPanel>
           </Panel>
         </controls:InfoMessage>
-        <TextBox Classes="monoSpaced wrap"
-                 Theme="{DynamicResource SelectableTextBlockTextBox}"
+        <TextBox Classes="selectableTextBlock monoSpaced wrap"
                  Text="{Binding Trace}" />
       </DockPanel>
     </controls:ContentArea>

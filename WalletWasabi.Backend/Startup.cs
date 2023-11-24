@@ -45,11 +45,7 @@ public class Startup
 
 		services.AddMemoryCache();
 
-		services.AddMvc(options =>
-			{
-				options.ModelMetadataDetailsProviders.Add(new SuppressChildValidationMetadataProvider(typeof(BitcoinAddress)));
-				options.ModelMetadataDetailsProviders.Add(new SuppressChildValidationMetadataProvider(typeof(Script)));
-			})
+		services.AddMvc(options => options.ModelMetadataDetailsProviders.Add(new SuppressChildValidationMetadataProvider(typeof(BitcoinAddress))))
 			.AddControllersAsServices();
 
 		services.AddMvc()
@@ -127,11 +123,6 @@ public class Startup
 			var coordinator = global.HostedServices.Get<WabiSabiCoordinator>();
 			return coordinator.AffiliationManager;
 		});
-		services.AddSingleton(serviceProvider =>
-		{
-			var global = serviceProvider.GetRequiredService<Global>();
-			return global.CoinJoinMempoolManager;
-		});
 		services.AddStartupTask<InitConfigStartupTask>();
 
 		services.AddResponseCompression();
@@ -140,6 +131,8 @@ public class Startup
 	[SuppressMessage("Style", "IDE0060:Remove unused parameter", Justification = "This method gets called by the runtime. Use this method to configure the HTTP request pipeline")]
 	public void Configure(IApplicationBuilder app, IWebHostEnvironment env, Global global)
 	{
+		app.UseStaticFiles();
+
 		// Enable middleware to serve generated Swagger as a JSON endpoint.
 		app.UseSwagger();
 

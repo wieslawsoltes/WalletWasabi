@@ -1,22 +1,20 @@
 using System.Reactive.Linq;
 using ReactiveUI;
 using WalletWasabi.Blockchain.Analysis.Clustering;
-using WalletWasabi.Fluent.Models.UI;
-using WalletWasabi.Fluent.Models.Wallets;
-using WalletWasabi.Fluent.ViewModels.Dialogs.Base;
+using WalletWasabi.Blockchain.Keys;
+using WalletWasabi.Fluent.ViewModels.Navigation;
 using WalletWasabi.Fluent.ViewModels.Wallets.Labels;
 
 namespace WalletWasabi.Fluent.ViewModels.Wallets.Receive;
 
-[NavigationMetaData(Title = "Edit Labels", NavigationTarget = NavigationTarget.CompactDialogScreen)]
-public partial class AddressLabelEditViewModel : DialogViewModelBase<LabelsArray?>
+[NavigationMetaData(Title = "Edit Labels")]
+public partial class AddressLabelEditViewModel : RoutableViewModel
 {
 	[AutoNotify] private bool _isCurrentTextValid;
 
-	public AddressLabelEditViewModel(UiContext uiContext, IWalletModel wallet, IAddress address)
+	public AddressLabelEditViewModel(ReceiveAddressesViewModel owner, HdPubKey hdPubKey, KeyManager keyManager)
 	{
-		UiContext = uiContext;
-		SuggestionLabels = new SuggestionLabelsViewModel(wallet, Intent.Receive, 3, address.Labels);
+		SuggestionLabels = new SuggestionLabelsViewModel(keyManager, Intent.Receive, 3, hdPubKey.Label);
 
 		SetupCancel(enableCancel: true, enableCancelOnEscape: true, enableCancelOnPressed: true);
 
@@ -28,7 +26,14 @@ public partial class AddressLabelEditViewModel : DialogViewModelBase<LabelsArray
 					return labelsCount > 0 || isCurrentTextValid;
 				});
 
-		NextCommand = ReactiveCommand.Create(() => Close(DialogResultKind.Normal, new LabelsArray(SuggestionLabels.Labels)), canExecute);
+		NextCommand = ReactiveCommand.Create(
+			() =>
+			{
+				hdPubKey.SetLabel(new SmartLabel(SuggestionLabels.Labels), kmToFile: keyManager);
+				owner.InitializeAddresses();
+				Navigate().Back();
+			},
+			canExecute);
 	}
 
 	public SuggestionLabelsViewModel SuggestionLabels { get; }

@@ -9,9 +9,8 @@
              x:CompileBindings="True"
              x:Class="WalletWasabi.Fluent.Views.Wallets.Receive.Columns.AddressColumnView">
   <DockPanel LastChildFill="True" Margin="10 0">
-    <!-- NOTE: We use UseOpacity=true so we do not trigger layout update in the TreeDataGrid -->
-    <c:PrivacyContentControl Content="{Binding AddressText}" VerticalAlignment="Center"
+    <c:PrivacyContentControl Content="{Binding Address}" VerticalAlignment="Center"
                              Classes="monoSpaced"
-                             UseOpacity="True" />
+                             UseOpacity="False" />
   </DockPanel>
 </UserControl>

@@ -15,7 +15,7 @@ namespace WalletWasabi.WebClients.BlockstreamInfo;
 
 public class BlockstreamInfoClient
 {
-	public BlockstreamInfoClient(Network network, WasabiHttpClientFactory httpClientFactory)
+	public BlockstreamInfoClient(Network network, HttpClientFactory httpClientFactory)
 	{
 		string uriString;
 

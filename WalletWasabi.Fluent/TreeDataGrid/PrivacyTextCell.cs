@@ -12,8 +12,6 @@ internal class PrivacyTextCell : ICell
 
 	public bool CanEdit => false;
 
-	public BeginEditGestures EditGestures => BeginEditGestures.None;
-
 	public string? Value { get; }
 
 	public int NumberOfPrivacyChars { get; }

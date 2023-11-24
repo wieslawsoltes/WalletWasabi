@@ -25,7 +25,6 @@ public class MockRpcClient : IRPCClient
 	public Func<Task<PeerInfo[]>>? OnGetPeersInfoAsync { get; set; }
 	public Func<int, BitcoinAddress, Task<uint256[]>>? OnGenerateToAddressAsync { get; set; }
 	public Func<Task<int>>? OnGetBlockCountAsync { get; set; }
-	public Func<Task<TimeSpan>>? OnUptimeAsync { get; set; }
 	public Network Network { get; set; } = Network.RegTest;
 	public RPCCredentialString CredentialString => new();
 
@@ -172,7 +171,7 @@ public class MockRpcClient : IRPCClient
 
 	public Task<TimeSpan> UptimeAsync(CancellationToken cancellationToken = default)
 	{
-		return OnUptimeAsync?.Invoke() ?? NotImplementedTask<TimeSpan>(nameof(UptimeAsync));
+		throw new NotImplementedException();
 	}
 
 	public Task AbandonTransactionAsync(uint256 txid /*, CancellationToken cancellationToken = default*/)

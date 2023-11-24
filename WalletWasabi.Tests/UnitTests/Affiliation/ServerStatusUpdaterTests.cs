@@ -15,25 +15,17 @@ namespace WalletWasabi.Tests.UnitTests.Affiliation;
 [Collection("Serial unit tests collection")]
 public class AffiliateServerStatusUpdaterTests
 {
-	private MockIHttpClient CreateIMockHttpClient(string jsonContent, params HttpResponseMessage[] responses)
+	private (Mock<IHttpClient> mockHttpClient, ISetupSequentialResult<Task<HttpResponseMessage>> setup) CreateMockHttpClient(string jsonContent)
 	{
-		var mockHttpClient = new MockIHttpClient();
-
-		var callCounter = 0;
-		mockHttpClient.OnSendAsync = req =>
-		{
-			if (req.Method == HttpMethod.Post && req.RequestUri.LocalPath == "/get_status")
-			{
-				var response = responses[callCounter];
-				callCounter++;
-				return Task.FromResult(response);
-			}
-
-			return Task.FromException<HttpResponseMessage>(new InvalidOperationException());
-		};
-		return mockHttpClient;
+		var mockHttpClient = new Mock<IHttpClient>();
+		var setup = mockHttpClient.SetupSequence(
+			httpClient => httpClient.SendAsync(
+				HttpMethod.Post,
+				"get_status",
+				It.Is<HttpContent>(httpContent => httpContent.ReadAsStringAsync(CancellationToken.None).Result == jsonContent),
+				It.IsAny<CancellationToken>()));
+		return (mockHttpClient, setup);
 	}
-
 	[Fact]
 	public async Task GetStatusTestAsync()
 	{
@@ -59,24 +51,32 @@ public class AffiliateServerStatusUpdaterTests
 			return response;
 		}
 
-		var client1Mock = CreateIMockHttpClient(
-			jsonContent: "{}",
-			Ok(),
-			Ok(),
-			Error(HttpStatusCode.InternalServerError),
-			Ok());
+		using HttpResponseMessage ok10 = Ok();
+		using HttpResponseMessage ok11 = Ok();
+		using HttpResponseMessage error10 = Error(HttpStatusCode.InternalServerError);
+		using HttpResponseMessage ok12 = Ok();
+		var (client1Mock, setup1) = CreateMockHttpClient(jsonContent: "{}");
+		setup1
+			.ReturnsAsync(ok10)
+			.ReturnsAsync(ok11)
+			.ReturnsAsync(error10)
+			.ReturnsAsync(ok12);
 
-		var client2Mock = CreateIMockHttpClient(
-			jsonContent: "{}",
-			Ok(),
-			Error(HttpStatusCode.NotFound),
-			Error(HttpStatusCode.Forbidden),
-			Ok());
+		using HttpResponseMessage ok20 = Ok();
+		using HttpResponseMessage error20 = Error(HttpStatusCode.NotFound);
+		using HttpResponseMessage error21 = Error(HttpStatusCode.Forbidden);
+		using HttpResponseMessage ok22 = Ok();
+		var (client2Mock, setup2) = CreateMockHttpClient(jsonContent: "{}");
+		setup2
+			.ReturnsAsync(ok20)
+			.ReturnsAsync(error20)
+			.ReturnsAsync(error21)
+			.ReturnsAsync(ok22);
 
 		Dictionary<string, AffiliateServerHttpApiClient> servers = new()
 		{
-			["server-1"] = new AffiliateServerHttpApiClient(client1Mock),
-			["server-2"] = new AffiliateServerHttpApiClient(client2Mock)
+			["server-1"] = new AffiliateServerHttpApiClient(client1Mock.Object),
+			["server-2"] = new AffiliateServerHttpApiClient(client2Mock.Object)
 		};
 
 		using AffiliateServerStatusUpdater serverStatusUpdater = new(servers);
@@ -106,6 +106,9 @@ public class AffiliateServerStatusUpdaterTests
 
 			// Iteration #4.
 			Assert.Equal(new[] { "server-1", "server-2" }, serverStatusUpdater.GetRunningAffiliateServers());
+
+			client1Mock.VerifyAll();
+			client2Mock.VerifyAll();
 		}
 		finally
 		{

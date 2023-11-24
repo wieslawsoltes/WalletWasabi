@@ -3,9 +3,9 @@ using WalletWasabi.Fluent.Models.UI;
 namespace WalletWasabi.Fluent.ViewModels.Navigation;
 
 /// <summary>
-/// This class contains source-generated methods that enable fluent-style navigation APIs.
+/// This class is the target of source-generated extension methods that enable fluent-style navigation APIs.
 /// </summary>
-public partial class FluentNavigate
+public class FluentNavigate
 {
 	public FluentNavigate(UiContext uiContext)
 	{

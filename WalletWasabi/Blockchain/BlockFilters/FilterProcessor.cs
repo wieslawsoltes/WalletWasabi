@@ -1,5 +1,7 @@
+using Nito.AsyncEx;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using WalletWasabi.Backend.Models;
 using WalletWasabi.Logging;
@@ -15,63 +17,65 @@ public class FilterProcessor
 	}
 
 	private BitcoinStore BitcoinStore { get; }
+	private AsyncLock AsyncLock { get; } = new();
 
 	public async Task ProcessAsync(uint serverBestHeight, FiltersResponseState filtersResponseState, IEnumerable<FilterModel> filters)
 	{
 		try
 		{
-			var hashChain = BitcoinStore.SmartHeaderChain;
-			hashChain.SetServerTipHeight(serverBestHeight);
-
-			if (filtersResponseState == FiltersResponseState.NewFilters)
+			using (await AsyncLock.LockAsync().ConfigureAwait(false))
 			{
-				var firstFilter = filters.First();
-				if (hashChain.TipHeight + 1 != firstFilter.Header.Height)
-				{
-					// We have a problem.
-					// We have wrong filters, the heights are not in sync with the server's.
-					Logger.LogError($"Inconsistent index state detected.{Environment.NewLine}" +
-						$"{nameof(hashChain)}.{nameof(hashChain.TipHeight)}:{hashChain.TipHeight}{Environment.NewLine}" +
-						$"{nameof(hashChain)}.{nameof(hashChain.HashesLeft)}:{hashChain.HashesLeft}{Environment.NewLine}" +
-						$"{nameof(hashChain)}.{nameof(hashChain.TipHash)}:{hashChain.TipHash}{Environment.NewLine}" +
-						$"{nameof(hashChain)}.{nameof(hashChain.HashCount)}:{hashChain.HashCount}{Environment.NewLine}" +
-						$"{nameof(hashChain)}.{nameof(hashChain.ServerTipHeight)}:{hashChain.ServerTipHeight}{Environment.NewLine}" +
-						$"{nameof(firstFilter)}.{nameof(firstFilter.Header)}.{nameof(firstFilter.Header.BlockHash)}:{firstFilter.Header.BlockHash}{Environment.NewLine}" +
-						$"{nameof(firstFilter)}.{nameof(firstFilter.Header)}.{nameof(firstFilter.Header.Height)}:{firstFilter.Header.Height}");
+				var hashChain = BitcoinStore.SmartHeaderChain;
+				hashChain.SetServerTipHeight(serverBestHeight);
 
-					await BitcoinStore.IndexStore.RemoveAllNewerThanAsync(hashChain.TipHeight).ConfigureAwait(false);
-				}
-				else
+				if (filtersResponseState == FiltersResponseState.NewFilters)
 				{
-					await BitcoinStore.IndexStore.AddNewFiltersAsync(filters).ConfigureAwait(false);
-
-					if (filters.Count() == 1)
+					var firstFilter = filters.First();
+					if (hashChain.TipHeight + 1 != firstFilter.Header.Height)
 					{
-						Logger.LogInfo($"Downloaded filter for block {firstFilter.Header.Height}.");
+						// We have a problem.
+						// We have wrong filters, the heights are not in sync with the server's.
+						Logger.LogError($"Inconsistent index state detected.{Environment.NewLine}" +
+							$"{nameof(hashChain)}.{nameof(hashChain.TipHeight)}:{hashChain.TipHeight}{Environment.NewLine}" +
+							$"{nameof(hashChain)}.{nameof(hashChain.HashesLeft)}:{hashChain.HashesLeft}{Environment.NewLine}" +
+							$"{nameof(hashChain)}.{nameof(hashChain.TipHash)}:{hashChain.TipHash}{Environment.NewLine}" +
+							$"{nameof(hashChain)}.{nameof(hashChain.HashCount)}:{hashChain.HashCount}{Environment.NewLine}" +
+							$"{nameof(hashChain)}.{nameof(hashChain.ServerTipHeight)}:{hashChain.ServerTipHeight}{Environment.NewLine}" +
+							$"{nameof(firstFilter)}.{nameof(firstFilter.Header)}.{nameof(firstFilter.Header.BlockHash)}:{firstFilter.Header.BlockHash}{Environment.NewLine}" +
+							$"{nameof(firstFilter)}.{nameof(firstFilter.Header)}.{nameof(firstFilter.Header.Height)}:{firstFilter.Header.Height}");
+
+						await BitcoinStore.IndexStore.RemoveAllImmatureFiltersAsync().ConfigureAwait(false);
 					}
 					else
 					{
-						Logger.LogInfo($"Downloaded filters for blocks from {firstFilter.Header.Height} to {filters.Last().Header.Height}.");
+						await BitcoinStore.IndexStore.AddNewFiltersAsync(filters).ConfigureAwait(false);
+
+						if (filters.Count() == 1)
+						{
+							Logger.LogInfo($"Downloaded filter for block {firstFilter.Header.Height}.");
+						}
+						else
+						{
+							Logger.LogInfo($"Downloaded filters for blocks from {firstFilter.Header.Height} to {filters.Last().Header.Height}.");
+						}
 					}
 				}
-			}
-			else if (filtersResponseState == FiltersResponseState.BestKnownHashNotFound)
-			{
-				// Reorg happened
-				// 1. Rollback index
-				FilterModel reorgedFilter = await BitcoinStore.IndexStore.TryRemoveLastFilterAsync().ConfigureAwait(false)
-					?? throw new InvalidOperationException("Fatal error: Failed to remove the reorged filter.");
-
-				Logger.LogInfo($"REORG Invalid Block: {reorgedFilter.Header.BlockHash}.");
-			}
-			else if (filtersResponseState == FiltersResponseState.NoNewFilter)
-			{
-				// We are synced.
-				// Assert index state.
-				if (serverBestHeight > hashChain.TipHeight) // If the server's tip height is larger than ours, we're missing a filter, our index got corrupted.
+				else if (filtersResponseState == FiltersResponseState.BestKnownHashNotFound)
 				{
-					// If still bad delete filters and crash the software?
-					await BitcoinStore.IndexStore.RemoveAllNewerThanAsync(hashChain.TipHeight).ConfigureAwait(false);
+					// Reorg happened
+					// 1. Rollback index
+					FilterModel reorgedFilter = await BitcoinStore.IndexStore.RemoveLastFilterAsync().ConfigureAwait(false);
+					Logger.LogInfo($"REORG Invalid Block: {reorgedFilter.Header.BlockHash}.");
+				}
+				else if (filtersResponseState == FiltersResponseState.NoNewFilter)
+				{
+					// We are synced.
+					// Assert index state.
+					if (serverBestHeight > hashChain.TipHeight) // If the server's tip height is larger than ours, we're missing a filter, our index got corrupted.
+					{
+						// If still bad delete filters and crash the software?
+						await BitcoinStore.IndexStore.RemoveAllImmatureFiltersAsync().ConfigureAwait(false);
+					}
 				}
 			}
 		}

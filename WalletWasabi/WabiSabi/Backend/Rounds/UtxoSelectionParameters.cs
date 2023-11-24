@@ -1,6 +1,5 @@
 using NBitcoin;
 using System.Collections.Immutable;
-using WabiSabi.Crypto.Randomness;
 using WalletWasabi.WabiSabi.Models;
 
 namespace WalletWasabi.WabiSabi.Backend.Rounds;
@@ -12,15 +11,11 @@ public record UtxoSelectionParameters(
 	FeeRate MiningFeeRate,
 	ImmutableSortedSet<ScriptType> AllowedInputScriptTypes)
 {
-	public static UtxoSelectionParameters FromRoundParameters(RoundParameters roundParameters, WasabiRandom? random = null)
-	{
-		random ??= SecureRandom.Instance;
-
-		return new(
+	public static UtxoSelectionParameters FromRoundParameters(RoundParameters roundParameters) =>
+		new(
 			roundParameters.AllowedInputAmounts,
-			roundParameters.CalculateReasonableOutputAmountRange(random),
+			roundParameters.AllowedOutputAmounts,
 			roundParameters.CoordinationFeeRate,
 			roundParameters.MiningFeeRate,
 			roundParameters.AllowedInputTypes);
-	}
 }

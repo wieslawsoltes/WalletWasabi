@@ -4,100 +4,91 @@ using System.Reactive.Linq;
 using System.Threading.Tasks;
 using DynamicData;
 using DynamicData.Binding;
-using ReactiveUI;
-using WalletWasabi.Fluent.Models.UI;
-using WalletWasabi.Fluent.Models.Wallets;
 using WalletWasabi.Fluent.ViewModels.Navigation;
 using WalletWasabi.Fluent.ViewModels.Wallets;
-using WalletWasabi.Wallets;
 
 namespace WalletWasabi.Fluent.ViewModels.NavBar;
 
 /// <summary>
 /// The ViewModel that represents the structure of the sidebar.
 /// </summary>
-public partial class NavBarViewModel : ViewModelBase, IWalletSelector
+public class NavBarViewModel : ViewModelBase
 {
-	[AutoNotify] private WalletPageViewModel? _selectedWallet;
-	private IWalletModel? _selectedWalletModel;
-
-	public NavBarViewModel(UiContext uiContext)
+	public NavBarViewModel()
 	{
-		UiContext = uiContext;
-
+		TopItems = new ObservableCollection<NavBarItemViewModel>();
 		BottomItems = new ObservableCollection<NavBarItemViewModel>();
 
-		UiContext.WalletRepository
-				 .Wallets
-				 .Connect()
-				 .Transform(newWallet => new WalletPageViewModel(UiContext, newWallet))
-				 .AutoRefresh(x => x.IsLoggedIn)
-				 .Sort(SortExpressionComparer<WalletPageViewModel>.Descending(i => i.IsLoggedIn).ThenByAscending(x => x.WalletModel.Name))
-				 .Bind(out var wallets)
-				 .Subscribe();
+		SetDefaultSelection();
 
-		Wallets = wallets;
+		Observable.Merge(
+				WhenItemSelected(Wallets.ToObservableChangeSet().Transform(x => x as NavBarItemViewModel)),
+				WhenItemSelected(BottomItems.ToObservableChangeSet()),
+				WhenItemSelected(TopItems.ToObservableChangeSet()))
+			.Buffer(2, 1)
+			.Select(buffer => (OldValue: buffer[0], NewValue: buffer[1]))
+			.Subscribe(x =>
+			{
+				if (x.OldValue is { } old)
+				{
+					old.IsSelected = false;
+				}
+
+				if (x.NewValue is WalletViewModelBase wallet)
+				{
+					Services.UiConfig.LastSelectedWallet = wallet.WalletName;
+				}
+			});
 	}
+
+	public ObservableCollection<NavBarItemViewModel> TopItems { get; }
 
 	public ObservableCollection<NavBarItemViewModel> BottomItems { get; }
 
-	public ReadOnlyObservableCollection<WalletPageViewModel> Wallets { get; }
+	public ObservableCollection<WalletViewModelBase> Wallets => UiServices.WalletManager.Wallets;
 
-	// AutoInterfaces (such as IWalletModel) cannot be seen by AutoNotifyGenerator.
-	public IWalletModel? SelectedWalletModel
+	private IObservable<NavBarItemViewModel> WhenItemSelected(IObservable<IChangeSet<NavBarItemViewModel>> observable)
 	{
-		get => _selectedWalletModel;
-		set => this.RaiseAndSetIfChanged(ref _selectedWalletModel, value);
+		return observable
+			.WhenPropertyChanged(x => x.IsSelected)
+			.Where(x => x.Value)
+			.Select(x => x.Sender);
 	}
 
-	IWalletViewModel? IWalletSelector.SelectedWallet => SelectedWallet?.WalletViewModel;
-
-	public void Activate()
+	private void SetDefaultSelection()
 	{
-		this.WhenAnyValue(x => x.SelectedWallet)
-			.Buffer(2, 1)
-			.Select(buffer => (OldValue: buffer[0], NewValue: buffer[1]))
-			.ObserveOn(RxApp.MainThreadScheduler)
-			.Do(x =>
-			{
-				if (x.OldValue is { } a)
-				{
-					a.IsSelected = false;
-				}
+		var walletToSelect = Wallets.FirstOrDefault(item => item.WalletName == Services.UiConfig.LastSelectedWallet) ?? Wallets.FirstOrDefault();
 
-				if (x.NewValue is { } b)
-				{
-					b.IsSelected = true;
-					UiContext.WalletRepository.StoreLastSelectedWallet(b.WalletModel);
-				}
-			})
-			.Subscribe();
-
-		this.WhenAnyValue(x => x.SelectedWalletModel)
-			.Select(model => Wallets.FirstOrDefault(w => w.WalletModel == model))
-			.BindTo(this, x => x.SelectedWallet);
-
-		SelectedWallet = Wallets.FirstOrDefault(x => x.WalletModel.Name == UiContext.WalletRepository.DefaultWalletName) ?? Wallets.FirstOrDefault();
+		if (walletToSelect is { } && walletToSelect.OpenCommand.CanExecute(default))
+		{
+			walletToSelect.OpenCommand.Execute(default);
+		}
 	}
 
 	public async Task InitialiseAsync()
 	{
+		var topItems = NavigationManager.MetaData.Where(x => x.NavBarPosition == NavBarPosition.Top);
+
 		var bottomItems = NavigationManager.MetaData.Where(x => x.NavBarPosition == NavBarPosition.Bottom);
+
+		foreach (var item in topItems)
+		{
+			var viewModel = await NavigationManager.MaterialiseViewModelAsync(item);
+
+			if (viewModel is NavBarItemViewModel navBarItem)
+			{
+				TopItems.Add(navBarItem);
+			}
+		}
 
 		foreach (var item in bottomItems)
 		{
-			var viewModel = await NavigationManager.MaterializeViewModelAsync(item);
+			var viewModel = await NavigationManager.MaterialiseViewModelAsync(item);
 
-			if (viewModel is INavBarItem navBarItem)
+			if (viewModel is NavBarItemViewModel navBarItem)
 			{
-				BottomItems.Add(new NavBarItemViewModel(navBarItem));
+				BottomItems.Add(navBarItem);
 			}
 		}
-	}
-
-	IWalletViewModel? IWalletNavigation.To(IWalletModel wallet)
-	{
-		SelectedWallet = Wallets.First(x => x.WalletModel.Name == wallet.Name);
-		return SelectedWallet.WalletViewModel;
 	}
 }

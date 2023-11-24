@@ -21,9 +21,7 @@
         Title="Wasabi Wallet GPT"
         WindowState="{Binding WindowState, Mode=TwoWay}"
         Focusable="{Binding ChatAssistant.IsChatListVisible}"
-        Icon="/Assets/WasabiLogo.ico"
-        RenderOptions.BitmapInterpolationMode="HighQuality"
-        RenderOptions.TextRenderingMode="Antialias">
+        Icon="/Assets/WasabiLogo.ico">
   <!--  Focusable="{Binding SearchBar.IsSearchListVisible}" -->
   <Window.Styles>
     <Style Selector="TitleBar">
@@ -31,7 +29,7 @@
     </Style>
   </Window.Styles>
   <i:Interaction.Behaviors>
-    <behaviors:ContextFlyoutWorkaroundBehavior />
+    <behaviors:RegisterNotificationHostBehavior />
   </i:Interaction.Behaviors>
 
   <Panel Margin="{Binding #MainWindow.OffScreenMargin}">

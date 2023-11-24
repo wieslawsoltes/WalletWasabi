@@ -2,10 +2,8 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:local="using:WalletWasabi.Fluent"
              xmlns:settings="using:WalletWasabi.Fluent.ViewModels.Settings"
              xmlns:conv="using:WalletWasabi.Fluent.Converters"
-             xmlns:models="clr-namespace:WalletWasabi.Fluent.Models"
              mc:Ignorable="d" d:DesignWidth="428" d:DesignHeight="371"
              x:Class="WalletWasabi.Fluent.Views.Settings.GeneralSettingsTabView"
              x:CompileBindings="True"
@@ -14,7 +12,7 @@
 
     <DockPanel>
       <TextBlock Text="Dark mode" />
-      <ToggleSwitch IsChecked="{Binding Settings.DarkModeEnabled}" />
+      <ToggleSwitch IsChecked="{Binding DarkModeEnabled}" />
     </DockPanel>
 
     <DockPanel>
@@ -22,19 +20,19 @@
       <ToggleSwitch IsChecked="{Binding RunOnSystemStartup}" Command="{Binding StartupCommand}" />
     </DockPanel>
 
-    <DockPanel IsVisible="{x:Static local:App.EnableFeatureHide}">
+    <DockPanel>
       <TextBlock Text="Run in background when window closed" />
-      <ToggleSwitch IsChecked="{Binding Settings.HideOnClose}" />
+      <ToggleSwitch IsChecked="{Binding HideOnClose}" />
     </DockPanel>
 
     <DockPanel>
       <TextBlock Text="Auto copy addresses" />
-      <ToggleSwitch IsChecked="{Binding Settings.AutoCopy}" />
+      <ToggleSwitch IsChecked="{Binding AutoCopy}" />
     </DockPanel>
 
     <DockPanel>
       <TextBlock Text="Auto paste addresses" />
-      <ToggleSwitch IsChecked="{Binding Settings.AutoPaste}" />
+      <ToggleSwitch IsChecked="{Binding AutoPaste}" />
     </DockPanel>
     <!-- Temporarily remove from settings view for release
     TODO: Make Custom change address active/implement.
@@ -46,24 +44,24 @@
 
     <DockPanel>
       <TextBlock Text="Network anonymization (Tor)" />
-      <ToggleSwitch IsChecked="{Binding Settings.UseTor}" />
+      <ToggleSwitch IsChecked="{Binding UseTor}" />
     </DockPanel>
 
-    <DockPanel IsVisible="{Binding Settings.UseTor}">
+    <DockPanel IsVisible="{Binding UseTor}">
       <TextBlock Text="Terminate Tor when Wasabi shuts down" />
-      <ToggleSwitch IsChecked="{Binding Settings.TerminateTorOnExit}" />
+      <ToggleSwitch IsChecked="{Binding TerminateTorOnExit}" />
     </DockPanel>
 
     <DockPanel>
       <TextBlock Text="Auto download new version" />
-      <ToggleSwitch IsChecked="{Binding Settings.DownloadNewVersion}" />
+      <ToggleSwitch IsChecked="{Binding DownloadNewVersion}" />
     </DockPanel>
 
     <StackPanel Spacing="10">
       <TextBlock Text="Fee display unit" />
-      <ComboBox HorizontalAlignment="Stretch" ItemsSource="{Binding FeeDisplayUnits}" SelectedItem="{Binding Settings.SelectedFeeDisplayUnit}">
+      <ComboBox HorizontalAlignment="Stretch" Items="{Binding FeeDisplayUnits}" SelectedItem="{Binding SelectedFeeDisplayUnit}">
         <ComboBox.ItemTemplate>
-          <DataTemplate x:DataType="models:FeeDisplayUnit">
+          <DataTemplate>
             <TextBlock Text="{Binding Converter={x:Static conv:EnumConverters.ToFriendlyName}}" />
           </DataTemplate>
         </ComboBox.ItemTemplate>

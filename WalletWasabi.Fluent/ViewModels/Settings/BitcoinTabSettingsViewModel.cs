@@ -1,8 +1,9 @@
 using System.Collections.Generic;
+using System.Net;
+using System.Reactive.Linq;
 using NBitcoin;
-using WalletWasabi.Fluent.Models.UI;
+using ReactiveUI;
 using WalletWasabi.Fluent.Validation;
-using WalletWasabi.Fluent.ViewModels.Navigation;
 using WalletWasabi.Helpers;
 using WalletWasabi.Models;
 using WalletWasabi.Userfacing;
@@ -20,70 +21,104 @@ namespace WalletWasabi.Fluent.ViewModels.Settings;
 			"P2P", "Endpoint", "Dust", "Threshold", "BTC"
 	},
 	IconName = "settings_bitcoin_regular")]
-public partial class BitcoinTabSettingsViewModel : RoutableViewModel
+public partial class BitcoinTabSettingsViewModel : SettingsTabViewModelBase
 {
+	[AutoNotify] private Network _network;
+	[AutoNotify] private bool _startLocalBitcoinCoreOnStartup;
+	[AutoNotify] private string _localBitcoinCoreDataDir;
+	[AutoNotify] private bool _stopLocalBitcoinCoreOnShutdown;
 	[AutoNotify] private string _bitcoinP2PEndPoint;
 	[AutoNotify] private string _dustThreshold;
 
-	public BitcoinTabSettingsViewModel(IApplicationSettings settings)
+	public BitcoinTabSettingsViewModel()
 	{
-		Settings = settings;
-
 		this.ValidateProperty(x => x.BitcoinP2PEndPoint, ValidateBitcoinP2PEndPoint);
 		this.ValidateProperty(x => x.DustThreshold, ValidateDustThreshold);
 
-		_bitcoinP2PEndPoint = settings.BitcoinP2PEndPoint;
-		_dustThreshold = settings.DustThreshold;
+		_network = Services.Config.Network;
+		_startLocalBitcoinCoreOnStartup = Services.Config.StartLocalBitcoinCoreOnStartup;
+		_localBitcoinCoreDataDir = Services.Config.LocalBitcoinCoreDataDir;
+		_stopLocalBitcoinCoreOnShutdown = Services.Config.StopLocalBitcoinCoreOnShutdown;
+		_bitcoinP2PEndPoint = Services.Config.GetBitcoinP2pEndPoint().ToString(defaultPort: -1);
+		_dustThreshold = Services.Config.DustThreshold.ToString();
+
+		this.WhenAnyValue(
+				x => x.Network,
+				x => x.StartLocalBitcoinCoreOnStartup,
+				x => x.StopLocalBitcoinCoreOnShutdown,
+				x => x.BitcoinP2PEndPoint,
+				x => x.LocalBitcoinCoreDataDir,
+				x => x.DustThreshold)
+			.ObserveOn(RxApp.TaskpoolScheduler)
+			.Throttle(TimeSpan.FromMilliseconds(ThrottleTime))
+			.Skip(1)
+			.Subscribe(_ => Save());
+
+		this.WhenAnyValue(x => x.StartLocalBitcoinCoreOnStartup)
+			.Skip(1)
+			.Where(value => value && string.IsNullOrEmpty(LocalBitcoinCoreDataDir))
+			.Subscribe(_ => LocalBitcoinCoreDataDir = EnvironmentHelpers.GetDefaultBitcoinCoreDataDirOrEmptyString());
 	}
-
-	public bool IsReadOnly => Settings.IsOverridden;
-
-	public IApplicationSettings Settings { get; }
 
 	public Version BitcoinCoreVersion => Constants.BitcoinCoreVersion;
 
 	public IEnumerable<Network> Networks { get; } = new[] { /*Network.Main,*/ Network.TestNet/*, Network.RegTest*/ };
 
 	private void ValidateBitcoinP2PEndPoint(IValidationErrors errors)
+		=> ValidateEndPoint(errors, BitcoinP2PEndPoint, Network.DefaultPort, whiteSpaceOk: true);
+
+	private static void ValidateEndPoint(IValidationErrors errors, string endPoint, int defaultPort, bool whiteSpaceOk)
 	{
-		if (!string.IsNullOrWhiteSpace(BitcoinP2PEndPoint))
+		if (!whiteSpaceOk || !string.IsNullOrWhiteSpace(endPoint))
 		{
-			if (!EndPointParser.TryParse(BitcoinP2PEndPoint, Settings.Network.DefaultPort, out _))
+			if (!EndPointParser.TryParse(endPoint, defaultPort, out _))
 			{
 				errors.Add(ErrorSeverity.Error, "Invalid endpoint.");
-			}
-			else
-			{
-				Settings.BitcoinP2PEndPoint = BitcoinP2PEndPoint;
 			}
 		}
 	}
 
-	private void ValidateDustThreshold(IValidationErrors errors)
-	{
-		var dustThreshold = DustThreshold;
-		if (!string.IsNullOrWhiteSpace(dustThreshold))
-		{
-			bool error = false;
+	private void ValidateDustThreshold(IValidationErrors errors) =>
+		ValidateDustThreshold(errors, DustThreshold, whiteSpaceOk: true);
 
+	private static void ValidateDustThreshold(IValidationErrors errors, string dustThreshold, bool whiteSpaceOk)
+	{
+		if (!whiteSpaceOk || !string.IsNullOrWhiteSpace(dustThreshold))
+		{
 			if (!string.IsNullOrEmpty(dustThreshold) && dustThreshold.Contains(
 				',',
 				StringComparison.InvariantCultureIgnoreCase))
 			{
-				error = true;
 				errors.Add(ErrorSeverity.Error, "Use decimal point instead of comma.");
 			}
 
 			if (!decimal.TryParse(dustThreshold, out var dust) || dust < 0)
 			{
-				error = true;
 				errors.Add(ErrorSeverity.Error, "Invalid dust threshold.");
 			}
+		}
+	}
 
-			if (!error)
+	protected override void EditConfigOnSave(Config config)
+	{
+		if (Network == config.Network)
+		{
+			if (EndPointParser.TryParse(BitcoinP2PEndPoint, Network.DefaultPort, out EndPoint? p2PEp))
 			{
-				Settings.DustThreshold = dustThreshold;
+				config.SetBitcoinP2pEndpoint(p2PEp);
 			}
+
+			config.StartLocalBitcoinCoreOnStartup = StartLocalBitcoinCoreOnStartup;
+			config.StopLocalBitcoinCoreOnShutdown = StopLocalBitcoinCoreOnShutdown;
+			config.LocalBitcoinCoreDataDir = Guard.Correct(LocalBitcoinCoreDataDir);
+			config.DustThreshold = decimal.TryParse(DustThreshold, out var threshold)
+				? Money.Coins(threshold)
+				: Config.DefaultDustThreshold;
+		}
+		else
+		{
+			config.Network = Network;
+			BitcoinP2PEndPoint = config.GetBitcoinP2pEndPoint().ToString(defaultPort: -1);
 		}
 	}
 }

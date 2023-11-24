@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using WalletWasabi.Backend.Models.Responses;
 using WalletWasabi.Helpers;
-using WalletWasabi.JsonConverters;
 
 namespace WalletWasabi.Backend.Controllers;
 
@@ -17,8 +16,7 @@ public class SoftwareController : ControllerBase
 		ClientVersion = Constants.ClientVersion.ToString(3),
 		BackendMajorVersion = Constants.BackendMajorVersion,
 		Ww1LegalDocumentsVersion = Constants.Ww1LegalDocumentsVersion.ToString(),
-		Ww2LegalDocumentsVersion = Constants.Ww2LegalDocumentsVersion.ToString(),
-		CommitHash = GetCommitHash()
+		Ww2LegalDocumentsVersion = Constants.Ww2LegalDocumentsVersion.ToString()
 	};
 
 	/// <summary>
@@ -32,7 +30,4 @@ public class SoftwareController : ControllerBase
 	{
 		return _versionsResponse;
 	}
-
-	private static string GetCommitHash() =>
-		ReflectionUtils.GetAssemblyMetadata("CommitHash") ?? "";
 }

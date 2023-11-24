@@ -1,81 +1,50 @@
+using System.Linq;
+using System.Reactive.Disposables;
 using ReactiveUI;
-using WalletWasabi.Fluent.Models.Wallets;
+using WalletWasabi.Blockchain.Keys;
+using WalletWasabi.Fluent.Helpers;
+using WalletWasabi.Fluent.ViewModels.NavBar;
 using WalletWasabi.Fluent.ViewModels.Navigation;
 using WalletWasabi.Wallets;
-using System.Reactive.Disposables;
-using WalletWasabi.Fluent.Models;
-using System.Threading.Tasks;
 
 namespace WalletWasabi.Fluent.ViewModels.AddWallet;
 
 [NavigationMetaData(Title = "Success")]
 public partial class AddedWalletPageViewModel : RoutableViewModel
 {
-	private readonly IWalletSettingsModel _walletSettings;
-	private IWalletModel? _wallet;
+	private readonly KeyManager _keyManager;
 
-	private AddedWalletPageViewModel(IWalletSettingsModel walletSettings, WalletCreationOptions? options)
+	public AddedWalletPageViewModel(KeyManager keyManager)
 	{
-		_walletSettings = walletSettings;
-
-		WalletName = walletSettings.WalletName;
-		WalletType = walletSettings.WalletType;
+		_keyManager = keyManager;
+		WalletName = _keyManager.WalletName;
+		WalletType = WalletHelpers.GetType(_keyManager);
 
 		SetupCancel(enableCancel: false, enableCancelOnEscape: false, enableCancelOnPressed: false);
 		EnableBack = false;
 
-		NextCommand = ReactiveCommand.CreateFromTask(() => OnNextAsync(options));
+		NextCommand = ReactiveCommand.Create(OnNext);
 	}
 
 	public WalletType WalletType { get; }
 
 	public string WalletName { get; }
 
-	private async Task OnNextAsync(WalletCreationOptions? options)
+	private void OnNext()
 	{
-		if (_wallet is not { })
-		{
-			return;
-		}
-
-		IsBusy = true;
-
-		await AutoLoginAsync(options);
-
 		Navigate().Clear();
-		UiContext.Navigate().To(_wallet);
+
+		var wallet = UiServices.WalletManager.Wallets.FirstOrDefault(x => x.WalletName == WalletName);
+		wallet?.OpenCommand.Execute(default);
 	}
 
 	protected override void OnNavigatedTo(bool isInHistory, CompositeDisposable disposables)
 	{
 		base.OnNavigatedTo(isInHistory, disposables);
 
-		_wallet = UiContext.WalletRepository.SaveWallet(_walletSettings);
-	}
-
-	private async Task AutoLoginAsync(WalletCreationOptions? options)
-	{
-		if (_wallet is not { })
+		if (!Services.WalletManager.WalletExists(_keyManager.MasterFingerprint))
 		{
-			return;
-		}
-
-		var password =
-			options switch
-			{
-				WalletCreationOptions.AddNewWallet add => add.Password,
-				WalletCreationOptions.RecoverWallet rec => rec.Password,
-				WalletCreationOptions.ConnectToHardwareWallet => "",
-				_ => null
-			};
-
-		if (password is { })
-		{
-			var termsAndConditionsAccepted = await TermsAndConditionsViewModel.TryShowAsync(UiContext, _wallet);
-			if (termsAndConditionsAccepted)
-			{
-				await _wallet.Auth.LoginAsync(password);
-			}
+			Services.WalletManager.AddWallet(_keyManager);
 		}
 	}
 }

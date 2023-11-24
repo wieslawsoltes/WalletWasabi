@@ -1,11 +1,13 @@
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.Generators;
+using Avalonia.Controls.Presenters;
 using Avalonia.VisualTree;
 using System.Linq;
 
 namespace WalletWasabi.Fluent.Controls;
 
-public class PrivacyBar : ItemsControl
+public class PrivacyBar : ItemsPresenter
 {
 	private const double GapBetweenSegments = 1.5;
 	private const double EnlargeThreshold = 2;
@@ -20,34 +22,9 @@ public class PrivacyBar : ItemsControl
 		set => SetValue(TotalAmountProperty, value);
 	}
 
-	protected override Control CreateContainerForItemOverride(object? item, int index, object? recycleKey)
+	protected override IItemContainerGenerator CreateItemContainerGenerator()
 	{
-		return new PrivacyBarSegment();
-	}
-
-	protected override bool NeedsContainerOverride(object? item, int index, out object? recycleKey)
-	{
-		return NeedsContainer<PrivacyBarSegment>(item, out recycleKey);
-	}
-
-	protected override void PrepareContainerForItemOverride(Control element, object? item, int index)
-	{
-		base.PrepareContainerForItemOverride(element, item, index);
-
-		if (element is PrivacyBarSegment privacyBarSegment)
-		{
-			privacyBarSegment.DataContext = item;
-		}
-	}
-
-	protected override void ClearContainerForItemOverride(Control element)
-	{
-		base.ClearContainerForItemOverride(element);
-
-		if (element is PrivacyBarSegment privacyBarSegment)
-		{
-			privacyBarSegment.DataContext = null;
-		}
+		return new PrivacyBarItemContainerGenerator(this);
 	}
 
 	protected override Size ArrangeOverride(Size finalSize)
@@ -66,7 +43,7 @@ public class PrivacyBar : ItemsControl
 			children.Select(segment =>
 			{
 				var amount = (double)segment.Amount;
-				var width = totalAmount == 0m ? 0d : Math.Abs(usableWidth * amount / (double)totalAmount);
+				var width = Math.Abs(usableWidth * amount / (double)totalAmount);
 
 				return (Coin: segment, Width: width);
 			}).ToArray();
@@ -95,5 +72,20 @@ public class PrivacyBar : ItemsControl
 		}
 
 		return base.ArrangeOverride(finalSize);
+	}
+
+	private class PrivacyBarItemContainerGenerator : ItemContainerGenerator
+	{
+		public PrivacyBarItemContainerGenerator(IControl owner) : base(owner)
+		{
+		}
+
+		protected override IControl CreateContainer(object item)
+		{
+			return new PrivacyBarSegment
+			{
+				DataContext = item,
+			};
+		}
 	}
 }

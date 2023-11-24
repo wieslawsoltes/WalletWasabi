@@ -7,7 +7,7 @@ namespace WalletWasabi.Blockchain.Analysis.Clustering;
 
 public class Cluster : NotifyPropertyChangedBase, IEquatable<Cluster>
 {
-	private LabelsArray _labels;
+	private SmartLabel _labels;
 
 	public Cluster(params HdPubKey[] keys)
 		: this(keys as IEnumerable<HdPubKey>)
@@ -19,10 +19,10 @@ public class Cluster : NotifyPropertyChangedBase, IEquatable<Cluster>
 		Lock = new object();
 		Keys = keys.ToList();
 		KeysSet = Keys.ToHashSet();
-		_labels = LabelsArray.Merge(Keys.Select(x => x.Labels));
+		_labels = SmartLabel.Merge(Keys.Select(x => x.Label));
 	}
 
-	public LabelsArray Labels
+	public SmartLabel Labels
 	{
 		get => _labels;
 		private set => RaiseAndSetIfChanged(ref _labels, value);
@@ -64,7 +64,7 @@ public class Cluster : NotifyPropertyChangedBase, IEquatable<Cluster>
 
 	private void UpdateLabelsNoLock()
 	{
-		Labels = LabelsArray.Merge(Keys.Select(x => x.Labels));
+		Labels = SmartLabel.Merge(Keys.Select(x => x.Label));
 	}
 
 	public override string ToString() => Labels;

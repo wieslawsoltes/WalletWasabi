@@ -4,8 +4,8 @@ using System.Diagnostics.CodeAnalysis;
 using WalletWasabi.Bases;
 using WalletWasabi.Blockchain.Keys;
 using WalletWasabi.Blockchain.Transactions;
-using WalletWasabi.Extensions;
 using WalletWasabi.Models;
+using WalletWasabi.Extensions;
 
 namespace WalletWasabi.Blockchain.TransactionOutputs;
 
@@ -20,6 +20,8 @@ public class SmartCoin : NotifyPropertyChangedBase, IEquatable<SmartCoin>, IDest
 	private bool _coinJoinInProgress;
 	private DateTimeOffset? _bannedUntilUtc;
 	private bool _spentAccordingToBackend;
+
+	private ISecret? _secret;
 
 	private bool _confirmed;
 	private bool _isBanned;
@@ -82,6 +84,12 @@ public class SmartCoin : NotifyPropertyChangedBase, IEquatable<SmartCoin>, IDest
 		set => RaiseAndSetIfChanged(ref _spenderTransaction, value);
 	}
 
+	public bool RegisterToHdPubKey()
+		=> HdPubKey.Coins.Add(this);
+
+	public bool UnregisterFromHdPubKey()
+		=> HdPubKey.Coins.Remove(this);
+
 	public bool CoinJoinInProgress
 	{
 		get => _coinJoinInProgress;
@@ -111,6 +119,16 @@ public class SmartCoin : NotifyPropertyChangedBase, IEquatable<SmartCoin>, IDest
 
 	public HdPubKey HdPubKey { get; }
 
+	/// <summary>
+	/// It's a secret, so it's usually going to be null. Do not use it.
+	/// This will not get serialized, because that's a security risk.
+	/// </summary>
+	public ISecret? Secret
+	{
+		get => _secret;
+		set => RaiseAndSetIfChanged(ref _secret, value);
+	}
+
 	public bool Confirmed
 	{
 		get => _confirmed;
@@ -132,13 +150,9 @@ public class SmartCoin : NotifyPropertyChangedBase, IEquatable<SmartCoin>, IDest
 		set => RaiseAndSetIfChanged(ref _isExcludedFromCoinJoin, value);
 	}
 
-	/// <returns>False if external, or the tx inputs are all external.</returns>
-	/// <remarks>Context: https://github.com/zkSNACKs/WalletWasabi/issues/10567</remarks>
-	public bool IsSufficientlyDistancedFromExternalKeys { get; set; } = true;
-
 	public bool IsImmature(int bestHeight)
 	{
-		return Transaction.Transaction.IsCoinBase && Height >= bestHeight - 100;
+		return Transaction.Transaction.IsCoinBase && Height < bestHeight - 100;
 	}
 
 	public bool RefreshAndGetIsBanned()
@@ -185,9 +199,11 @@ public class SmartCoin : NotifyPropertyChangedBase, IEquatable<SmartCoin>, IDest
 		{
 			return false;
 		}
-
-		// Indices are fast to compare, so compare them first.
-		return (y.Index == x.Index) && (x.GetHashCode() == y.GetHashCode()) && (y.TransactionId == x.TransactionId);
+		else
+		{
+			var hashEquals = x.GetHashCode() == y.GetHashCode();
+			return hashEquals && y.TransactionId == x.TransactionId && y.Index == x.Index;
+		}
 	}
 
 	public static bool operator !=(SmartCoin? x, SmartCoin? y) => !(x == y);

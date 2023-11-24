@@ -10,21 +10,21 @@ namespace WalletWasabi.Fluent.Helpers;
 
 public static class CoinPocketHelper
 {
-	public static readonly LabelsArray UnlabelledFundsText = new("Unknown People");
-	public static readonly LabelsArray PrivateFundsText = new("Private Coins");
-	public static readonly LabelsArray SemiPrivateFundsText = new("Semi-private Coins");
+	public static readonly SmartLabel UnlabelledFundsText = new("Unknown People");
+	public static readonly SmartLabel PrivateFundsText = new("Private Funds");
+	public static readonly SmartLabel SemiPrivateFundsText = new("Semi-private Funds");
 
-	public static IEnumerable<(LabelsArray Labels, ICoinsView Coins)> GetPockets(this ICoinsView allCoins, int privateAnonSetThreshold)
+	public static IEnumerable<(SmartLabel SmartLabel, ICoinsView Coins)> GetPockets(this ICoinsView allCoins, int privateAnonSetThreshold)
 	{
-		List<(LabelsArray Labels, ICoinsView Coins)> pockets = new();
+		List<(SmartLabel SmartLabel, ICoinsView Coins)> pockets = new();
+		var clusters = new Dictionary<SmartLabel, List<SmartCoin>>();
 
-		var clusters = new Dictionary<LabelsArray, List<SmartCoin>>(comparer: LabelsComparer.Instance);
-		
 		foreach (SmartCoin coin in allCoins.Where(x => x.HdPubKey.AnonymitySet < Constants.SemiPrivateThreshold))
 		{
 			var cluster = coin.HdPubKey.Cluster.Labels;
 
-			if (clusters.TryGetValue(cluster, out var clusterCoins))
+			if (clusters.Keys.FirstOrDefault(x => string.Equals(x, cluster, StringComparison.OrdinalIgnoreCase)) is { } key &&
+				clusters.TryGetValue(key, out var clusterCoins))
 			{
 				clusterCoins.Add(coin);
 			}
@@ -38,10 +38,10 @@ public static class CoinPocketHelper
 
 		foreach (var cluster in clusters)
 		{
-			var allLabels = cluster.Key;
-			var coins = cluster.Value;
+			string[] allLabels = cluster.Key.Labels.ToArray();
+			SmartCoin[] coins = cluster.Value.ToArray();
 
-			if (allLabels.IsEmpty)
+			if (allLabels.Length == 0)
 			{
 				unLabelledCoins = new CoinsView(coins);
 			}

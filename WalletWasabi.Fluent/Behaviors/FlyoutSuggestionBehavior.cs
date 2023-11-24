@@ -3,9 +3,7 @@ using System.Reactive.Linq;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Templates;
-using Avalonia.Input;
 using ReactiveUI;
-using WalletWasabi.Fluent.Helpers;
 using WalletWasabi.Fluent.Models;
 
 namespace WalletWasabi.Fluent.Behaviors;
@@ -18,7 +16,7 @@ public class FlyoutSuggestionBehavior : AttachedToVisualTreeBehavior<Control>
 
 	public static readonly StyledProperty<TextBox?> TargetProperty = AvaloniaProperty.Register<FlyoutSuggestionBehavior, TextBox?>(nameof(Target));
 
-	public static readonly StyledProperty<PlacementMode> PlacementModeProperty = AvaloniaProperty.Register<FlyoutSuggestionBehavior, PlacementMode>(nameof(PlacementMode));
+	public static readonly StyledProperty<FlyoutPlacementMode> PlacementModeProperty = AvaloniaProperty.Register<FlyoutSuggestionBehavior, FlyoutPlacementMode>(nameof(PlacementMode));
 
 	private readonly Flyout _flyout;
 
@@ -27,7 +25,7 @@ public class FlyoutSuggestionBehavior : AttachedToVisualTreeBehavior<Control>
 		_flyout = new Flyout { ShowMode = FlyoutShowMode.Transient };
 	}
 
-	public PlacementMode PlacementMode
+	public FlyoutPlacementMode PlacementMode
 	{
 		get => GetValue(PlacementModeProperty);
 		set => SetValue(PlacementModeProperty, value);
@@ -59,35 +57,9 @@ public class FlyoutSuggestionBehavior : AttachedToVisualTreeBehavior<Control>
 			.WhenAnyValue(x => x.Target)
 			.WhereNotNull();
 
-		var contents = this
-			.GetObservable(ContentProperty);
-
-		var focusChanges = targets
-			.Select(target => target.GetObservable(InputElement.IsFocusedProperty))
-			.Switch();
-
-		var hideOnLostFocus = focusChanges
-			.Where(focus => !focus);
-
-		var hideOnTextChange = targets
-			.Select(target => target.GetObservable(TextBox.TextProperty))
-			.Switch()
-			.WithLatestFrom(contents)
-			.Select(_ => false);
-
-		var showOnGotFocus = focusChanges
-			.Where(focus => focus)
-			.Delay(TimeSpan.FromSeconds(0.2), RxApp.MainThreadScheduler)
-			.WithLatestFrom(targets, (_, target) => target)
-			.WithLatestFrom(contents, (tb, newText) => new { TextBox = tb, NewText = newText, CurrentText = tb.Text })
-			.Where(arg => !string.IsNullOrWhiteSpace(arg.NewText))
-			.Where(x => !EqualityComparer.Equals(x.CurrentText, x.NewText))
-			.Do(x => _flyout.Content = CreateSuggestion(x.TextBox, x.NewText))
-			.Select(_ => true);
-
-		targets
-			.Subscribe(target => FlyoutHelpers.ShowFlyout(target, _flyout, showOnGotFocus.Merge(hideOnLostFocus).Merge(hideOnTextChange), disposable))
-			.DisposeWith(disposable);
+		Displayer(targets).DisposeWith(disposable);
+		HideOnLostFocus(targets).DisposeWith(disposable);
+		HideOnTextChange().DisposeWith(disposable);
 
 		Target ??= AssociatedObject as TextBox;
 
@@ -95,6 +67,36 @@ public class FlyoutSuggestionBehavior : AttachedToVisualTreeBehavior<Control>
 			.Do(x => _flyout.Placement = x)
 			.Subscribe()
 			.DisposeWith(disposable);
+	}
+
+	private IDisposable HideOnLostFocus(IObservable<Control> targets)
+	{
+		return targets
+			.Select(x => Observable.FromEventPattern(x, nameof(x.LostFocus)))
+			.Switch()
+			.Do(_ => _flyout.Hide())
+			.Subscribe();
+	}
+
+	private IDisposable HideOnTextChange()
+	{
+		return this.WhenAnyValue(x => x.Target.Text)
+			.WithLatestFrom(this.WhenAnyValue(x => x.Content))
+			.Do(_ => _flyout.Hide())
+			.Subscribe();
+	}
+
+	private IDisposable Displayer(IObservable<Control> targets)
+	{
+		return targets
+			.Select(x => Observable.FromEventPattern(x, nameof(x.GotFocus)))
+			.Switch()
+			.Select(x => (TextBox?)x.Sender)
+			.WithLatestFrom(this.WhenAnyValue(x => x.Content))
+			.Where(tuple => !string.IsNullOrWhiteSpace(tuple.Second) && !EqualityComparer.Equals(tuple.First?.Text, tuple.Second))
+			.Select(tuple => CreateSuggestion(tuple.First, tuple.Second))
+			.Do(ShowHint)
+			.Subscribe();
 	}
 
 	private Suggestion CreateSuggestion(TextBox? textBox, string content)
@@ -110,5 +112,14 @@ public class FlyoutSuggestionBehavior : AttachedToVisualTreeBehavior<Control>
 
 				_flyout.Hide();
 			});
+	}
+
+	private void ShowHint(Suggestion suggestion)
+	{
+		_flyout.Content = new ContentControl { ContentTemplate = HintTemplate, Content = suggestion };
+		if (Target != null)
+		{
+			_flyout.ShowAt(Target);
+		}
 	}
 }

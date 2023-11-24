@@ -8,7 +8,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using WalletWasabi.Affiliation;
 using WalletWasabi.Backend.Controllers;
-using WalletWasabi.BitcoinCore.Mempool;
 using WalletWasabi.Blockchain.TransactionOutputs;
 using WalletWasabi.Cache;
 using WalletWasabi.Crypto.Randomness;
@@ -17,7 +16,6 @@ using WalletWasabi.Tests.Helpers;
 using WalletWasabi.WabiSabi;
 using WalletWasabi.WabiSabi.Backend;
 using WalletWasabi.WabiSabi.Backend.Rounds;
-using WalletWasabi.WabiSabi.Backend.Rounds.CoinJoinStorage;
 using WalletWasabi.WabiSabi.Backend.Statistics;
 using WalletWasabi.WabiSabi.Client;
 using WalletWasabi.WabiSabi.Client.RoundStateAwaiters;
@@ -51,10 +49,9 @@ public class BobClientTests
 		var idempotencyRequestCache = new IdempotencyRequestCache(memoryCache);
 
 		using CoinJoinFeeRateStatStore coinJoinFeeRateStatStore = new(config, arena.Rpc);
-		using AffiliationManager affiliationManager = new(arena, config, new MockHttpClientFactory());
-		using var mempoolMirror = new MempoolMirror(TimeSpan.Zero, null!, null!);
-		using CoinJoinMempoolManager coinJoinMempoolManager = new(new CoinJoinIdStore(), mempoolMirror);
-		var wabiSabiApi = new WabiSabiController(idempotencyRequestCache, arena, coinJoinFeeRateStatStore, affiliationManager, coinJoinMempoolManager);
+		Mock<IHttpClientFactory> mockIHttpClientFactory = new(MockBehavior.Strict);
+		AffiliationManager affiliationManager = new(arena, config, mockIHttpClientFactory.Object);
+		var wabiSabiApi = new WabiSabiController(idempotencyRequestCache, arena, coinJoinFeeRateStatStore, affiliationManager);
 
 		InsecureRandom insecureRandom = InsecureRandom.Instance;
 		var roundState = RoundState.FromRound(round);

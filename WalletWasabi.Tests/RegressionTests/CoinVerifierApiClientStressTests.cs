@@ -3,7 +3,6 @@ using NBitcoin;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using WalletWasabi.Tests.UnitTests;
 using WalletWasabi.WabiSabi.Backend.Banning;
 using Xunit;
 
@@ -30,26 +29,27 @@ public class CoinVerifierApiClientStressTests
 		using HttpResponseMessage response = new(System.Net.HttpStatusCode.OK);
 		response.Content = new StringContent(GenerateCleanJsonReport());
 
-		using MockHttpClient mockHttpClient = new();
-		mockHttpClient.BaseAddress = new Uri("https://verifier.local/");
-		_ = mockHttpClient.OnSendAsync = async req =>
-		{
-			long count = Interlocked.Increment(ref concurrentlyRunningRequestsCount);
-
-			// Record failure.
-			if (count > CoinVerifierApiClient.MaxParallelRequestCount)
+		Mock<HttpClient> mockHttpClient = new();
+		mockHttpClient.Object.BaseAddress = new Uri("https://verifier.local/");
+		_ = mockHttpClient.Setup(client => client.SendAsync(It.IsAny<HttpRequestMessage>(), It.IsAny<CancellationToken>()))
+			.Returns(async () =>
 			{
-				Interlocked.Increment(ref totalFailures);
-			}
+				long count = Interlocked.Increment(ref concurrentlyRunningRequestsCount);
 
-			await Task.Delay(50, testDeadlineCts.Token).ConfigureAwait(false);
+				// Record failure.
+				if (count > CoinVerifierApiClient.MaxParallelRequestCount)
+				{
+					Interlocked.Increment(ref totalFailures);
+				}
 
-			Interlocked.Decrement(ref concurrentlyRunningRequestsCount);
+				await Task.Delay(50, testDeadlineCts.Token).ConfigureAwait(false);
 
-			return response;
-		};
+				Interlocked.Decrement(ref concurrentlyRunningRequestsCount);
 
-		await using CoinVerifierApiClient apiClient = new(apiToken: "token", mockHttpClient);
+				return response;
+			});
+
+		await using CoinVerifierApiClient apiClient = new(apiToken: "token", mockHttpClient.Object);
 
 		Task<ApiResponseItem>[] tasks = new Task<ApiResponseItem>[tasksToRun];
 

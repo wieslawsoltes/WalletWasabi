@@ -38,7 +38,7 @@ public class AnalyzedTransaction : SmartTransaction
 	private static HdPubKey CreateHdPubKey(string? label = null)
 	{
 		using var k = CreateKey(label);
-		return new(k.PubKey, new KeyPath("0/0/0/0/0"), LabelsArray.Empty, KeyState.Clean);
+		return new(k.PubKey, new KeyPath("0/0/0/0/0"), SmartLabel.Empty, KeyState.Clean);
 	}
 
 	public void AddForeignInput(ForeignOutput output)
@@ -99,19 +99,20 @@ public class AnalyzedTransaction : SmartTransaction
 
 	public void AnalyzeRecursively()
 	{
-		var analyzer = new BlockchainAnalyzer();
+		var analyser = new BlockchainAnalyzer();
 		HashSet<SmartTransaction> analyzedTransactions = new();
 
 		// Analyze transactions in topological sorting
 		void AnalyzeRecursivelyHelper(SmartTransaction transaction)
 		{
-			if (analyzedTransactions.Add(transaction))
+			if (!analyzedTransactions.Contains(transaction))
 			{
+				analyzedTransactions.Add(transaction);
 				foreach (SmartCoin walletInput in transaction.WalletInputs)
 				{
 					AnalyzeRecursivelyHelper(walletInput.Transaction);
 				}
-				analyzer.Analyze(transaction);
+				analyser.Analyze(transaction);
 			}
 		}
 

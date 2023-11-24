@@ -1,4 +1,4 @@
-using Avalonia.Controls.Models.TreeDataGrid;
+﻿using Avalonia.Controls.Models.TreeDataGrid;
 
 namespace WalletWasabi.Fluent.TreeDataGrid;
 
@@ -10,8 +10,6 @@ internal class PlainTextCell : ICell
 	}
 
 	public bool CanEdit => false;
-
-	public BeginEditGestures EditGestures => BeginEditGestures.None;
 
 	public string? Value { get; }
 

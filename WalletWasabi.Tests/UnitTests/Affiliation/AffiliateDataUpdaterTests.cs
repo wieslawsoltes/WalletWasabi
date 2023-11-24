@@ -77,10 +77,9 @@ public class AffiliateDataUpdaterTests
 					new AffiliateInput(
 						wasabiCoin.Outpoint,
 						wasabiCoin.ScriptPubKey,
-						wasabiCoin.Amount,
 						AffiliationConstants.DefaultAffiliationId,
 						false),
-					new AffiliateInput(affiliateCoin.Outpoint, affiliateCoin.ScriptPubKey, affiliateCoin.Amount, "trezor", false)
+					new AffiliateInput(affiliateCoin.Outpoint, affiliateCoin.ScriptPubKey, "trezor", false)
 				},
 				new[]
 				{
@@ -90,7 +89,7 @@ public class AffiliateDataUpdaterTests
 				CoordinationFeeRate.Zero,
 				Money.Zero);
 
-			notifications.Enqueue(new RoundBuiltTransactionNotification(RoundId: uint256.One, TxId: uint256.Zero, coinjoinData));
+			notifications.Enqueue(new RoundBuiltTransactionNotification(uint256.One, coinjoinData));
 			await Task.Delay(500); // this is to give time to the notification to be consumed.
 			var coinjoinRequests = Assert.Single(requestsUpdater.GetAffiliateData());
 
@@ -116,8 +115,9 @@ public class AffiliateDataUpdaterTests
 			BaseUriGetter = () => new Uri(server);
 		}
 
-		public Func<HttpRequestMessage, CancellationToken, Task<HttpResponseMessage>> OnSendAsync { get; set; }
 		public Func<Uri>? BaseUriGetter { get; }
+
+		public Func<HttpRequestMessage, CancellationToken, Task<HttpResponseMessage>> OnSendAsync;
 
 		public Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken = default)
 		{

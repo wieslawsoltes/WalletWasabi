@@ -72,7 +72,6 @@ public class ConnectedNode : IDisposable
 		if (Node is not null)
 		{
 			Node.StateChanged -= Node_StateChanged;
-			Node.Dispose();
 		}
 
 		DisconnectedCts.Dispose();

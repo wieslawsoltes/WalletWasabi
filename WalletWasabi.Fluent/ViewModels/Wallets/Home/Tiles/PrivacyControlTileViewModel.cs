@@ -1,39 +1,41 @@
-using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Windows.Input;
-using DynamicData;
-using DynamicData.Binding;
 using NBitcoin;
 using ReactiveUI;
-using WalletWasabi.Fluent.Extensions;
-using WalletWasabi.Fluent.Models.Wallets;
+using WalletWasabi.Fluent.Helpers;
+using WalletWasabi.Fluent.ViewModels.Navigation;
 using WalletWasabi.Fluent.ViewModels.Wallets.Home.Tiles.PrivacyRing;
+using WalletWasabi.Wallets;
 
 namespace WalletWasabi.Fluent.ViewModels.Wallets.Home.Tiles;
 
 public partial class PrivacyControlTileViewModel : ActivatableViewModel, IPrivacyRingPreviewItem
 {
-	private readonly IWalletModel _wallet;
+	private readonly WalletViewModel _walletVm;
+	private readonly Wallet _wallet;
 	[AutoNotify] private bool _fullyMixed;
 	[AutoNotify] private string _percentText = "";
-	[AutoNotify] private Money _balancePrivate = Money.Zero;
+	[AutoNotify] private string _balancePrivateBtc = "";
 	[AutoNotify] private bool _hasPrivateBalance;
 	[AutoNotify] private bool _showPrivacyBar;
 
-	private PrivacyControlTileViewModel(IWalletModel wallet, bool showPrivacyBar = true)
+	public PrivacyControlTileViewModel(WalletViewModel walletVm, bool showPrivacyBar = true)
 	{
-		_wallet = wallet;
+		_wallet = walletVm.Wallet;
+		_walletVm = walletVm;
 		_showPrivacyBar = showPrivacyBar;
 
-		var canShowDetails = _wallet.HasBalance;
+		var showDetailsCanExecute =
+			walletVm.WhenAnyValue(x => x.IsWalletBalanceZero)
+					.Select(x => !x);
 
-		ShowDetailsCommand = ReactiveCommand.Create(ShowDetails, canShowDetails);
+		ShowDetailsCommand = ReactiveCommand.Create(ShowDetails, showDetailsCanExecute);
 
 		if (showPrivacyBar)
 		{
-			PrivacyBar = new PrivacyBarViewModel(wallet);
+			PrivacyBar = new PrivacyBarViewModel(_walletVm);
 		}
 	}
 
@@ -45,32 +47,32 @@ public partial class PrivacyControlTileViewModel : ActivatableViewModel, IPrivac
 	{
 		base.OnActivated(disposables);
 
-		_wallet.Privacy.Progress
-					   .CombineLatest(_wallet.Privacy.IsWalletPrivate)
-					   .CombineLatest(_wallet.Coins.List.Connect(suppressEmptyChangeSets: false).ToCollection())
-					   .Flatten()
-					   .Do(tuple =>
-					   {
-						   var (privacyProgress, isWalletPrivate, coins) = tuple;
-						   Update(privacyProgress, isWalletPrivate, coins);
-					   })
-					   .Subscribe()
-					   .DisposeWith(disposables);
+		_walletVm.UiTriggers.PrivacyProgressUpdateTrigger
+			.Subscribe(_ => Update())
+			.DisposeWith(disposables);
 
 		PrivacyBar?.Activate(disposables);
 	}
 
 	private void ShowDetails()
 	{
-		UiContext.Navigate().To().PrivacyRing(_wallet);
+		NavigationState.Instance.DialogScreenNavigation.To(new PrivacyRingViewModel(_walletVm));
 	}
 
-	private void Update(int privacyProgress, bool isWalletPrivate, IReadOnlyCollection<ICoinModel> coins)
+	private void Update()
 	{
-		PercentText = $"{privacyProgress} %";
-		FullyMixed = isWalletPrivate;
+		var privateThreshold = _wallet.AnonScoreTarget;
 
-		BalancePrivate = coins.Where(x => x.IsPrivate).TotalAmount();
-		HasPrivateBalance = BalancePrivate > Money.Zero;
+		var currentPrivacyScore = _wallet.Coins.Sum(x => x.Amount.Satoshi * Math.Min(x.HdPubKey.AnonymitySet - 1, privateThreshold - 1));
+		var maxPrivacyScore = _wallet.Coins.TotalAmount().Satoshi * (privateThreshold - 1);
+		int pcPrivate = maxPrivacyScore == 0M ? 100 : (int)(currentPrivacyScore * 100 / maxPrivacyScore);
+
+		PercentText = $"{pcPrivate} %";
+
+		FullyMixed = pcPrivate >= 100;
+
+		var privateAmount = _wallet.Coins.FilterBy(x => x.HdPubKey.AnonymitySet >= privateThreshold).TotalAmount();
+		HasPrivateBalance = privateAmount > Money.Zero;
+		BalancePrivateBtc = $"{privateAmount.ToFormattedString()} BTC";
 	}
 }

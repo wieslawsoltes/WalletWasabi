@@ -59,19 +59,19 @@ public static class RpcParser
 			var txBlockInfo = new TransactionBlockInfo(blockInfo.Hash, blockInfo.BlockTime, i);
 			var tx = new VerboseTransactionInfo(txBlockInfo, uint256.Parse(txJson.GetProperty("txid").GetString()), inputs, outputs);
 
-			foreach (var txInJson in txJson.GetProperty("vin").EnumerateArray())
+			foreach (var txinJson in txJson.GetProperty("vin").EnumerateArray())
 			{
 				VerboseInputInfo input;
-				if (txInJson.TryGetProperty("coinbase", out JsonElement cb))
+				if (txinJson.TryGetProperty("coinbase", out JsonElement cb))
 				{
 					input = new VerboseInputInfo(cb.GetString() ?? "");
 				}
 				else
 				{
-					var prevOut = txInJson.GetProperty("prevout");
+					var prevOut = txinJson.GetProperty("prevout");
 					var scriptPubKey = prevOut.GetProperty("scriptPubKey");
 					input = new VerboseInputInfo(
-						outPoint: new OutPoint(uint256.Parse(txInJson.GetProperty("txid").GetString()), txInJson.GetProperty("vout").GetUInt32()),
+						outPoint: new OutPoint(uint256.Parse(txinJson.GetProperty("txid").GetString()), txinJson.GetProperty("vout").GetUInt32()),
 						prevOutput: new VerboseOutputInfo(
 							value: Money.Coins(prevOut.GetProperty("value").GetDecimal()),
 							scriptPubKey: Script.FromHex(scriptPubKey.GetProperty("hex").GetString()),

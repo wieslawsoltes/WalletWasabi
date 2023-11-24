@@ -9,11 +9,15 @@
              x:DataType="core:CoinControlItemViewModelBase"
              x:CompileBindings="True">
 
+  <UserControl.Resources>
+    <SolidColorBrush x:Key="PrivacyLevelNoneBrush" Color="{DynamicResource TextForegroundColor}" />
+  </UserControl.Resources>
+
   <UserControl.Styles>
 
     <Style Selector="controls|LabelsItemsPresenter.NonPrivate">
-      <Setter Property="BorderBrush" Value="{DynamicResource TextForegroundColor}" />
-      <Setter Property="Foreground" Value="{DynamicResource TextForegroundColor}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource PrivacyLevelNoneBrush}" />
+      <Setter Property="Foreground" Value="{DynamicResource PrivacyLevelNoneBrush}" />
     </Style>
     <Style Selector="controls|LabelsItemsPresenter.SemiPrivate">
       <Setter Property="BorderBrush" Value="{DynamicResource PrivacyLevelMediumBrush}" />
@@ -31,6 +35,5 @@
     Classes.NonPrivate="{Binding IsNonPrivate}"
     Classes.SemiPrivate="{Binding IsSemiPrivate}"
     Classes.Private="{Binding IsPrivate}"
-    ItemsSource="{Binding Labels}"
-    InfiniteWidthMeasure="True" />
+    Items="{Binding Labels}" />
 </UserControl>

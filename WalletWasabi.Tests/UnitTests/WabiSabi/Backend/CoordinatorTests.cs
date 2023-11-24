@@ -69,14 +69,15 @@ public class CoordinatorTests
 
 	private static IRPCClient NewMockRpcClient()
 	{
-		var mockRpcClient = new MockRpcClient { Network = Network.Main };
-		mockRpcClient.OnEstimateSmartFeeAsync = (_, _) =>
-			Task.FromResult(new EstimateSmartFeeResponse { Blocks = 5, FeeRate = new FeeRate(100m) });
-		mockRpcClient.OnGetMempoolInfoAsync = () =>
-			Task.FromResult(new MemPoolInfo { MemPoolMinFee = 0.00001000 });
-		return mockRpcClient;
+		var mockRpcClient = new Mock<IRPCClient>();
+		mockRpcClient.Setup(rpc => rpc.Network).Returns(Network.Main);
+		mockRpcClient.Setup(rpc => rpc.EstimateSmartFeeAsync(It.IsAny<int>(), It.IsAny<EstimateSmartFeeMode>(), It.IsAny<CancellationToken>()))
+			.ReturnsAsync(new EstimateSmartFeeResponse { Blocks = 5, FeeRate = new FeeRate(100m) });
+		mockRpcClient.Setup(rpc => rpc.GetMempoolInfoAsync(It.IsAny<CancellationToken>()))
+			.ReturnsAsync(new MemPoolInfo { MemPoolMinFee = 0.00001000 });
+		return mockRpcClient.Object;
 	}
 
 	private static WabiSabiCoordinator CreateWabiSabiCoordinator(CoordinatorParameters coordinatorParameters)
-		=> new(coordinatorParameters, NewMockRpcClient(), new CoinJoinIdStore(), new CoinJoinScriptStore(), new MockHttpClientFactory());
+		=> new(coordinatorParameters, NewMockRpcClient(), new CoinJoinIdStore(), new CoinJoinScriptStore(), new Mock<IHttpClientFactory>(MockBehavior.Strict).Object);
 }

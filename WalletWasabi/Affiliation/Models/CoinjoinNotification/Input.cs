@@ -2,7 +2,7 @@ using WalletWasabi.Logging;
 
 namespace WalletWasabi.Affiliation.Models.CoinJoinNotification;
 
-public record Input(Outpoint Prevout, byte[] ScriptPubkey, long Amount, bool IsAffiliated, bool IsNoFee)
+public record Input(Outpoint Prevout, byte[] ScriptPubkey, bool IsAffiliated, bool IsNoFee)
 {
 	public static Input FromAffiliateInput(AffiliateInput affiliateInput, string affiliationId)
 	{
@@ -16,7 +16,6 @@ public record Input(Outpoint Prevout, byte[] ScriptPubkey, long Amount, bool IsA
 		return new(
 			Outpoint.FromOutPoint(affiliateInput.Prevout),
 			affiliateInput.ScriptPubKey.ToBytes(),
-			affiliateInput.Amount.Satoshi,
 			isAffiliated && !affiliateInput.IsNoFee,
 			affiliateInput.IsNoFee);
 	}

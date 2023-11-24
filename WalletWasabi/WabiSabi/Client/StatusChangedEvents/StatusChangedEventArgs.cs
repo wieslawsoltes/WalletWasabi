@@ -17,19 +17,12 @@ public enum CompletionStatus
 
 public enum CoinjoinError
 {
-	NoCoinsEligibleToMix,
+	NoCoinsToMix,
 	AutoConjoinDisabled,
 	UserInSendWorkflow,
 	NotEnoughUnprivateBalance,
 	BackendNotSynchronized,
 	AllCoinsPrivate,
-	UserWasntInRound,
-	NoConfirmedCoinsEligibleToMix,
-	CoinsRejected,
-	OnlyImmatureCoinsAvailable,
-	OnlyExcludedCoinsAvailable,
-	UneconomicalRound,
-	RandomlySkippedRound
 }
 
 public class StatusChangedEventArgs : EventArgs

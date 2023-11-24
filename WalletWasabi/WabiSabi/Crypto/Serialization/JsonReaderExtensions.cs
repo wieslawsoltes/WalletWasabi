@@ -4,8 +4,7 @@ namespace WalletWasabi.WabiSabi.Crypto.Serialization;
 
 public static class JsonReaderExtensions
 {
-	/// <exception cref="JsonException">If the property is not found, or its value is <c>null</c>.</exception>
-	public static T ReadProperty<T>(this JsonReader reader, JsonSerializer serializer, string name)
+	public static T? ReadProperty<T>(this JsonReader reader, JsonSerializer serializer, string name)
 	{
 		if (!reader.Read())
 		{
@@ -22,11 +21,7 @@ public static class JsonReaderExtensions
 				}
 
 				reader.Read();
-
-				T t = serializer.Deserialize<T>(reader)
-					?? throw new JsonException($"Unexpected null value for '{name}' property.");
-
-				return t;
+				return serializer.Deserialize<T>(reader);
 			}
 		}
 		throw new JsonException($"Property '{name}' was expected.");

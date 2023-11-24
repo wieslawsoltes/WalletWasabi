@@ -27,25 +27,11 @@
 		<ErrorReport>none</ErrorReport>
 	</PropertyGroup>
 
-	<Target Name="WriteMetadata" BeforeTargets="PrepareForBuild">
-		<ItemGroup>
-			<AssemblyMetadata Include="CommitHash" Value="$(CommitHash)" />
-		</ItemGroup>
-	</Target>
-
 	<ItemGroup>
-		<!-- TODO: Workaround for incompatible package Microsoft.AspNetCore.Mvc.NewtonsoftJson -->
-		<PackageReference Include="Microsoft.AspNetCore.WebUtilities" />
-		<PackageReference Include="Microsoft.Extensions.Caching.Abstractions" />
-		<PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" />
-		<PackageReference Include="Microsoft.Extensions.Http" />
-		<PackageReference Include="System.IO.Pipelines" />
-		<PackageReference Include="Microsoft.Data.Sqlite" />
-		<!-- TODO: Can be removed after update to Microsoft.Data.Sqlite 8.0 which references SQLitePCLRaw.bundle_e_sqlite3 >= 2.1.6 -->
-		<PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" />
-		<PackageReference Include="Microsoft.Win32.SystemEvents" />
-		<PackageReference Include="NBitcoin" />
-		<PackageReference Include="WabiSabi" />
+		<PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="7.0.0" />
+		<PackageReference Include="Microsoft.Win32.SystemEvents" Version="7.0.0" />
+		<PackageReference Include="NBitcoin" Version="7.0.24" />
+		<PackageReference Include="WabiSabi" Version="1.0.1.2" />
 	</ItemGroup>
 
 	<ItemGroup>

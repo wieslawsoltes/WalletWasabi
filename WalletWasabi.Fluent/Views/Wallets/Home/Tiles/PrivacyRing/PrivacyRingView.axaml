@@ -3,7 +3,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:i="using:Avalonia.Xaml.Interactivity"
-             xmlns:ir="clr-namespace:Avalonia.Xaml.Interactions.Responsive;assembly=Avalonia.Xaml.Interactions.Responsive"
+             xmlns:ir="clr-namespace:Avalonia.Xaml.Interactions.Responsive;assembly=Avalonia.Xaml.Interactions"
              xmlns:c="using:WalletWasabi.Fluent.Controls"
              xmlns:behaviors="using:WalletWasabi.Fluent.Behaviors"
              xmlns:tiles="using:WalletWasabi.Fluent.ViewModels.Wallets.Home.Tiles"
@@ -67,7 +67,7 @@
                  ScrollViewer.HorizontalScrollBarVisibility="Disabled">
     <DockPanel>
 
-      <ItemsControl ItemsSource="{Binding References}"
+      <ItemsControl Items="{Binding References}"
                     DockPanel.Dock="Bottom" HorizontalAlignment="Center" Margin="0 10 0 0" Height="50">
         <ItemsControl.ItemsPanel>
           <ItemsPanelTemplate>
@@ -103,7 +103,7 @@
           </ir:AdaptiveBehavior>
         </i:Interaction.Behaviors>
 
-        <ListBox ItemsSource="{Binding Items}" ClipToBounds="False"
+        <ListBox Items="{Binding Items}" ClipToBounds="False"
                  SelectedItem="{Binding SelectedItem}"
                  x:Name="Ring" Margin="{Binding Margin}">
           <i:Interaction.Behaviors>
@@ -116,7 +116,9 @@
                 <!-- "transparent" Border used for MouseMove -->
                 <Border Background="White" Margin="{Binding NegativeMargin}" Opacity="0.0001" />
                 <ItemsPresenter Name="PART_ItemsPresenter"
-                                ItemsPanel="{TemplateBinding ItemsPanel}" />
+                         Items="{TemplateBinding Items}"
+                         ItemsPanel="{TemplateBinding ItemsPanel}"
+                         ItemTemplate="{TemplateBinding ItemTemplate}" />
               </Panel>
             </ControlTemplate>
           </ListBox.Template>
@@ -138,7 +140,7 @@
           </ListBox.ItemTemplate>
         </ListBox>
 
-        <Carousel ItemsSource="{Binding PreviewItems}"
+        <Carousel Items="{Binding PreviewItems}" IsVirtualized="False"
                   SelectedItem="{Binding SelectedItem, Mode=OneWay}"
                   VerticalAlignment="Center" HorizontalAlignment="Center"
                   x:Name="Carousel">

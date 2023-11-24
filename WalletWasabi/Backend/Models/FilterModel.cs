@@ -1,4 +1,5 @@
 using NBitcoin;
+using NBitcoin.DataEncoders;
 using System.Text;
 using System.Threading;
 using WalletWasabi.Blockchain.Blocks;
@@ -7,36 +8,28 @@ namespace WalletWasabi.Backend.Models;
 
 public class FilterModel
 {
-	private readonly Lazy<GolombRiceFilter> _filter;
+	private Lazy<GolombRiceFilter> _filter;
 
 	public FilterModel(SmartHeader header, GolombRiceFilter filter)
 	{
 		Header = header;
-		_filter = new(filter);
-		FilterData = filter.ToBytes();
+		_filter = new Lazy<GolombRiceFilter>(filter);
 	}
 
-	private FilterModel(SmartHeader header, byte[] filterData)
+	public FilterModel(SmartHeader header, Lazy<GolombRiceFilter> filter)
 	{
 		Header = header;
-		FilterData = filterData;
-		_filter = new(() => new GolombRiceFilter(filterData, 20, 1 << 20), LazyThreadSafetyMode.ExecutionAndPublication);
+		_filter = filter;
 	}
 
 	public SmartHeader Header { get; }
 
-	public byte[] FilterData { get; }
 	public GolombRiceFilter Filter => _filter.Value;
 
 	// https://github.com/bitcoin/bips/blob/master/bip-0158.mediawiki
 	// The parameter k MUST be set to the first 16 bytes of the hash of the block for which the filter
 	// is constructed.This ensures the key is deterministic while still varying from block to block.
 	public byte[] FilterKey => Header.BlockHash.ToBytes()[..16];
-
-	public static FilterModel Create(uint blockHeight, uint256 blockHash, byte[] filterData, uint256 prevBlockHash, long blockTime)
-	{
-		return new FilterModel(new SmartHeader(blockHash, prevBlockHash, blockHeight, blockTime), filterData);
-	}
 
 	public static FilterModel FromLine(string line)
 	{
@@ -55,14 +48,15 @@ public class FilterModel
 				throw new ArgumentException(line, nameof(line));
 			}
 
-			uint blockHeight = uint.Parse(span[..m1]);
+			uint blockHeight = uint.Parse(span[0..m1]);
 			uint256 blockHash = new(Convert.FromHexString(span[(m1 + 1)..m2]), lendian: false);
 			byte[] filterData = Convert.FromHexString(span[(m2 + 1)..m3]);
 
+			Lazy<GolombRiceFilter> filter = new(() => new GolombRiceFilter(filterData, 20, 1 << 20), LazyThreadSafetyMode.ExecutionAndPublication);
 			uint256 prevBlockHash = new(Convert.FromHexString(span[(m3 + 1)..m4]), lendian: false);
 			long blockTime = long.Parse(span[(m4 + 1)..]);
 
-			return Create(blockHeight, blockHash, filterData, prevBlockHash, blockTime);
+			return new FilterModel(new SmartHeader(blockHash, prevBlockHash, blockHeight, blockTime), filter);
 		}
 		catch (FormatException ex)
 		{

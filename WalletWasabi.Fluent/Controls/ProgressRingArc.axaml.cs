@@ -127,7 +127,7 @@ public class ProgressRingArc : TemplatedControl
 		private set => SetAndRaise(ArcSegmentIsLargeArcProperty, ref _arcSegmentIsLargeArc, value);
 	}
 
-	protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs e)
+	protected override void OnPropertyChanged<T>(AvaloniaPropertyChangedEventArgs<T> e)
 	{
 		base.OnPropertyChanged(e);
 

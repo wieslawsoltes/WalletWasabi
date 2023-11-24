@@ -12,7 +12,6 @@ using WalletWasabi.Fluent.Helpers;
 using WalletWasabi.Fluent.ViewModels.Dialogs.Base;
 using WalletWasabi.Logging;
 using WalletWasabi.Wallets;
-using WalletWasabi.Blockchain.Analysis.FeesEstimation;
 
 namespace WalletWasabi.Fluent.ViewModels.Wallets.Send;
 
@@ -29,7 +28,7 @@ public partial class SendFeeViewModel : DialogViewModelBase<FeeRate>
 	private readonly TransactionInfo _transactionInfo;
 	private readonly bool _isSilent;
 
-	private SendFeeViewModel(Wallet wallet, TransactionInfo transactionInfo, bool isSilent)
+	public SendFeeViewModel(Wallet wallet, TransactionInfo transactionInfo, bool isSilent)
 	{
 		_isSilent = isSilent;
 		IsBusy = isSilent;
@@ -38,7 +37,7 @@ public partial class SendFeeViewModel : DialogViewModelBase<FeeRate>
 
 		FeeChart = new FeeChartViewModel();
 
-		SetupCancel(enableCancel: false, enableCancelOnEscape: true, enableCancelOnPressed: false, escapeGoesBack: true);
+		SetupCancel(enableCancel: false, enableCancelOnEscape: true, enableCancelOnPressed: false);
 		EnableBack = true;
 
 		NextCommand = ReactiveCommand.Create(OnNext);
@@ -110,12 +109,12 @@ public partial class SendFeeViewModel : DialogViewModelBase<FeeRate>
 			})
 			.WhereNotNull()
 			.ObserveOn(RxApp.MainThreadScheduler)
-			.Subscribe(estimations => FeeChart.UpdateFeeEstimates(estimations.Estimations, _transactionInfo.MaximumPossibleFeeRate))
+			.Subscribe(estimations => FeeChart.UpdateFeeEstimates(estimations, _transactionInfo.MaximumPossibleFeeRate))
 			.DisposeWith(disposables);
 
 		RxApp.MainThreadScheduler.Schedule(async () =>
 		{
-			AllFeeEstimate feeEstimates;
+			Dictionary<int, int> feeEstimates;
 			using var cancelTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(15));
 
 			try
@@ -129,7 +128,7 @@ public partial class SendFeeViewModel : DialogViewModelBase<FeeRate>
 				return;
 			}
 
-			FeeChart.UpdateFeeEstimates(feeEstimates.Estimations, _transactionInfo.MaximumPossibleFeeRate);
+			FeeChart.UpdateFeeEstimates(feeEstimates, _transactionInfo.MaximumPossibleFeeRate);
 
 			if (_transactionInfo.FeeRate != FeeRate.Zero)
 			{

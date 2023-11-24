@@ -1,10 +1,10 @@
 using System.Collections.Generic;
-using System.Linq;
 using System.Reactive.Linq;
 using ReactiveUI;
 using WalletWasabi.Blockchain.TransactionOutputs;
-using WalletWasabi.Fluent.Models.Wallets;
+using WalletWasabi.Fluent.Helpers;
 using WalletWasabi.Fluent.ViewModels.Dialogs.Base;
+using WalletWasabi.Fluent.ViewModels.Wallets;
 using WalletWasabi.Fluent.ViewModels.Wallets.Send;
 
 namespace WalletWasabi.Fluent.ViewModels.CoinControl;
@@ -18,15 +18,21 @@ namespace WalletWasabi.Fluent.ViewModels.CoinControl;
 	NavigationTarget = NavigationTarget.DialogScreen)]
 public partial class SelectCoinsDialogViewModel : DialogViewModelBase<IEnumerable<SmartCoin>>
 {
-	public SelectCoinsDialogViewModel(IWalletModel wallet, IList<ICoinModel> selectedCoins, TransactionInfo transactionInfo)
+	private readonly TransactionInfo _transactionInfo;
+	private readonly WalletViewModel _walletViewModel;
+
+	public SelectCoinsDialogViewModel(WalletViewModel walletViewModel, IList<SmartCoin> selectedCoins, TransactionInfo transactionInfo)
 	{
-		CoinSelector = new CoinSelectorViewModel(wallet, selectedCoins);
+		_walletViewModel = walletViewModel;
+		_transactionInfo = transactionInfo;
+
+		CoinSelector = new CoinSelectorViewModel(walletViewModel, selectedCoins);
 
 		var coinsChanged = CoinSelector.WhenAnyValue(x => x.SelectedCoins);
 
-		EnoughSelected = coinsChanged.Select(c => wallet.Coins.AreEnoughToCreateTransaction(transactionInfo, c));
+		EnoughSelected = coinsChanged.Select(AreEnoughToCreateTransaction);
 		EnableBack = true;
-		NextCommand = ReactiveCommand.Create(OnNext, EnoughSelected);
+		NextCommand = ReactiveCommand.Create(() => Close(DialogResultKind.Normal, CoinSelector.SelectedCoins), EnoughSelected);
 
 		SetupCancel(false, true, false);
 	}
@@ -42,8 +48,8 @@ public partial class SelectCoinsDialogViewModel : DialogViewModelBase<IEnumerabl
 		base.OnNavigatedFrom(isInHistory);
 	}
 
-	private void OnNext()
+	private bool AreEnoughToCreateTransaction(IEnumerable<SmartCoin> coins)
 	{
-		Close(DialogResultKind.Normal, CoinSelector.SelectedCoins.GetSmartCoins().ToList());
+		return TransactionHelpers.TryBuildTransactionWithoutPrevTx(_walletViewModel.Wallet.KeyManager, _transactionInfo, _walletViewModel.Wallet.Coins, coins, _walletViewModel.Wallet.Kitchen.SaltSoup(), out _);
 	}
 }

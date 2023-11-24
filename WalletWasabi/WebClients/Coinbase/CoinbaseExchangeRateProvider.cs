@@ -30,15 +30,15 @@ public class CoinbaseExchangeRateProvider : IExchangeRateProvider
 
 	private class DataWrapper
 	{
-		public required CoinbaseExchangeRate Data { get; init; }
+		public CoinbaseExchangeRate Data { get; set; }
 
 		public class CoinbaseExchangeRate
 		{
-			public required ExchangeRates Rates { get; init; }
+			public ExchangeRates Rates { get; set; }
 
 			public class ExchangeRates
 			{
-				public decimal USD { get; init; }
+				public decimal USD { get; set; }
 			}
 		}
 	}

@@ -1,12 +1,12 @@
+using Moq;
 using System.Diagnostics;
 using System.IO;
 using System.IO.Pipes;
 using System.Net;
 using System.Net.Http;
-using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
-using Moq;
+using WalletWasabi.Extensions;
 using WalletWasabi.Tor.Socks5;
 using WalletWasabi.Tor.Socks5.Exceptions;
 using WalletWasabi.Tor.Socks5.Pool;
@@ -38,17 +38,12 @@ public class TorHttpPoolTests
 		using TorTcpConnection bobConnection = new(null!, new MemoryStream(), bobIdentity, true);
 		using TorTcpConnection defaultConnection = new(null!, new MemoryStream(), defaultCircuit, true);
 
-		MockTorTcpConnectionFactory mockTcpConnectionFactory = new(new IPEndPoint(IPAddress.Loopback, 7777));
-		mockTcpConnectionFactory.OnConnectAsync = (_, identity) =>
-			Task.FromResult(identity switch
-			{
-				PersonCircuit p when p == aliceIdentity => aliceConnection,
-				PersonCircuit p when p == bobIdentity => bobConnection,
-				DefaultCircuit p when p == defaultCircuit => defaultConnection,
-				_ => throw new InvalidOperationException("Review your test. You've ruined it.")
-			});
+		Mock<TorTcpConnectionFactory> mockTcpConnectionFactory = new(MockBehavior.Strict, new IPEndPoint(IPAddress.Loopback, 7777));
+		_ = mockTcpConnectionFactory.Setup(c => c.ConnectAsync(It.IsAny<Uri>(), aliceIdentity, It.IsAny<CancellationToken>())).ReturnsAsync(aliceConnection);
+		_ = mockTcpConnectionFactory.Setup(c => c.ConnectAsync(It.IsAny<Uri>(), bobIdentity, It.IsAny<CancellationToken>())).ReturnsAsync(bobConnection);
+		_ = mockTcpConnectionFactory.Setup(c => c.ConnectAsync(It.IsAny<Uri>(), defaultCircuit, It.IsAny<CancellationToken>())).ReturnsAsync(defaultConnection);
 
-		TorTcpConnectionFactory tcpConnectionFactory = mockTcpConnectionFactory;
+		TorTcpConnectionFactory tcpConnectionFactory = mockTcpConnectionFactory.Object;
 
 		// Use implementation of TorHttpPool and only replace SendCoreAsync behavior.
 		Mock<TorHttpPool> mockTorHttpPool = new(MockBehavior.Loose, tcpConnectionFactory) { CallBase = true };
@@ -89,6 +84,8 @@ public class TorHttpPoolTests
 
 		using HttpResponseMessage defaultResponse = await pool.SendAsync(request, defaultCircuit, timeoutCts.Token);
 		Assert.Equal("Default circuit!", await defaultResponse.Content.ReadAsStringAsync(timeoutCts.Token));
+
+		mockTcpConnectionFactory.VerifyAll();
 	}
 
 	/// <summary>
@@ -102,28 +99,13 @@ public class TorHttpPoolTests
 
 		using PersonCircuit aliceCircuit = new();
 
-		MockTorTcpConnectionFactory mockTcpConnectionFactory = new(new IPEndPoint(IPAddress.Loopback, 7777));
-		var callCount = 0;
-		mockTcpConnectionFactory.OnConnectAsync = (_, identity) =>
-		{
-			if ((identity, callCount) == (aliceCircuit, 0))
-			{
-				callCount++;
-				return Task.FromException<TorTcpConnection>(new TorConnectionException("Could not connect to Tor SOCKSPort."));
-			}
+		Mock<TorTcpConnectionFactory> mockTcpConnectionFactory = new(MockBehavior.Strict, new IPEndPoint(IPAddress.Loopback, 7777));
 
-			if ((identity, callCount) == (aliceCircuit, 1))
-			{
-				callCount++;
-				return Task.FromException<TorTcpConnection> (new OperationCanceledException("Deadline reached."));
-			}
+		_ = mockTcpConnectionFactory.SetupSequence(c => c.ConnectAsync(It.IsAny<Uri>(), aliceCircuit, It.IsAny<CancellationToken>()))
+			.ReturnsAsync(() => throw new TorConnectionException("Could not connect to Tor SOCKSPort."))
+			.ReturnsAsync(() => throw new OperationCanceledException("Deadline reached."));
 
-			return Task.FromException<TorTcpConnection>(new InvalidOperationException("This shouldn't happen."));
-		};
-
-
-
-		await using TorHttpPool pool = new(mockTcpConnectionFactory);
+		await using TorHttpPool pool = new(mockTcpConnectionFactory.Object);
 
 		// HTTP request to send.
 		using HttpRequestMessage request = new(HttpMethod.Get, "http://wasabi.backend");
@@ -134,6 +116,7 @@ public class TorHttpPoolTests
 		await Assert.ThrowsAsync<OperationCanceledException>(() => pool.SendAsync(request, aliceCircuit, timeoutCts.Token));
 
 		Assert.True(aliceCircuit.IsolationId > 0);
+		mockTcpConnectionFactory.VerifyAll();
 	}
 
 	/// <summary>
@@ -153,13 +136,13 @@ public class TorHttpPoolTests
 
 		using TorTcpConnection connection = new(tcpClient: null!, transportStream.Client, circuit, allowRecycling: true);
 
-		MockTorTcpConnectionFactory mockFactory = new(new IPEndPoint(IPAddress.Loopback, 7777));
-		mockFactory.OnConnectAsync = (_, _) => Task.FromResult(connection);
+		Mock<TorTcpConnectionFactory> mockFactory = new(MockBehavior.Strict, new IPEndPoint(IPAddress.Loopback, 7777));
+		mockFactory.Setup(c => c.ConnectAsync(It.IsAny<Uri>(), It.IsAny<INamedCircuit>(), It.IsAny<CancellationToken>())).ReturnsAsync(connection);
 
 		using StreamReader serverReader = new(transportStream.Server);
 		using StreamWriter serverWriter = new(transportStream.Server);
 
-		await using TorHttpPool pool = new(mockFactory);
+		await using TorHttpPool pool = new(mockFactory.Object);
 		using HttpRequestMessage request = new(HttpMethod.Get, "http://somesite.com");
 
 		Task sendTask = Task.Run(async () =>
@@ -199,7 +182,7 @@ public class TorHttpPoolTests
 			ETag: W/\"185-ck4yLFUDHZl9lYSDUF6oMrTCEss\"
 			Vary: Accept-Encoding
 			set-cookie: sails.sid=s%3AMPaQCDY1u1swPgAI5RhbPg2extVNNhjI.oby40NpOE2CpyzIdRlGhD7Uja%2BGX1WbBaFV13T0f4eA; Path=/; HttpOnly
-
+			
 			{"args":{},"data":"This is expected to be sent back as part of response body.","files":{},"form":{},"headers":{"x-forwarded-proto":"http","x-forwarded-port":"80","host":"postman-echo.com","x-amzn-trace-id":"Root=1-5fc7db06-24adc2a91c86c14f2d63ea61","content-length":"58","accept-encoding":"gzip","content-type":"text/plain; charset=utf-8"},"json":null,"url":"http://postman-echo.com/post"}
 			""".ReplaceLineEndings("\r\n").AsMemory(),
 			timeoutCts.Token);
@@ -222,13 +205,15 @@ public class TorHttpPoolTests
 		INamedCircuit circuit = DefaultCircuit.Instance;
 		using TorTcpConnection connection = new(tcpClient: null!, transportStream: null!, circuit, allowRecycling: true);
 
-		MockTorTcpConnectionFactory mockFactory = new(new IPEndPoint(IPAddress.Loopback, 7777));
-		mockFactory.OnConnectAsync = (_, _) => Task.FromResult(connection);
+		Mock<TorTcpConnectionFactory> mockFactory = new(MockBehavior.Strict, new IPEndPoint(IPAddress.Loopback, 7777));
+		mockFactory.Setup(c => c.ConnectAsync(It.IsAny<Uri>(), It.IsAny<INamedCircuit>(), It.IsAny<CancellationToken>())).ReturnsAsync(connection);
 
-		await using TorHttpPool pool = new(mockFactory);
+		await using TorHttpPool pool = new(mockFactory.Object);
 		pool.PrebuildCircuitsUpfront(new Uri("http://walletwasabi.io"), count: 3, deadline: TimeSpan.FromSeconds(3));
 
 		await Task.Delay(5_000, timeoutCts.Token);
+
+		mockFactory.Verify(c => c.ConnectAsync(It.IsAny<Uri>(), It.IsAny<INamedCircuit>(), It.IsAny<CancellationToken>()), Times.Exactly(3));
 	}
 
 	/// <summary>
@@ -242,10 +227,10 @@ public class TorHttpPoolTests
 		PersonCircuit aliceCircuit = new();
 		using TorTcpConnection aliceConnection = new(null!, new MemoryStream(), aliceCircuit, true);
 
-		MockTorTcpConnectionFactory mockTcpConnectionFactory = new(new IPEndPoint(IPAddress.Loopback, 7777));
-		mockTcpConnectionFactory.OnConnectAsync = (_, _) => Task.FromResult(aliceConnection);
+		Mock<TorTcpConnectionFactory> mockTcpConnectionFactory = new(MockBehavior.Strict, new IPEndPoint(IPAddress.Loopback, 7777));
+		_ = mockTcpConnectionFactory.Setup(c => c.ConnectAsync(It.IsAny<Uri>(), aliceCircuit, It.IsAny<CancellationToken>())).ReturnsAsync(aliceConnection);
 
-		Mock<TorHttpPool> mockTorHttpPool = new(MockBehavior.Loose, mockTcpConnectionFactory) { CallBase = true };
+		Mock<TorHttpPool> mockTorHttpPool = new(MockBehavior.Loose, mockTcpConnectionFactory.Object) { CallBase = true };
 		mockTorHttpPool.Setup(x => x.SendCoreAsync(It.IsAny<TorTcpConnection>(), It.IsAny<HttpRequestMessage>(), It.IsAny<CancellationToken>()))
 			.Returns((TorTcpConnection tcpConnection, HttpRequestMessage request, CancellationToken cancellationToken) =>
 			{
@@ -270,6 +255,8 @@ public class TorHttpPoolTests
 		// Alice circuit is already disposed and thus it cannot be used.
 		HttpRequestException httpRequestException = await Assert.ThrowsAsync<HttpRequestException>(async () => await pool.SendAsync(request, aliceCircuit, timeoutCts.Token).ConfigureAwait(false));
 		_ = Assert.IsType<TorCircuitExpiredException>(httpRequestException.InnerException);
+
+		mockTcpConnectionFactory.VerifyAll();
 	}
 
 	/// <summary>
@@ -307,22 +294,4 @@ public class TorHttpPoolTests
 			await Client.DisposeAsync();
 		}
 	}
-}
-
-public class MockTorTcpConnectionFactory : TorTcpConnectionFactory
-{
-	public MockTorTcpConnectionFactory(EndPoint endPoint) : base(endPoint)
-	{
-	}
-
-	public Func<Uri, INamedCircuit, Task<TorTcpConnection>>? OnConnectAsync { get; set; }
-	public Func<Task<bool>>? OnIsTorRunningAsync { get; set; }
-
-	public override Task<TorTcpConnection> ConnectAsync(Uri requestUri, INamedCircuit circuit, CancellationToken cancellationToken) =>
-		OnConnectAsync?.Invoke(requestUri, circuit)
-		       ?? throw new NotImplementedException($"{nameof(ConnectAsync)} wa invoked but never assigned.");
-
-	public override Task<bool> IsTorRunningAsync(CancellationToken cancellationToken) =>
-		OnIsTorRunningAsync?.Invoke()
-		       ?? throw new NotImplementedException($"{nameof(IsTorRunningAsync)} wa invoked but never assigned.");
 }

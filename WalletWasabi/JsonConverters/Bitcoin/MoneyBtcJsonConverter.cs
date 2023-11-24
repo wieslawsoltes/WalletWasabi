@@ -8,7 +8,7 @@ public class MoneyBtcJsonConverter : JsonConverter<Money>
 	/// <inheritdoc />
 	public override Money? ReadJson(JsonReader reader, Type objectType, Money? existingValue, bool hasExistingValue, JsonSerializer serializer)
 	{
-		string? stringValue = reader.Value as string;
+		var stringValue = reader.Value as string;
 		return Parse(stringValue);
 	}
 
@@ -18,16 +18,16 @@ public class MoneyBtcJsonConverter : JsonConverter<Money>
 		{
 			return null;
 		}
-
-		return Money.Parse(stringValue);
+		else
+		{
+			return Money.Parse(stringValue);
+		}
 	}
 
 	/// <inheritdoc />
 	public override void WriteJson(JsonWriter writer, Money? value, JsonSerializer serializer)
 	{
-		string? stringValue = value?.ToString(fplus: false, trimExcessZero: true)
-			?? throw new ArgumentNullException(nameof(value));
-
+		var stringValue = value?.ToString(fplus: false, trimExcessZero: true) ?? throw new ArgumentNullException(nameof(value));
 		writer.WriteValue(stringValue);
 	}
 }

@@ -11,16 +11,14 @@ public class HdPubKeyCache : IEnumerable<HdPubKey>
 {
 	private Dictionary<Script, HdPubKey> HdPubKeysByScript { get; } = new();
 	private HashSet<HdPubKey> HdPubKeys { get; } = new();
-	private Dictionary<KeyPath, ScriptBytesHdPubKeyPair> ScriptBytesHdPubKeyPairByKeyPath { get; } = new();
+	private Dictionary<KeyPath, byte[]> ScriptBytesByKeyPath { get; } = new();
 
 	private HdPubKeyGlobalView Snapshot =>
 		new(this.ToImmutableList());
 
-	public IEnumerable<SynchronizationInfos> GetSynchronizationInfos()
-	{
-		return ScriptBytesHdPubKeyPairByKeyPath.Select(x => new SynchronizationInfos(x.Key, x.Value));
-	}
-	
+	public IEnumerable<byte[]> GetScriptPubKeysBytes() =>
+		ScriptBytesByKeyPath.Values;
+
 	public bool TryGetPubKey(Script destination, [NotNullWhen(true)] out HdPubKey? hdPubKey) =>
 		HdPubKeysByScript.TryGetValue(destination, out hdPubKey);
 
@@ -41,7 +39,7 @@ public class HdPubKeyCache : IEnumerable<HdPubKey>
 	{
 		var scriptPubKey = hdPubKey.PubKey.GetScriptPubKey(scriptPubKeyType);
 		HdPubKeysByScript.AddOrReplace(scriptPubKey, hdPubKey);
-		ScriptBytesHdPubKeyPairByKeyPath.AddOrReplace(hdPubKey.FullKeyPath, new ScriptBytesHdPubKeyPair(scriptPubKey.ToCompressedBytes(), hdPubKey));
+		ScriptBytesByKeyPath.AddOrReplace(hdPubKey.FullKeyPath, scriptPubKey.ToCompressedBytes());
 		HdPubKeys.Add(hdPubKey);
 	}
 
@@ -52,7 +50,4 @@ public class HdPubKeyCache : IEnumerable<HdPubKey>
 
 	IEnumerator IEnumerable.GetEnumerator() =>
 		GetEnumerator();
-
-	public record ScriptBytesHdPubKeyPair(byte[] ScriptBytes, HdPubKey HdPubKey);
-	public record SynchronizationInfos(KeyPath KeyPath, ScriptBytesHdPubKeyPair ScriptBytesHdPubKeyPair);
 }

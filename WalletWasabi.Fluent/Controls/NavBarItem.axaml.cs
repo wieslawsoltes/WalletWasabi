@@ -1,36 +1,32 @@
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Metadata;
-using Avalonia.Input;
 using Avalonia.Layout;
-using System.Windows.Input;
 
 namespace WalletWasabi.Fluent.Controls;
 
 /// <summary>
 /// Container for NavBarItems.
 /// </summary>
-[PseudoClasses(":horizontal", ":vertical", ":selected")]
-public class NavBarItem : ContentControl
+[PseudoClasses(":horizontal", ":vertical", ":selectable", ":selected")]
+public class NavBarItem : Button
 {
-	public static readonly StyledProperty<ICommand?> CommandProperty =
-		AvaloniaProperty.Register<NavBarItem, ICommand?>(nameof(Command));
-
 	public static readonly StyledProperty<IconElement> IconProperty =
 		AvaloniaProperty.Register<NavBarItem, IconElement>(nameof(Icon));
 
 	public static readonly StyledProperty<Orientation> IndicatorOrientationProperty =
 		AvaloniaProperty.Register<NavBarItem, Orientation>(nameof(IndicatorOrientation), Orientation.Vertical);
 
+	public static readonly StyledProperty<bool> IsSelectableProperty =
+		AvaloniaProperty.Register<NavBarItem, bool>(nameof(IsSelectable));
+
+	public static readonly StyledProperty<bool> IsSelectedProperty =
+		AvaloniaProperty.Register<NavBarItem, bool>(nameof(IsSelected));
+
 	public NavBarItem()
 	{
 		UpdateIndicatorOrientationPseudoClasses(IndicatorOrientation);
-	}
-
-	public ICommand? Command
-	{
-		get => GetValue(CommandProperty);
-		set => SetValue(CommandProperty, value);
+		UpdatePseudoClass(":selectable", IsSelectable);
 	}
 
 	/// <summary>
@@ -51,23 +47,41 @@ public class NavBarItem : ContentControl
 		set => SetValue(IndicatorOrientationProperty, value);
 	}
 
-	protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
+	/// <summary>
+	/// Gets or sets flag indicating whether item supports selected state.
+	/// </summary>
+	public bool IsSelectable
+	{
+		get => GetValue(IsSelectableProperty);
+		set => SetValue(IsSelectableProperty, value);
+	}
+
+	/// <summary>
+	/// Gets or sets if the item is selected or not.
+	/// </summary>
+	public bool IsSelected
+	{
+		get => GetValue(IsSelectedProperty);
+		set => SetValue(IsSelectedProperty, value);
+	}
+
+	protected override void OnPropertyChanged<T>(AvaloniaPropertyChangedEventArgs<T> change)
 	{
 		base.OnPropertyChanged(change);
 
 		if (change.Property == IndicatorOrientationProperty)
 		{
-			UpdateIndicatorOrientationPseudoClasses(change.GetNewValue<Orientation>());
+			UpdateIndicatorOrientationPseudoClasses(change.NewValue.GetValueOrDefault<Orientation>());
 		}
-	}
 
-	protected override void OnPointerPressed(PointerPressedEventArgs e)
-	{
-		base.OnPointerPressed(e);
-
-		if (Command != null && Command.CanExecute(default))
+		if (change.Property == IsSelectableProperty)
 		{
-			Command.Execute(default);
+			UpdatePseudoClass(":selectable", change.NewValue.GetValueOrDefault<bool>());
+		}
+
+		if (change.Property == IsSelectedProperty)
+		{
+			UpdatePseudoClass(":selected", change.NewValue.GetValueOrDefault<bool>());
 		}
 	}
 

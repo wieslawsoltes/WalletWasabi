@@ -5,8 +5,11 @@ using System.Reactive.Linq;
 using System.Threading.Tasks;
 using DynamicData;
 using DynamicData.Binding;
+using NBitcoin;
 using ReactiveUI;
-using WalletWasabi.Fluent.Models;
+using WalletWasabi.Blockchain.Keys;
+using WalletWasabi.Fluent.ViewModels.CoinJoinProfiles;
+using WalletWasabi.Fluent.ViewModels.Dialogs;
 using WalletWasabi.Fluent.ViewModels.Navigation;
 
 namespace WalletWasabi.Fluent.ViewModels.AddWallet.Create;
@@ -15,18 +18,20 @@ namespace WalletWasabi.Fluent.ViewModels.AddWallet.Create;
 public partial class ConfirmRecoveryWordsViewModel : RoutableViewModel
 {
 	private readonly List<RecoveryWordViewModel> _words;
-	private readonly WalletCreationOptions.AddNewWallet _options;
+	private readonly Mnemonic _mnemonic;
+	private readonly string _walletName;
 
 	[AutoNotify] private bool _isSkipEnabled;
 	[AutoNotify] private RecoveryWordViewModel _currentWord;
 	[AutoNotify] private List<RecoveryWordViewModel> _availableWords;
 
-	private ConfirmRecoveryWordsViewModel(WalletCreationOptions.AddNewWallet options, List<RecoveryWordViewModel> words)
+	public ConfirmRecoveryWordsViewModel(List<RecoveryWordViewModel> words, Mnemonic mnemonic, string walletName)
 	{
-		_options = options;
 		_availableWords = new List<RecoveryWordViewModel>();
 		_words = words.OrderBy(x => x.Index).ToList();
 		_currentWord = words.First();
+		_mnemonic = mnemonic;
+		_walletName = walletName;
 	}
 
 	public ObservableCollectionExtended<RecoveryWordViewModel> ConfirmationWords { get; } = new();
@@ -65,10 +70,11 @@ public partial class ConfirmRecoveryWordsViewModel : RoutableViewModel
 
 		confirmationWordsSourceList.AddRange(_words);
 
-		AvailableWords = confirmationWordsSourceList.Items
-			.Select(x => new RecoveryWordViewModel(x.Index, x.Word))
-			.OrderBy(x => x.Word)
-			.ToList();
+		AvailableWords =
+			confirmationWordsSourceList.Items
+									   .Select(x => new RecoveryWordViewModel(x.Index, x.Word))
+									   .OrderBy(x => x.Word)
+									   .ToList();
 
 		var availableWordsSourceList = new SourceList<RecoveryWordViewModel>();
 
@@ -82,7 +88,7 @@ public partial class ConfirmRecoveryWordsViewModel : RoutableViewModel
 
 		SetNextWord();
 
-		var enableCancel = UiContext.WalletRepository.HasWallet;
+		var enableCancel = Services.WalletManager.HasWallet();
 		SetupCancel(enableCancel: false, enableCancelOnEscape: enableCancel, enableCancelOnPressed: false);
 	}
 
@@ -133,20 +139,27 @@ public partial class ConfirmRecoveryWordsViewModel : RoutableViewModel
 
 	private async Task OnNextAsync()
 	{
-		var dialogCaption = "This is needed to open and to recover your wallet. Store it safely, it cannot be changed.";
-		var password = await Navigate().To().CreatePasswordDialog("Add Password", dialogCaption, enableEmpty: true).GetResultAsync();
+		var dialogResult = await NavigateDialogAsync(
+			new CreatePasswordDialogViewModel("Add Password", "This is needed to open and to recover your wallet. Store it safely, it cannot be changed.", enableEmpty: true),
+			NavigationTarget.CompactDialogScreen);
 
-		if (password is { })
+		if (dialogResult.Result is { } password)
 		{
 			IsBusy = true;
 
-			var options = _options with { Password = password };
-
-			var walletSettings = await UiContext.WalletRepository.NewWalletAsync(options);
-
+			var (km, mnemonic) = await Task.Run(
+				() =>
+				{
+					var walletGenerator = new WalletGenerator(
+						Services.WalletManager.WalletDirectories.WalletsDir,
+						Services.WalletManager.Network)
+					{
+						TipHeight = Services.BitcoinStore.SmartHeaderChain.TipHeight
+					};
+					return walletGenerator.GenerateWallet(_walletName, password, _mnemonic);
+				});
 			IsBusy = false;
-
-			await Navigate().To().CoinJoinProfiles(walletSettings, options).GetResultAsync();
+			await NavigateDialogAsync(new CoinJoinProfilesViewModel(km, true), NavigationTarget.DialogScreen);
 		}
 	}
 
@@ -158,7 +171,7 @@ public partial class ConfirmRecoveryWordsViewModel : RoutableViewModel
 	private void SetSkip()
 	{
 #if RELEASE
-		IsSkipEnabled = Services.WalletManager.Network != NBitcoin.Network.Main || System.Diagnostics.Debugger.IsAttached;
+		IsSkipEnabled = Services.WalletManager.Network != Network.Main || System.Diagnostics.Debugger.IsAttached;
 #else
 		IsSkipEnabled = true;
 #endif

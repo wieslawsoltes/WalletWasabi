@@ -1,23 +1,26 @@
-using Avalonia.Threading;
-using NBitcoin;
-using ReactiveUI;
 using System.Reactive.Concurrency;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using Avalonia;
+using Avalonia.Threading;
+using NBitcoin;
+using NBitcoin.Payment;
+using ReactiveUI;
+using WalletWasabi.Blockchain.Analysis.Clustering;
 using WalletWasabi.Extensions;
-using WalletWasabi.Fluent.Helpers;
+using WalletWasabi.Fluent.Models;
 using WalletWasabi.Fluent.Validation;
 using WalletWasabi.Fluent.ViewModels.Dialogs.Base;
+using WalletWasabi.Fluent.ViewModels.Wallets.Send;
 using WalletWasabi.Models;
 using WalletWasabi.Userfacing;
-using WalletWasabi.Userfacing.Bip21;
 
 namespace WalletWasabi.Fluent.ViewModels.Dialogs;
 
-[NavigationMetaData(Title = "Address", NavigationTarget = NavigationTarget.CompactDialogScreen)]
-public partial class AddressEntryDialogViewModel : DialogViewModelBase<Bip21UriParser.Result?>
+[NavigationMetaData(Title = "Address")]
+public partial class AddressEntryDialogViewModel : DialogViewModelBase<BitcoinUrlBuilder?>
 {
 	private readonly Network _network;
 	[AutoNotify] private string _to = "";
@@ -25,11 +28,12 @@ public partial class AddressEntryDialogViewModel : DialogViewModelBase<Bip21UriP
 	private bool _parsingUrl;
 	private bool _payJoinUrlFound;
 	private bool _amountUrlFound;
-	private Bip21UriParser.Result? _resultToReturn;
+	private BitcoinUrlBuilder? _resultToReturn;
 
-	private AddressEntryDialogViewModel(Network network)
+	public AddressEntryDialogViewModel(Network network)
 	{
 		_network = network;
+		IsQrButtonVisible = WebcamQrReader.IsOsPlatformSupported;
 
 		SetupCancel(enableCancel: true, enableCancelOnEscape: true, enableCancelOnPressed: true);
 
@@ -40,13 +44,14 @@ public partial class AddressEntryDialogViewModel : DialogViewModelBase<Bip21UriP
 			.Subscribe(ParseToField);
 
 		PasteCommand = ReactiveCommand.CreateFromTask(async () => await OnPasteAsync());
-		AutoPasteCommand = ReactiveCommand.CreateFromTask(OnAutoPasteAsync);
+		AutoPasteCommand = ReactiveCommand.CreateFromTask(async () => await OnAutoPasteAsync());
 		QrCommand = ReactiveCommand.CreateFromTask(async () =>
 		{
-			var result = await Navigate().To().ShowQrCameraDialog(network).GetResultAsync();
-			if (!string.IsNullOrWhiteSpace(result))
+			ShowQrCameraDialogViewModel dialog = new(_network);
+			var result = await NavigateDialogAsync(dialog, NavigationTarget.CompactDialogScreen);
+			if (!string.IsNullOrWhiteSpace(result.Result))
 			{
-				To = result;
+				To = result.Result;
 			}
 		});
 
@@ -63,7 +68,7 @@ public partial class AddressEntryDialogViewModel : DialogViewModelBase<Bip21UriP
 		NextCommand = ReactiveCommand.Create(() => Close(DialogResultKind.Normal, _resultToReturn), nextCommandCanExecute);
 	}
 
-	public bool IsQrButtonVisible => UiContext.QrCodeReader.IsPlatformSupported;
+	public bool IsQrButtonVisible { get; }
 
 	public ICommand PasteCommand { get; }
 
@@ -89,7 +94,7 @@ public partial class AddressEntryDialogViewModel : DialogViewModelBase<Bip21UriP
 
 	private async Task OnAutoPasteAsync()
 	{
-		var isAutoPasteEnabled = UiContext.ApplicationSettings.AutoPaste;
+		var isAutoPasteEnabled = Services.UiConfig.AutoPaste;
 
 		if (string.IsNullOrEmpty(To) && isAutoPasteEnabled)
 		{
@@ -99,16 +104,19 @@ public partial class AddressEntryDialogViewModel : DialogViewModelBase<Bip21UriP
 
 	private async Task OnPasteAsync(bool pasteIfInvalid = true)
 	{
-		var text = await UiContext.Clipboard.GetTextAsync();
-
-		_parsingUrl = true;
-
-		if (!TryParseUrl(text) && pasteIfInvalid)
+		if (Application.Current is { Clipboard: { } clipboard })
 		{
-			To = text;
-		}
+			var text = await clipboard.GetTextAsync();
 
-		_parsingUrl = false;
+			_parsingUrl = true;
+
+			if (!TryParseUrl(text) && pasteIfInvalid)
+			{
+				To = text;
+			}
+
+			_parsingUrl = false;
+		}
 	}
 
 	private bool TryParseUrl(string? text)
@@ -118,18 +126,18 @@ public partial class AddressEntryDialogViewModel : DialogViewModelBase<Bip21UriP
 			return false;
 		}
 
-		if (AddressStringParser.TryParse(text, _network, out Bip21UriParser.Result? result))
+		if (AddressStringParser.TryParse(text, _network, out BitcoinUrlBuilder? url))
 		{
-			_resultToReturn = result;
+			_resultToReturn = url;
 
-			_payJoinUrlFound = result.PayJoinUrlFound;
+			_payJoinUrlFound = url.UnknownParameters.TryGetValue("pj", out _);
 
-			if (result.Address is { })
+			if (url.Address is { })
 			{
-				To = result.Address.ToString();
+				To = url.Address.ToString();
 			}
 
-			_amountUrlFound = result.Amount is { };
+			_amountUrlFound = url.Amount is { };
 		}
 		else
 		{

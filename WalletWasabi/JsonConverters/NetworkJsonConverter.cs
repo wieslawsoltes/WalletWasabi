@@ -31,9 +31,7 @@ public class NetworkJsonConverter : JsonConverter<Network>
 	/// <inheritdoc />
 	public override void WriteJson(JsonWriter writer, Network? value, JsonSerializer serializer)
 	{
-		string network = value?.ToString()
-			?? throw new ArgumentNullException(nameof(value));
-
+		var network = value?.ToString() ?? throw new ArgumentNullException(nameof(value));
 		writer.WriteValue(network);
 	}
 }

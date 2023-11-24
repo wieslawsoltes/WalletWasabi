@@ -17,7 +17,7 @@
     Documentation
   </a>
   <span> | </span>
-  <a href="https://wasabiwallet.io/swagger/index.html">
+  <a href="https://docs.wasabiwallet.io/building-wasabi/TechnicalOverview.html#v-general-wallet-features">
     API
   </a>
   <span> | </span>
@@ -62,7 +62,7 @@
 
 <br>
 
-![](/ui-ww.png)
+![](https://raw.githubusercontent.com/zkSNACKs/WalletWasabi/master/WalletWasabi.Backend/wwwroot/img/screenshots/webpage_ui_compilation-02.png)
 
 # Build From Source Code
 

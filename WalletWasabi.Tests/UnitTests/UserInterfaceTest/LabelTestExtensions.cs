@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using WalletWasabi.Blockchain.Analysis.Clustering;
 using WalletWasabi.Blockchain.Keys;
@@ -20,9 +20,9 @@ internal static class LabelTestExtensions
 
 	public static void AddPocket(this List<Pocket> pockets, decimal amount, out Pocket pocket, params string[] labels)
 	{
-		var labelsArray = new LabelsArray(labels);
-		var coinsView = new CoinsView(new[] { BitcoinFactory.CreateSmartCoin(NewKey(labelsArray), amount) });
-		pocket = new Pocket((labelsArray, coinsView));
+		var label = new SmartLabel(labels);
+		var coinsView = new CoinsView(new[] { BitcoinFactory.CreateSmartCoin(NewKey(label), amount) });
+		pocket = new Pocket((label, coinsView));
 		pockets.Add(pocket);
 	}
 

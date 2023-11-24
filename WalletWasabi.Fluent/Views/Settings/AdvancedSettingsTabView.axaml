@@ -5,13 +5,13 @@
              xmlns:settings="using:WalletWasabi.Fluent.ViewModels.Settings"
              mc:Ignorable="d" d:DesignWidth="428" d:DesignHeight="371"
              x:Class="WalletWasabi.Fluent.Views.Settings.AdvancedSettingsTabView"
-             x:CompileBindings="False"
+             x:CompileBindings="True"
              x:DataType="settings:AdvancedSettingsTabViewModel">
   <StackPanel Classes="settingsLayout">
 
     <DockPanel ToolTip.Tip="When enabled use a graphics card (GPU) to render user interface. Using a GPU rather than the CPU can improve performance.">
       <TextBlock Text="Enable GPU" />
-      <ToggleSwitch IsChecked="{Binding Settings.EnableGpu}" />
+      <ToggleSwitch IsChecked="{Binding EnableGpu}" />
     </DockPanel>
 
     <StackPanel Spacing="10" ToolTip.Tip="Override OpenAI model. By default gpt-3.5-turbo model is used.">

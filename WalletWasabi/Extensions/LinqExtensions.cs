@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
-using WabiSabi.Crypto.Randomness;
 using WalletWasabi.Blockchain.Transactions;
+using WalletWasabi.Crypto.Randomness;
 
 namespace WalletWasabi.Extensions;
 
@@ -38,15 +38,14 @@ public static class LinqExtensions
 		}
 	}
 
-	public static T? RandomElement<T>(this IEnumerable<T> source, WasabiRandom random)
+	public static T? RandomElement<T>(this IEnumerable<T> source)
 	{
 		T? current = default;
 		int count = 0;
 		foreach (T element in source)
 		{
 			count++;
-
-			if (random.GetInt(0, count) == 0)
+			if (Random.Shared.Next(count) == 0)
 			{
 				current = element;
 			}
@@ -58,11 +57,11 @@ public static class LinqExtensions
 	/// Selects a random element based on order bias.
 	/// </summary>
 	/// <param name="biasPercent">1-100, eg. if 80, then 80% probability for the first element.</param>
-	public static T? BiasedRandomElement<T>(this IEnumerable<T> source, int biasPercent, WasabiRandom random)
+	public static T? BiasedRandomElement<T>(this IEnumerable<T> source, int biasPercent)
 	{
 		foreach (T element in source)
 		{
-			if (random.GetInt(1, 101) <= biasPercent)
+			if (SecureRandom.Instance.GetInt(1, 101) <= biasPercent)
 			{
 				return element;
 			}
@@ -71,13 +70,13 @@ public static class LinqExtensions
 		return source.Any() ? source.First() : default;
 	}
 
-	public static IList<T> Shuffle<T>(this IList<T> list, WasabiRandom random)
+	public static IList<T> Shuffle<T>(this IList<T> list)
 	{
 		int n = list.Count;
 		while (n > 1)
 		{
 			n--;
-			int k = random.GetInt(0, n + 1);
+			int k = Random.Shared.Next(n + 1);
 			T value = list[k];
 			list[k] = list[n];
 			list[n] = value;
@@ -85,43 +84,30 @@ public static class LinqExtensions
 		return list;
 	}
 
-	public static IList<T> ToShuffled<T>(this IEnumerable<T> list, WasabiRandom random)
+	public static IList<T> ToShuffled<T>(this IEnumerable<T> list)
 	{
-		return list.ToList().Shuffle(random);
+		return list.ToList().Shuffle();
 	}
 
 	public static bool NotNullAndNotEmpty<T>(this IEnumerable<T> source)
 		=> source?.Any() is true;
 
 	/// <summary>
-	/// Generates all possible combinations of input <paramref name="items"/> with <paramref name="ofLength"/> length.
+	/// Recursive algorithm that generates all possible combinations of input <paramref name="items"/> with <paramref name="ofLength"/> length.
 	/// </summary>
 	/// <remarks>If you have numbers <c>1, 2, 3, 4</c>, then the output will contain <c>(2, 3, 4)</c> but not, for example, <c>(4, 3, 2)</c>.</remarks>
 	public static IEnumerable<IEnumerable<T>> CombinationsWithoutRepetition<T>(
 		this IEnumerable<T> items,
 		int ofLength)
+	=> ofLength switch
 	{
-		var itemsArr = items.ToArray();
-		var templates = new Stack<(List<T> Result, ArraySegment<T> Items)>();
-		templates.Push((new List<T>(), itemsArr));
-
-		while (templates.Count > 0)
-		{
-			var (template, rest) = templates.Pop();
-			if (template.Count == ofLength)
-			{
-				yield return template;
-			}
-			else if (template.Count + rest.Count >= ofLength)
-			{
-				for (var i = rest.Count - 1; i >= 0; i--)
-				{
-					var newTemplate = new List<T>(template) { rest[i] };
-					templates.Push((newTemplate, rest[(i + 1)..]));
-				}
-			}
-		}
-	}
+		<= 0 => Enumerable.Empty<IEnumerable<T>>(),
+		1 => items.Select(item => new[] { item }),
+		_ => items.SelectMany((item, i) => items
+				.Skip(i + 1)
+				.CombinationsWithoutRepetition(ofLength - 1)
+				.Select(result => new T[] { item }.Concat(result)))
+	};
 
 	public static IEnumerable<IEnumerable<T>> CombinationsWithoutRepetition<T>(
 		this IEnumerable<T> items,
@@ -164,7 +150,7 @@ public static class LinqExtensions
 		=> me
 			.OrderBy(x => x.Height)
 			.ThenBy(x => x.BlockIndex)
-			.ThenBy(x => x.FirstSeen);
+			.ThenBy(x => x.DateTime);
 
 	public static IEnumerable<string> ToBlockchainOrderedLines(this IEnumerable<SmartTransaction> me)
 		=> me

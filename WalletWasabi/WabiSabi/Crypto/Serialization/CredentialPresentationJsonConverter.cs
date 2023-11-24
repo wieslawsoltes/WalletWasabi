@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using Newtonsoft.Json;
 using WabiSabi.Crypto.Groups;
 using WabiSabi.Crypto.ZeroKnowledge;

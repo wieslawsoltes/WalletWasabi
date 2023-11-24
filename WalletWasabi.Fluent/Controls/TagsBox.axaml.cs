@@ -1,6 +1,5 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
@@ -15,7 +14,6 @@ using Avalonia.Metadata;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
 using ReactiveUI;
-using WalletWasabi.Fluent.Extensions;
 using WalletWasabi.Fluent.Helpers;
 
 namespace WalletWasabi.Fluent.Controls;
@@ -23,10 +21,10 @@ namespace WalletWasabi.Fluent.Controls;
 public class TagsBox : TemplatedControl
 {
 	private CompositeDisposable? _compositeDisposable;
-	private ItemsControl? _presenter;
-	private TagsBoxAutoCompleteBox? _autoCompleteBox;
+	private AutoCompleteBox? _autoCompleteBox;
+	private TextBox? _internalTextBox;
 	private TextBlock? _watermark;
-	private Control? _containerControl;
+	private IControl? _containerControl;
 	private StringComparison _stringComparison;
 	private bool _isInputEnabled = true;
 	private IList<string>? _suggestions;
@@ -39,9 +37,6 @@ public class TagsBox : TemplatedControl
 
 	public static readonly DirectProperty<TagsBox, bool> RequestAddProperty =
 		AvaloniaProperty.RegisterDirect<TagsBox, bool>(nameof(RequestAdd), o => o.RequestAdd);
-
-	public static readonly StyledProperty<bool> ForceAddProperty =
-		AvaloniaProperty.Register<TagsBox, bool>(nameof(ForceAdd));
 
 	public static readonly StyledProperty<string> WatermarkProperty =
 		TextBox.WatermarkProperty.AddOwner<TagsBox>();
@@ -103,6 +98,12 @@ public class TagsBox : TemplatedControl
 		private set => SetValue(IsCurrentTextValidProperty, value);
 	}
 
+	public bool RequestAdd
+	{
+		get => _requestAdd;
+		set => SetAndRaise(RequestAddProperty, ref _requestAdd, value);
+	}
+
 	public IEnumerable<string>? TopItems
 	{
 		get => _topItems;
@@ -113,18 +114,6 @@ public class TagsBox : TemplatedControl
 	{
 		get => GetValue(WatermarkProperty);
 		set => SetValue(WatermarkProperty, value);
-	}
-
-	public bool RequestAdd
-	{
-		get => _requestAdd;
-		set => SetAndRaise(RequestAddProperty, ref _requestAdd, value);
-	}
-
-	public bool ForceAdd
-	{
-		get => GetValue(ForceAddProperty);
-		set => SetValue(ForceAddProperty, value);
 	}
 
 	public bool RestrictInputToSuggestions
@@ -193,60 +182,36 @@ public class TagsBox : TemplatedControl
 	{
 		base.OnApplyTemplate(e);
 
-		_watermark = e.NameScope.Find<TextBlock>("PART_Watermark");
-		_presenter = e.NameScope.Find<ItemsControl>("PART_ItemsPresenter");
-
-		if (_presenter is not null)
-		{
-			_presenter.Loaded += PresenterOnLoaded;
-		}
-	}
-
-	private void PresenterOnLoaded(object? sender, RoutedEventArgs e)
-	{
-		Initialize();
-	}
-
-	private void Initialize()
-	{
 		_compositeDisposable?.Dispose();
 		_compositeDisposable = new CompositeDisposable();
 
-		if (_presenter is null)
-		{
-			return;
-		}
-
-		_containerControl = _presenter.ItemsPanelRoot;
-		_autoCompleteBox = (_containerControl as ConcatenatingWrapPanel)?.ConcatenatedChildren.OfType<TagsBoxAutoCompleteBox>()
-			.FirstOrDefault();
+		_watermark = e.NameScope.Find<TextBlock>("PART_Watermark");
+		var presenter = e.NameScope.Find<ItemsPresenter>("PART_ItemsPresenter");
+		presenter.ApplyTemplate();
+		_containerControl = presenter.Panel;
+		_autoCompleteBox = (_containerControl as ConcatenatingWrapPanel)?.ConcatenatedChildren.OfType<AutoCompleteBox>().FirstOrDefault();
 
 		if (_autoCompleteBox is null)
 		{
 			return;
 		}
 
-		_autoCompleteBox.InternalTextBox.WhenAnyValue(x => x.IsFocused)
+		Observable.FromEventPattern<TemplateAppliedEventArgs>(_autoCompleteBox, nameof(TemplateApplied))
+			.Subscribe(args =>
+			{
+				_internalTextBox = args.EventArgs.NameScope.Find<TextBox>("PART_TextBox");
+				var suggestionListBox = args.EventArgs.NameScope.Find<ListBox>("PART_SelectingItemsControl");
+
+				_internalTextBox.WhenAnyValue(x => x.IsFocused)
 					.Where(isFocused => isFocused == false)
 					.Subscribe(_ => RequestAdd = true)
 					.DisposeWith(_compositeDisposable);
 
-		Observable
-			.FromEventPattern(_autoCompleteBox.SuggestionListBox, nameof(PointerReleased))
-			.Subscribe(_ => RequestAdd = true)
-			.DisposeWith(_compositeDisposable);
-
-		Observable
-			.FromEventPattern<CancelEventArgs>(_autoCompleteBox, nameof(_autoCompleteBox.DropDownOpening))
-			.Select(x => (AutoCompleteBox: (x.Sender as AutoCompleteBox)!, EventArgs: x.EventArgs))
-			.Where(x => string.IsNullOrEmpty(x.AutoCompleteBox.Text))
-			.Subscribe(x => x.EventArgs.Cancel = true)
-			.DisposeWith(_compositeDisposable);
-
-		_autoCompleteBox
-			.WhenAnyValue(x => x.Text)
-			.Where(string.IsNullOrEmpty)
-			.Subscribe(_ => _autoCompleteBox.IsDropDownOpen = false)
+				Observable
+					.FromEventPattern(suggestionListBox, nameof(PointerReleased))
+					.Subscribe(_ => RequestAdd = true)
+					.DisposeWith(_compositeDisposable);
+			})
 			.DisposeWith(_compositeDisposable);
 
 		_autoCompleteBox
@@ -265,26 +230,23 @@ public class TagsBox : TemplatedControl
 			.Subscribe(_ => RequestAdd = true)
 			.DisposeWith(_compositeDisposable);
 
-		Observable.Merge(
-				this.WhenAnyValue(x => x.RequestAdd).Where(x => x).Throttle(TimeSpan.FromMilliseconds(10)).ToSignal(),
-				this.WhenAnyValue(x => x.ForceAdd).Where(x => x).ToSignal())
+		this.WhenAnyValue(x => x.RequestAdd)
+			.Where(x => x)
+			.Throttle(TimeSpan.FromMilliseconds(10))
 			.ObserveOn(RxApp.MainThreadScheduler)
 			.Select(_ => CurrentText)
 			.Subscribe(currentText =>
 			{
-				Dispatcher.UIThread.Post(() =>
-				{
-					RequestAdd = false;
-					ForceAdd = false;
-				});
+				Dispatcher.UIThread.Post(() => RequestAdd = false);
 				ClearInputField();
+
 				var tags = GetFinalTags(currentText, TagSeparator);
+
 				foreach (string tag in tags)
 				{
 					AddTag(tag);
 				}
-			})
-			.DisposeWith(_compositeDisposable);
+			});
 
 		_autoCompleteBox.WhenAnyValue(x => x.Text)
 			.Subscribe(_ =>
@@ -376,7 +338,7 @@ public class TagsBox : TemplatedControl
 	{
 		base.OnGotFocus(e);
 
-		_autoCompleteBox.InternalTextBox?.Focus();
+		_internalTextBox?.Focus();
 	}
 
 	private void CheckIsInputEnabled()
@@ -391,8 +353,7 @@ public class TagsBox : TemplatedControl
 	{
 		if (_watermark is { })
 		{
-			_watermark.IsVisible =
-				(Items is null || (Items is { } && !Items.Any())) && string.IsNullOrEmpty(CurrentText);
+			_watermark.IsVisible = (Items is null || (Items is { } && !Items.Any())) && string.IsNullOrEmpty(CurrentText);
 		}
 	}
 
@@ -406,8 +367,8 @@ public class TagsBox : TemplatedControl
 		var typedFullText = autoCompleteBox.SearchText + e.Text;
 
 		if (!_isInputEnabled ||
-		    (typedFullText is { Length: 1 } && typedFullText.StartsWith(TagSeparator)) ||
-		    string.IsNullOrEmpty(typedFullText.ParseLabel()))
+			(typedFullText is { Length: 1 } && typedFullText.StartsWith(TagSeparator)) ||
+			string.IsNullOrEmpty(typedFullText.ParseLabel()))
 		{
 			e.Handled = true;
 			return;
@@ -416,11 +377,11 @@ public class TagsBox : TemplatedControl
 		var suggestions = Suggestions?.ToArray();
 
 		if (RestrictInputToSuggestions &&
-		    suggestions is { } &&
-		    !suggestions.Any(x => x.StartsWith(typedFullText, _stringComparison)))
+			suggestions is { } &&
+			!suggestions.Any(x => x.StartsWith(typedFullText, _stringComparison)))
 		{
 			if (!typedFullText.EndsWith(TagSeparator) ||
-			    (typedFullText.EndsWith(TagSeparator) && !suggestions.Contains(autoCompleteBox.SearchText)))
+				(typedFullText.EndsWith(TagSeparator) && !suggestions.Contains(autoCompleteBox.SearchText)))
 			{
 				e.Handled = true;
 				return;
@@ -435,15 +396,15 @@ public class TagsBox : TemplatedControl
 		}
 	}
 
-	protected override void UpdateDataValidation(AvaloniaProperty property, BindingValueType state, Exception error)
+	protected override void UpdateDataValidation<T>(AvaloniaProperty<T> property, BindingValue<T> value)
 	{
 		if (property == ItemsProperty)
 		{
-			DataValidationErrors.SetError(this, error);
+			DataValidationErrors.SetError(this, value.Error);
 		}
 	}
 
-	protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs e)
+	protected override void OnPropertyChanged<T>(AvaloniaPropertyChangedEventArgs<T> e)
 	{
 		base.OnPropertyChanged(e);
 
@@ -479,14 +440,6 @@ public class TagsBox : TemplatedControl
 		InvalidateWatermark();
 	}
 
-	public void AddTag(object? value)
-	{
-		if (value is string tag)
-		{
-			AddTag(tag);
-		}
-	}
-
 	public void AddTag(string tag)
 	{
 		var inputTag = tag;
@@ -509,7 +462,7 @@ public class TagsBox : TemplatedControl
 		if (Suggestions is { } suggestions)
 		{
 			if (RestrictInputToSuggestions &&
-			    !suggestions.Any(x => x.Equals(tag, _stringComparison)))
+				!suggestions.Any(x => x.Equals(tag, _stringComparison)))
 			{
 				return;
 			}

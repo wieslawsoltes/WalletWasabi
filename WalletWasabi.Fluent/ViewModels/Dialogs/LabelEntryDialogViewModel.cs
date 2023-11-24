@@ -2,28 +2,26 @@ using System.Linq;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using DynamicData;
-using DynamicData.Binding;
 using ReactiveUI;
 using WalletWasabi.Blockchain.Analysis.Clustering;
 using WalletWasabi.Fluent.Extensions;
-using WalletWasabi.Fluent.Models.Wallets;
 using WalletWasabi.Fluent.ViewModels.Dialogs.Base;
 using WalletWasabi.Fluent.ViewModels.Wallets.Labels;
+using WalletWasabi.Wallets;
 
 namespace WalletWasabi.Fluent.ViewModels.Dialogs;
 
-[NavigationMetaData(Title = "Recipient", NavigationTarget = NavigationTarget.CompactDialogScreen)]
-public partial class LabelEntryDialogViewModel : DialogViewModelBase<LabelsArray?>
+[NavigationMetaData(Title = "Recipient")]
+public partial class LabelEntryDialogViewModel : DialogViewModelBase<SmartLabel?>
 {
-	private readonly IWalletModel _wallet;
+	private readonly Wallet _wallet;
 
-	public LabelEntryDialogViewModel(IWalletModel wallet, LabelsArray labels)
+	public LabelEntryDialogViewModel(Wallet wallet, SmartLabel label)
 	{
 		_wallet = wallet;
-
-		SuggestionLabels = new SuggestionLabelsViewModel(wallet, Intent.Send, 3)
+		SuggestionLabels = new SuggestionLabelsViewModel(wallet.KeyManager, Intent.Send, 3)
 		{
-			Labels = { labels.AsEnumerable() }
+			Labels = { label.Labels }
 		};
 
 		SetupCancel(enableCancel: true, enableCancelOnEscape: true, enableCancelOnPressed: true);
@@ -41,16 +39,14 @@ public partial class LabelEntryDialogViewModel : DialogViewModelBase<LabelsArray
 
 	private void OnNext()
 	{
-		SuggestionLabels.ForceAdd = true;
-		Close(DialogResultKind.Normal, new LabelsArray(SuggestionLabels.Labels.ToArray()));
+		Close(DialogResultKind.Normal, new SmartLabel(SuggestionLabels.Labels.ToArray()));
 	}
 
 	protected override void OnNavigatedTo(bool isInHistory, CompositeDisposable disposables)
 	{
 		base.OnNavigatedTo(isInHistory, disposables);
 
-		_wallet.Coins.List
-			.Connect()
+		_wallet.TransactionProcessor.WhenAnyValue(x => x.Coins)
 			.ToSignal()
 			.ObserveOn(RxApp.MainThreadScheduler)
 			.Subscribe(_ => SuggestionLabels.UpdateLabels())

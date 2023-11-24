@@ -1,5 +1,3 @@
-using WalletWasabi.Fluent.Models.UI;
-
 namespace WalletWasabi.Fluent.ViewModels.OpenDirectory;
 
 [NavigationMetaData(
@@ -14,9 +12,5 @@ namespace WalletWasabi.Fluent.ViewModels.OpenDirectory;
 	IconName = "document_regular")]
 public partial class OpenTorLogsViewModel : OpenFileViewModel
 {
-	public OpenTorLogsViewModel(UiContext uiContext) : base(uiContext)
-	{
-	}
-
-	public override string FilePath => UiContext.Config.TorLogFilePath;
+	public override string FilePath => Services.TorSettings.LogFilePath;
 }

@@ -2,14 +2,13 @@ using System.Globalization;
 using System.Windows.Input;
 using ReactiveUI;
 using WalletWasabi.Extensions;
-using WalletWasabi.Fluent.Models.Wallets;
 using WalletWasabi.Wallets.PasswordFinder;
 
 namespace WalletWasabi.Fluent.ViewModels.Login.PasswordFinder;
 
-public partial class CharsetViewModel : ViewModelBase
+public class CharsetViewModel : ViewModelBase
 {
-	private CharsetViewModel(IPasswordFinderModel model, Charset charset)
+	public CharsetViewModel(SelectCharsetViewModel owner, Charset charset)
 	{
 		Title = charset.FriendlyName();
 		ShortTitle = charset.ToString().ToUpper(CultureInfo.InvariantCulture);
@@ -17,8 +16,8 @@ public partial class CharsetViewModel : ViewModelBase
 
 		SelectCommand = ReactiveCommand.Create(() =>
 		{
-			model.Charset = charset;
-			UiContext.Navigate().To().ContainsNumbers(model);
+			owner.Options.Charset = charset;
+			owner.Navigate().To(new ContainsNumbersViewModel(owner.Options));
 		});
 	}
 

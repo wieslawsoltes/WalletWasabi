@@ -5,7 +5,7 @@ using WalletWasabi.WebClients.Wasabi;
 
 namespace WalletWasabi.Fluent.ViewModels.Dialogs;
 
-[NavigationMetaData(Title = "About", NavigationTarget = NavigationTarget.CompactDialogScreen)]
+[NavigationMetaData(Title = "About")]
 public partial class AboutAdvancedInfoViewModel : DialogViewModelBase<Unit>
 {
 	public AboutAdvancedInfoViewModel()

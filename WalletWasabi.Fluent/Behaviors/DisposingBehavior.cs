@@ -4,7 +4,7 @@ using System.Reactive.Disposables;
 
 namespace WalletWasabi.Fluent.Behaviors;
 
-public abstract class DisposingBehavior<T> : Behavior<T> where T : AvaloniaObject
+public abstract class DisposingBehavior<T> : Behavior<T> where T : class, IAvaloniaObject
 {
 	private CompositeDisposable? _disposables;
 

@@ -1,60 +1,67 @@
+using System.Reactive;
 using System.Reactive.Disposables;
+using System.Reactive.Linq;
+using System.Windows.Input;
+using Avalonia;
 using NBitcoin;
-using WalletWasabi.Fluent.Models.UI;
-using WalletWasabi.Fluent.Models.Wallets;
+using ReactiveUI;
+using WalletWasabi.Fluent.Extensions;
 using WalletWasabi.Fluent.ViewModels.Navigation;
+using WalletWasabi.Fluent.ViewModels.Wallets.Home.History.HistoryItems;
 
 namespace WalletWasabi.Fluent.ViewModels.Wallets.Home.History.Details;
 
-[NavigationMetaData(Title = "Coinjoin Details", NavigationTarget = NavigationTarget.DialogScreen)]
+[NavigationMetaData(Title = "Coinjoin Details")]
 public partial class CoinJoinDetailsViewModel : RoutableViewModel
 {
-	private readonly IWalletModel _wallet;
-	private readonly TransactionModel _transaction;
+	private readonly CoinJoinHistoryItemViewModel _coinJoin;
+	private readonly IObservable<Unit> _updateTrigger;
 
 	[AutoNotify] private string _date = "";
-	[AutoNotify] private Amount? _coinJoinFeeAmount;
+	[AutoNotify] private string _coinJoinFeeRawString = "";
+	[AutoNotify] private string _coinJoinFeeString = "";
 	[AutoNotify] private uint256? _transactionId;
 	[AutoNotify] private bool _isConfirmed;
 	[AutoNotify] private int _confirmations;
 
-	public CoinJoinDetailsViewModel(UiContext uiContext, IWalletModel wallet, TransactionModel transaction)
+	public CoinJoinDetailsViewModel(CoinJoinHistoryItemViewModel coinJoin, IObservable<Unit> updateTrigger)
 	{
-		_wallet = wallet;
-		_transaction = transaction;
-
-		UiContext = uiContext;
+		_coinJoin = coinJoin;
+		_updateTrigger = updateTrigger;
 
 		SetupCancel(enableCancel: false, enableCancelOnEscape: true, enableCancelOnPressed: true);
 		NextCommand = CancelCommand;
 
-		ConfirmationTime = _wallet.Transactions.TryEstimateConfirmationTime(transaction);
-		IsConfirmationTimeVisible = ConfirmationTime.HasValue && ConfirmationTime != TimeSpan.Zero;
+		CopyCommand = ReactiveCommand.CreateFromTask<uint256>(async txid =>
+		{
+			if (Application.Current is { Clipboard: { } clipboard })
+			{
+				await clipboard.SetTextAsync(txid.ToString());
+			}
+		});
+
+		Update();
 	}
 
-	public TimeSpan? ConfirmationTime { get; set; }
-
-	public bool IsConfirmationTimeVisible { get; set; }
+	public ICommand CopyCommand { get; }
 
 	protected override void OnNavigatedTo(bool isInHistory, CompositeDisposable disposables)
 	{
 		base.OnNavigatedTo(isInHistory, disposables);
 
-		_wallet.Transactions.Cache
-			                .Connect()
-							.Subscribe(_ => Update())
-							.DisposeWith(disposables);
+		_updateTrigger
+			.Subscribe(_ => Update())
+			.DisposeWith(disposables);
 	}
 
 	private void Update()
 	{
-		if (_wallet.Transactions.TryGetById(_transaction.Id, _transaction.IsChild, out var transaction))
-		{
-			Date = transaction.DateString;
-			CoinJoinFeeAmount = _wallet.AmountProvider.Create(transaction.OutgoingAmount);
-			Confirmations = transaction.Confirmations;
-			IsConfirmed = Confirmations > 0;
-			TransactionId = transaction.Id;
-		}
+		Date = _coinJoin.DateString;
+		CoinJoinFeeRawString = _coinJoin.OutgoingAmount.ToFeeDisplayUnitRawString();
+		CoinJoinFeeString = _coinJoin.OutgoingAmount.ToFeeDisplayUnitFormattedString();
+		Confirmations = _coinJoin.CoinJoinTransaction.GetConfirmations();
+		IsConfirmed = Confirmations > 0;
+
+		TransactionId = _coinJoin.CoinJoinTransaction.TransactionId;
 	}
 }

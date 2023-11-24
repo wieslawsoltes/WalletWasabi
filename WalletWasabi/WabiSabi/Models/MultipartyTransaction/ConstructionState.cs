@@ -19,11 +19,6 @@ public record ConstructionState : MultipartyTransactionState
 	{
 		var prevout = coin.TxOut;
 
-		if (!OwnershipProof.VerifyCoinJoinInputProof(ownershipProof, coin.TxOut.ScriptPubKey, coinJoinInputCommitmentData))
-		{
-			throw new WabiSabiProtocolException(WabiSabiProtocolErrorCode.WrongOwnershipProof);
-		}
-
 		if (!StandardScripts.IsStandardScriptPubKey(prevout.ScriptPubKey))
 		{
 			throw new WabiSabiProtocolException(WabiSabiProtocolErrorCode.NonStandardInput);
@@ -60,6 +55,11 @@ public record ConstructionState : MultipartyTransactionState
 		if (Inputs.Any(x => x.Outpoint == coin.Outpoint))
 		{
 			throw new WabiSabiProtocolException(WabiSabiProtocolErrorCode.NonUniqueInputs);
+		}
+
+		if (!OwnershipProof.VerifyCoinJoinInputProof(ownershipProof, coin.TxOut.ScriptPubKey, coinJoinInputCommitmentData))
+		{
+			throw new WabiSabiProtocolException(WabiSabiProtocolErrorCode.WrongOwnershipProof);
 		}
 
 		return this with { Events = Events.Add(new InputAdded(coin, ownershipProof)) };

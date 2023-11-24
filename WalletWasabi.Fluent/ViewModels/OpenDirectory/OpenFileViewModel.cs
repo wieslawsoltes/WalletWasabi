@@ -1,17 +1,11 @@
 using System.Windows.Input;
 using ReactiveUI;
-using WalletWasabi.Fluent.Extensions;
-using WalletWasabi.Fluent.Models.UI;
+using WalletWasabi.Fluent.Helpers;
 
 namespace WalletWasabi.Fluent.ViewModels.OpenDirectory;
 
 public abstract class OpenFileViewModel : TriggerCommandViewModel
 {
-	public OpenFileViewModel(UiContext uiContext)
-	{
-		UiContext = uiContext;
-	}
-
 	public abstract string FilePath { get; }
 
 	public override ICommand TargetCommand =>
@@ -19,11 +13,11 @@ public abstract class OpenFileViewModel : TriggerCommandViewModel
 		{
 			try
 			{
-				await UiContext.FileSystem.OpenFileInTextEditorAsync(FilePath);
+				await FileHelpers.OpenFileInTextEditorAsync(FilePath);
 			}
 			catch (Exception ex)
 			{
-				await ShowErrorAsync("Open", ex.ToUserFriendlyString(), "Wasabi was unable to open the file");
+				await ShowErrorAsync("Open", ex.Message, "Wasabi was unable to open the file");
 			}
 		});
 }

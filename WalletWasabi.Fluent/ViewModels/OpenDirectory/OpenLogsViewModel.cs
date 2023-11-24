@@ -1,4 +1,3 @@
-using WalletWasabi.Fluent.Models.UI;
 using WalletWasabi.Logging;
 
 namespace WalletWasabi.Fluent.ViewModels.OpenDirectory;
@@ -15,9 +14,5 @@ namespace WalletWasabi.Fluent.ViewModels.OpenDirectory;
 	IconName = "document_regular")]
 public partial class OpenLogsViewModel : OpenFileViewModel
 {
-	public OpenLogsViewModel(UiContext uiContext) : base(uiContext)
-	{
-	}
-
-	public override string FilePath => UiContext.Config.LoggerFilePath;
+	public override string FilePath => Logger.FilePath;
 }

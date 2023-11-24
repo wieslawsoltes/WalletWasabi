@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -9,11 +8,7 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Input.Platform;
 using Avalonia.Threading;
-using NBitcoin;
 using ReactiveUI;
-using WalletWasabi.Fluent.Extensions;
-using WalletWasabi.Fluent.Helpers;
-using WalletWasabi.Fluent.Infrastructure;
 using WalletWasabi.Helpers;
 using static WalletWasabi.Userfacing.CurrencyInput;
 
@@ -39,20 +34,9 @@ public partial class CurrencyEntryBox : TextBox
 	public static readonly StyledProperty<int> MaxDecimalsProperty =
 		AvaloniaProperty.Register<CurrencyEntryBox, int>(nameof(MaxDecimals), 8);
 
-	public static readonly StyledProperty<Money> BalanceBtcProperty =
-		AvaloniaProperty.Register<CurrencyEntryBox, Money>(nameof(BalanceBtc));
-
-	public static readonly StyledProperty<decimal> BalanceUsdProperty =
-		AvaloniaProperty.Register<CurrencyEntryBox, decimal>(nameof(BalanceUsd));
-
-	public static readonly StyledProperty<bool> ValidatePasteBalanceProperty =
-		AvaloniaProperty.Register<CurrencyEntryBox, bool>(nameof(ValidatePasteBalance));
-
-	private static readonly string[] InvalidCharacters = new string[1] { "\u007f" };
-
 	public CurrencyEntryBox()
 	{
-		SetCurrentValue(TextProperty, string.Empty);
+		Text = string.Empty;
 
 		PseudoClasses.Set(":noexchangerate", true);
 		PseudoClasses.Set(":isrightside", false);
@@ -101,24 +85,6 @@ public partial class CurrencyEntryBox : TextBox
 		set => SetValue(MaxDecimalsProperty, value);
 	}
 
-	public Money BalanceBtc
-	{
-		get => GetValue(BalanceBtcProperty);
-		set => SetValue(BalanceBtcProperty, value);
-	}
-
-	public decimal BalanceUsd
-	{
-		get => GetValue(BalanceUsdProperty);
-		set => SetValue(BalanceUsdProperty, value);
-	}
-
-	public bool ValidatePasteBalance
-	{
-		get => GetValue(ValidatePasteBalanceProperty);
-		set => SetValue(ValidatePasteBalanceProperty, value);
-	}
-
 	private decimal FiatToBitcoin(decimal fiatValue)
 	{
 		if (ConversionRate == 0m)
@@ -133,14 +99,14 @@ public partial class CurrencyEntryBox : TextBox
 	{
 		base.OnGotFocus(e);
 
-		SetCurrentValue(CaretIndexProperty, Text?.Length ?? 0);
+		CaretIndex = Text?.Length ?? 0;
 
 		Dispatcher.UIThread.Post(SelectAll);
 	}
 
 	protected override void OnTextInput(TextInputEventArgs e)
 	{
-		var input = e.Text == null ? "" : e.Text.TotalTrim();
+		var input = e.Text ?? "";
 
 		// Reject space char input when there's no text.
 		if (string.IsNullOrWhiteSpace(Text) && string.IsNullOrWhiteSpace(input))
@@ -152,29 +118,28 @@ public partial class CurrencyEntryBox : TextBox
 
 		if (IsReplacingWithImplicitDecimal(input))
 		{
-			var result = ReplaceCurrentTextWithLeadingZero(e);
-			base.OnTextInput(result);
+			ReplaceCurrentTextWithLeadingZero(e);
+
+			base.OnTextInput(e);
 			return;
 		}
 
 		if (IsInsertingImplicitDecimal(input))
 		{
-			var result = InsertLeadingZeroForDecimal(e);
-			base.OnTextInput(result);
+			InsertLeadingZeroForDecimal(e);
+
+			base.OnTextInput(e);
 			return;
 		}
 
 		var preComposedText = PreComposeText(input);
 
-		var isValid = ValidateEntryText(preComposedText);
+		decimal fiatValue = 0;
 
-		preComposedText = preComposedText.TotalTrim();
+		e.Handled = !(ValidateEntryText(preComposedText) &&
+					  decimal.TryParse(preComposedText, NumberStyles.Number, InvariantNumberFormat, out fiatValue));
 
-		var parsed = decimal.TryParse(preComposedText, NumberStyles.Number, InvariantNumberFormat, out var fiatValue);
-
-		e.Handled = !(isValid && parsed);
-
-		if (IsFiat && !e.Handled)
+		if (IsFiat & !e.Handled)
 		{
 			e.Handled = FiatToBitcoin(fiatValue) >= Constants.MaximumNumberOfBitcoins;
 		}
@@ -192,21 +157,21 @@ public partial class CurrencyEntryBox : TextBox
 		return input.StartsWith(".") && CaretIndex == 0 && Text is not null && !Text.Contains('.');
 	}
 
-	private TextInputEventArgs ReplaceCurrentTextWithLeadingZero(TextInputEventArgs e)
+	private void ReplaceCurrentTextWithLeadingZero(TextInputEventArgs e)
 	{
 		var finalText = "0" + e.Text;
-		SetCurrentValue(TextProperty, "");
-		SetCurrentValue(CaretIndexProperty, finalText.Length);
+		Text = "";
+		e.Text = finalText;
+		CaretIndex = finalText.Length;
 		ClearSelection();
-		return new TextInputEventArgs { Text = finalText };
 	}
 
-	private TextInputEventArgs InsertLeadingZeroForDecimal(TextInputEventArgs e)
+	private void InsertLeadingZeroForDecimal(TextInputEventArgs e)
 	{
 		var prependText = "0" + e.Text;
-		SetCurrentValue(TextProperty, Text.Insert(0, prependText));
-		SetCurrentValue(CaretIndexProperty, CaretIndex + prependText.Length);
-		return new TextInputEventArgs { Text = "" };
+		Text = Text.Insert(0, prependText);
+		e.Text = "";
+		CaretIndex += prependText.Length;
 	}
 
 	[GeneratedRegex($"^(?<Whole>[0-9{GroupSeparator}]*)(\\{DecimalSeparator}?(?<Frac>[0-9{GroupSeparator}]*))$")]
@@ -289,7 +254,7 @@ public partial class CurrencyEntryBox : TextBox
 
 	private void DoPasteCheck(KeyEventArgs e)
 	{
-		var keymap = Application.Current?.PlatformSettings?.HotkeyConfiguration;
+		var keymap = AvaloniaLocator.Current.GetService<PlatformHotkeyConfiguration>();
 
 		bool Match(IEnumerable<KeyGesture> gestures) => gestures.Any(g => g.Matches(e));
 
@@ -305,7 +270,7 @@ public partial class CurrencyEntryBox : TextBox
 
 	public async void ModifiedPasteAsync()
 	{
-		if (ApplicationHelper.Clipboard is { } clipboard)
+		if (AvaloniaLocator.Current.GetService<IClipboard>() is { } clipboard)
 		{
 			var text = await clipboard.GetTextAsync();
 
@@ -316,9 +281,14 @@ public partial class CurrencyEntryBox : TextBox
 
 			text = text.Replace("\r", "").Replace("\n", "").Trim();
 
-			if (!TryParse(text, out text))
+			// Based on broad M0 money supply figures (80 900 000 000 000.00 USD).
+			// so USD has 14 whole places + the decimal point + 2 decimal places = 17 characters.
+			// Bitcoin has "21 000 000 . 0000 0000".
+			// Coincidentally the same character count as USD... weird.
+			// Plus adding 4 characters for the group separators.
+			if (text.Length > 17 + 4)
 			{
-				return;
+				text = text[..(17 + 4)];
 			}
 
 			if (ValidateEntryText(text))
@@ -328,47 +298,8 @@ public partial class CurrencyEntryBox : TextBox
 		}
 	}
 
-	private bool TryParse(string text, [NotNullWhen(true)] out string? result)
-	{
-		var money = ValidatePasteBalance
-			? ClipboardObserver.ParseToMoney(text, BalanceBtc)
-			: ClipboardObserver.ParseToMoney(text);
-		if (money is not null)
-		{
-			result = money.ToDecimal(MoneyUnit.BTC).FormattedBtc();
-			return true;
-		}
-
-		var usd = ValidatePasteBalance
-			? ClipboardObserver.ParseToUsd(text, BalanceUsd)
-			: ClipboardObserver.ParseToUsd(text);
-		if (usd is not null)
-		{
-			result = usd.Value.ToString("0.00");
-			return true;
-		}
-
-		result = null;
-		return false;
-	}
-
 	// Pre-composes the TextInputEventArgs to see the potential Text that is to
 	// be committed to the TextPresenter in this control.
-
-	private string? RemoveInvalidCharacters(string? text)
-	{
-		if (text is null)
-		{
-			return null;
-		}
-
-		for (var i = 0; i < InvalidCharacters.Length; i++)
-		{
-			text = text.Replace(InvalidCharacters[i], string.Empty);
-		}
-
-		return text;
-	}
 
 	// An event in Avalonia's TextBox with this function should be implemented there for brevity.
 	private string PreComposeText(string input)
@@ -397,21 +328,21 @@ public partial class CurrencyEntryBox : TextBox
 		return "";
 	}
 
-	protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
+	protected override void OnPropertyChanged<T>(AvaloniaPropertyChangedEventArgs<T> change)
 	{
 		base.OnPropertyChanged(change);
 
 		if (change.Property == IsReadOnlyProperty)
 		{
-			PseudoClasses.Set(":readonly", change.GetNewValue<bool>());
+			PseudoClasses.Set(":readonly", change.NewValue.GetValueOrDefault<bool>());
 		}
 		else if (change.Property == ConversionRateProperty)
 		{
-			PseudoClasses.Set(":noexchangerate", change.GetNewValue<decimal>() == 0m);
+			PseudoClasses.Set(":noexchangerate", change.NewValue.GetValueOrDefault<decimal>() == 0m);
 		}
 		else if (change.Property == IsFiatProperty)
 		{
-			PseudoClasses.Set(":isfiat", change.GetNewValue<bool>());
+			PseudoClasses.Set(":isfiat", change.NewValue.GetValueOrDefault<bool>());
 		}
 	}
 }

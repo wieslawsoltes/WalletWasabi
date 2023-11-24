@@ -24,7 +24,13 @@ public class RoundCreationTests
 	public async Task InitializesRoundAsync()
 	{
 		WabiSabiConfig cfg = new();
-		var mockRpc = BitcoinFactory.GetMockMinimalRpc();
+		var mockRpc = new MockRpcClient();
+		mockRpc.OnEstimateSmartFeeAsync = async (target, _) =>
+			await Task.FromResult(new EstimateSmartFeeResponse
+			{
+				Blocks = target,
+				FeeRate = new FeeRate(10m)
+			});
 
 		using Arena arena = CreateArena(cfg, mockRpc);
 		Assert.Empty(arena.Rounds);
@@ -39,7 +45,13 @@ public class RoundCreationTests
 	public async Task CreatesRoundIfNoneInputRegistrationAsync()
 	{
 		WabiSabiConfig cfg = new();
-		var mockRpc = BitcoinFactory.GetMockMinimalRpc();
+		var mockRpc = new MockRpcClient();
+		mockRpc.OnEstimateSmartFeeAsync = async (target, _) =>
+			await Task.FromResult(new EstimateSmartFeeResponse
+			{
+				Blocks = target,
+				FeeRate = new FeeRate(10m)
+			});
 
 		using Arena arena = CreateArena(cfg, mockRpc);
 		Assert.Empty(arena.Rounds);
@@ -58,7 +70,13 @@ public class RoundCreationTests
 	public async Task CreatesRoundIfInBlameInputRegistrationAsync()
 	{
 		WabiSabiConfig cfg = new();
-		var mockRpc = BitcoinFactory.GetMockMinimalRpc();
+		var mockRpc = new MockRpcClient();
+		mockRpc.OnEstimateSmartFeeAsync = async (target, _) =>
+			await Task.FromResult(new EstimateSmartFeeResponse
+			{
+				Blocks = target,
+				FeeRate = new FeeRate(10m)
+			});
 
 		using Arena arena = CreateArena(cfg, mockRpc);
 		Assert.Empty(arena.Rounds);

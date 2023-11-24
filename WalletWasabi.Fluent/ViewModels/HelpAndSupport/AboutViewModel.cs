@@ -1,7 +1,8 @@
 using System.Collections.Generic;
 using System.Windows.Input;
+using Avalonia;
 using ReactiveUI;
-using WalletWasabi.Fluent.Models.UI;
+using WalletWasabi.Fluent.ViewModels.Dialogs;
 using WalletWasabi.Fluent.ViewModels.Navigation;
 using WalletWasabi.Helpers;
 
@@ -23,64 +24,62 @@ namespace WalletWasabi.Fluent.ViewModels.HelpAndSupport;
 	NavigationTarget = NavigationTarget.DialogScreen)]
 public partial class AboutViewModel : RoutableViewModel
 {
-	public AboutViewModel(UiContext uiContext, bool navigateBack = false)
+	public AboutViewModel(bool navigateBack = false)
 	{
-		UiContext = uiContext;
-
 		EnableBack = navigateBack;
 
 		Links = new List<ViewModelBase>()
 			{
-				new LinkViewModel(UiContext)
+				new LinkViewModel()
 				{
 					Link = DocsLink,
 					Description = "Documentation",
 					IsClickable = true
 				},
 				new SeparatorViewModel(),
-				new LinkViewModel(UiContext)
+				new LinkViewModel()
 				{
 					Link = SourceCodeLink,
 					Description = "Source Code (GitHub)",
 					IsClickable = true
 				},
 				new SeparatorViewModel(),
-				new LinkViewModel(UiContext)
+				new LinkViewModel()
 				{
 					Link = ClearnetLink,
 					Description = "Website (Clearnet)",
 					IsClickable = true
 				},
 				new SeparatorViewModel(),
-				new LinkViewModel(UiContext)
+				new LinkViewModel()
 				{
 					Link = TorLink,
 					Description = "Website (Tor)",
 					IsClickable = false
 				},
 				new SeparatorViewModel(),
-				new LinkViewModel(UiContext)
+				new LinkViewModel()
 				{
 					Link = StatusPageLink,
 					Description = "Coordinator Status Page",
 					IsClickable = true
 				},
 				new SeparatorViewModel(),
-				new LinkViewModel(UiContext)
+				new LinkViewModel()
 				{
 					Link = UserSupportLink,
 					Description = "User Support",
 					IsClickable = true
 				},
 				new SeparatorViewModel(),
-				new LinkViewModel(UiContext)
+				new LinkViewModel()
 				{
 					Link = BugReportLink,
 					Description = "Bug Report",
 					IsClickable = true
 				},
 				new SeparatorViewModel(),
-				new LinkViewModel(UiContext)
+				new LinkViewModel()
 				{
 					Link = FAQLink,
 					Description = "FAQ",
@@ -88,18 +87,30 @@ public partial class AboutViewModel : RoutableViewModel
 				},
 			};
 
-		License = new LinkViewModel(UiContext)
+		License = new LinkViewModel()
 		{
 			Link = LicenseLink,
 			Description = "MIT License",
 			IsClickable = true
 		};
 
-		OpenBrowserCommand = ReactiveCommand.CreateFromTask<string>(x => UiContext.FileSystem.OpenBrowserAsync(x));
+		OpenBrowserCommand = ReactiveCommand.CreateFromTask<string>(IoHelpers.OpenBrowserAsync);
 
-		AboutAdvancedInfoDialogCommand = ReactiveCommand.CreateFromTask(async () => await Navigate().To().AboutAdvancedInfo().GetResultAsync());
+		AboutAdvancedInfoDialogCommand = ReactiveCommand.CreateFromTask(
+			execute: async () => await NavigateDialogAsync(new AboutAdvancedInfoViewModel(), NavigationTarget.CompactDialogScreen));
 
-		CopyLinkCommand = ReactiveCommand.CreateFromTask<string>(async (link) => await UiContext.Clipboard.SetTextAsync(link));
+		OpenBrowserCommand = ReactiveCommand.CreateFromTask<string>(
+			async (link) =>
+				await IoHelpers.OpenBrowserAsync(link));
+
+		CopyLinkCommand = ReactiveCommand.CreateFromTask<string>(
+			async (link) =>
+				{
+					if (Application.Current is { Clipboard: { } clipboard })
+					{
+						await clipboard.SetTextAsync(link);
+					}
+				});
 
 		NextCommand = CancelCommand;
 
@@ -128,7 +139,7 @@ public partial class AboutViewModel : RoutableViewModel
 
 	public static string UserSupportLink => "https://github.com/zkSNACKs/WalletWasabi/discussions/5185";
 
-	public static string BugReportLink => "https://github.com/zkSNACKs/WalletWasabi/issues/new?template=bug-report.md";
+	public static string BugReportLink => "https://github.com/zkSNACKs/WalletWasabi/issues/";
 
 	public static string FAQLink => "https://docs.wasabiwallet.io/FAQ/";
 

@@ -33,7 +33,7 @@ public class ProofBody : IBitcoinSerializable, IEquatable<ProofBody>
 	public void ReadWrite(BitcoinStream bitcoinStream)
 	{
 		var versionMagic = VersionMagic.ToArray();
-		bitcoinStream.ReadWrite(versionMagic);
+		bitcoinStream.ReadWrite(ref versionMagic);
 
 		if (!bitcoinStream.Serializing)
 		{

@@ -1,40 +1,28 @@
-using System.Globalization;
 using System.Linq;
+using System.Reactive.Linq;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Media;
+using Avalonia.Utilities;
+using WalletWasabi.Fluent.ViewModels;
 
 namespace WalletWasabi.Fluent.Controls;
 
 public class PrivacyTextPresenter : UserControl
 {
-	public static readonly StyledProperty<int> MaxPrivacyCharsProperty =
-		AvaloniaProperty.Register<PrivacyTextPresenter, int>(nameof(MaxPrivacyChars), int.MaxValue);
-
 	private GlyphRun? _glyphRun;
 	private double _width;
 	private FormattedText? _formattedText;
 
-	public int MaxPrivacyChars
-	{
-		get => GetValue(MaxPrivacyCharsProperty);
-		set => SetValue(MaxPrivacyCharsProperty, value);
-	}
-
 	private FormattedText CreateFormattedText()
 	{
 		return new FormattedText(
-			"X",
-			CultureInfo.CurrentCulture,
-			FlowDirection.LeftToRight,
+			"",
 			new Typeface(FontFamily, FontStyle, FontWeight),
 			FontSize,
-			null)
-		{
-			TextAlignment = TextAlignment.Left,
-			MaxTextHeight = Size.Infinity.Height,
-			MaxTextWidth = Size.Infinity.Width
-		};
+			TextAlignment.Left,
+			TextWrapping.NoWrap,
+			Size.Infinity);
 	}
 
 	private GlyphRun? CreateGlyphRun(double width)
@@ -44,26 +32,27 @@ public class PrivacyTextPresenter : UserControl
 		var glyphTypeface = new Typeface((FontFamily?)FontFamily).GlyphTypeface;
 		var glyph = glyphTypeface.GetGlyph(privacyChar);
 
-		var scale = FontSize / glyphTypeface.Metrics.DesignEmHeight;
+		var scale = FontSize / glyphTypeface.DesignEmHeight;
 		var advance = glyphTypeface.GetGlyphAdvance(glyph) * scale;
 
-		var count = Math.Min(width > 0 && width < advance ? 1 : (int)(width / advance), MaxPrivacyChars);
+		var count = width > 0 && width < advance ? 1 : (int)(width / advance);
 		if (count == 0)
 		{
 			return null;
 		}
 
-		var characters = new ReadOnlyMemory<char>(Enumerable.Repeat(privacyChar, count).ToArray());
-		var glyphs = Enumerable.Repeat(glyph, count).ToArray();
+		var advances = new ReadOnlySlice<double>(new ReadOnlyMemory<double>(Enumerable.Repeat(advance, count).ToArray()));
+		var characters = new ReadOnlySlice<char>(new ReadOnlyMemory<char>(Enumerable.Repeat(privacyChar, count).ToArray()));
+		var glyphs = new ReadOnlySlice<ushort>(new ReadOnlyMemory<ushort>(Enumerable.Repeat(glyph, count).ToArray()));
 
-		return new GlyphRun(glyphTypeface, FontSize, characters, glyphs);
+		return new GlyphRun(glyphTypeface, FontSize, glyphs, advances, characters: characters);
 	}
 
 	protected override Size MeasureOverride(Size availableSize)
 	{
 		_formattedText ??= CreateFormattedText();
 
-		return new Size(0, _formattedText.Height);
+		return new Size(0, _formattedText.Bounds.Height);
 	}
 
 	public override void Render(DrawingContext context)
@@ -76,7 +65,7 @@ public class PrivacyTextPresenter : UserControl
 		var width = Bounds.Width;
 		if (_glyphRun is null || width != _width)
 		{
-			_glyphRun?.Dispose();
+			(_glyphRun as IDisposable)?.Dispose();
 			_glyphRun = CreateGlyphRun(width);
 			_width = width;
 		}
@@ -84,16 +73,6 @@ public class PrivacyTextPresenter : UserControl
 		if (_glyphRun is { })
 		{
 			context.DrawGlyphRun(Foreground, _glyphRun);
-		}
-	}
-
-	protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
-	{
-		base.OnPropertyChanged(change);
-
-		if (change.Property == ForegroundProperty)
-		{
-			InvalidateVisual();
 		}
 	}
 }

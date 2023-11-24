@@ -17,25 +17,23 @@ public class BlockstreamInfoClientTests : IAsyncLifetime
 		ClearnetHttpClientFactory = new(torEndPoint: null, backendUriGetter: null);
 		TorHttpClientFactory = new(Common.TorSocks5Endpoint, backendUriGetter: null);
 
-		TorProcessManager = new(Common.TorSettings);
+		TorManager = new(Common.TorSettings);
 	}
 
-	private WasabiHttpClientFactory ClearnetHttpClientFactory { get; }
-	private WasabiHttpClientFactory TorHttpClientFactory { get; }
-	private TorProcessManager TorProcessManager { get; }
+	private HttpClientFactory ClearnetHttpClientFactory { get; }
+	private HttpClientFactory TorHttpClientFactory { get; }
+	private TorProcessManager TorManager { get; }
 
 	public async Task InitializeAsync()
 	{
-		using CancellationTokenSource startTimeoutCts = new(TimeSpan.FromMinutes(2));
-
-		await TorProcessManager.StartAsync(startTimeoutCts.Token);
+		await TorManager.StartAsync();
 	}
 
 	public async Task DisposeAsync()
 	{
 		await ClearnetHttpClientFactory.DisposeAsync();
 		await TorHttpClientFactory.DisposeAsync();
-		await TorProcessManager.DisposeAsync();
+		await TorManager.DisposeAsync();
 	}
 
 	[Fact]

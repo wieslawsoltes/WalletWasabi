@@ -25,8 +25,7 @@ public class EndPointJsonConverter : JsonConverter<EndPoint>
 	/// <inheritdoc />
 	public override EndPoint? ReadJson(JsonReader reader, Type objectType, EndPoint? existingValue, bool hasExistingValue, JsonSerializer serializer)
 	{
-		string? endPointString = reader.Value as string;
-
+		var endPointString = reader.Value as string;
 		if (EndPointParser.TryParse(endPointString, DefaultPort, out EndPoint? endPoint))
 		{
 			return endPoint;
@@ -46,7 +45,7 @@ public class EndPointJsonConverter : JsonConverter<EndPoint>
 		}
 		else
 		{
-			string endPointString = value.ToString(DefaultPort);
+			var endPointString = value.ToString(DefaultPort);
 			writer.WriteValue(endPointString);
 		}
 	}

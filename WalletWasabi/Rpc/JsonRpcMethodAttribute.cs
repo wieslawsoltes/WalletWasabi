@@ -6,12 +6,10 @@ namespace WalletWasabi.Rpc;
 [AttributeUsage(AttributeTargets.Method, Inherited = true, AllowMultiple = true)]
 public sealed class JsonRpcMethodAttribute : Attribute
 {
-	public JsonRpcMethodAttribute(string name, bool initializable = true)
+	public JsonRpcMethodAttribute(string name)
 	{
 		Name = name;
-		Initializable = initializable;
 	}
 
 	public string Name { get; }
-	public bool Initializable { get; }
 }

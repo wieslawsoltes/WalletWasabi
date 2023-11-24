@@ -1,7 +1,7 @@
 using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Controls.Primitives;
 using Avalonia.Threading;
+using WalletWasabi.Fluent.Helpers;
 
 namespace WalletWasabi.Fluent.Controls;
 
@@ -42,7 +42,7 @@ public class AdorningContentControl : ContentControl
 		set => SetValue(IsAdornmentVisibleProperty, value);
 	}
 
-	protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
+	protected override void OnPropertyChanged<T>(AvaloniaPropertyChangedEventArgs<T> change)
 	{
 		base.OnPropertyChanged(change);
 
@@ -52,11 +52,18 @@ public class AdorningContentControl : ContentControl
 		}
 		else if (change.Property == AdornmentProperty)
 		{
-			InvalidateAdornmentVisible(change.GetOldValue<Control>(), change.GetNewValue<Control>());
+			InvalidateAdornmentVisible(change.OldValue.GetValueOrDefault<Control?>(), change.NewValue.GetValueOrDefault<Control?>());
 		}
 		else if (change.Property == IsAdornmentVisibleProperty)
 		{
-			AdornerLayer.SetAdorner(this, change.GetNewValue<bool>() ? Adornment : null);
+			if (change.NewValue.GetValueOrDefault<bool>())
+			{
+				AdornerHelper.AddAdorner(this, Adornment);
+			}
+			else
+			{
+				AdornerHelper.RemoveAdorner(this, Adornment);
+			}
 		}
 	}
 
@@ -84,7 +91,7 @@ public class AdorningContentControl : ContentControl
 
 		if (oldValue is { })
 		{
-			AdornerLayer.SetAdorner(this, null);
+			AdornerHelper.RemoveAdorner(this, oldValue);
 		}
 
 		if (newValue is { })
@@ -94,7 +101,7 @@ public class AdorningContentControl : ContentControl
 
 			if (IsAdornmentVisible)
 			{
-				AdornerLayer.SetAdorner(this, Adornment);
+				AdornerHelper.AddAdorner(this, Adornment);
 			}
 		}
 	}

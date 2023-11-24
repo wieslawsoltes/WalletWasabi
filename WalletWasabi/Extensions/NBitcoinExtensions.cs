@@ -2,7 +2,6 @@ using NBitcoin;
 using NBitcoin.DataEncoders;
 using NBitcoin.Protocol;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -28,8 +27,8 @@ public static class NBitcoinExtensions
 		}
 
 		using var listener = node.CreateListener();
-		var getData = new GetDataPayload(new InventoryVector(InventoryType.MSG_BLOCK, hash));
-		await node.SendMessageAsync(getData).ConfigureAwait(false);
+		var getdata = new GetDataPayload(new InventoryVector(node.AddSupportedOptions(InventoryType.MSG_BLOCK), hash));
+		await node.SendMessageAsync(getdata).ConfigureAwait(false);
 		cancellationToken.ThrowIfCancellationRequested();
 
 		// Bitcoin Core processes the messages sequentially and does not send a NOTFOUND message if the remote node is pruned and the data not available.
@@ -96,6 +95,38 @@ public static class NBitcoinExtensions
 		return Money.Satoshis((me.Satoshi / 100m) * perc);
 	}
 
+	public static bool VerifyMessage(this BitcoinWitPubKeyAddress address, uint256 messageHash, CompactSignature signature)
+	{
+		PubKey pubKey = PubKey.RecoverCompact(messageHash, signature);
+		return pubKey.WitHash == address.Hash;
+	}
+
+	/// <summary>
+	/// If scriptPubKey is already present, just add the value.
+	/// </summary>
+	public static void AddWithOptimize(this TxOutList me, Money money, Script scriptPubKey)
+	{
+		var found = me.FirstOrDefault(x => x.ScriptPubKey == scriptPubKey);
+		if (found is { })
+		{
+			found.Value += money;
+		}
+		else
+		{
+			me.Add(money, scriptPubKey);
+		}
+	}
+
+	public static string ToZpub(this ExtPubKey extPubKey, Network network)
+	{
+		var data = extPubKey.ToBytes();
+		var version = (network == Network.Main)
+			? new byte[] { (0x04), (0xB2), (0x47), (0x46) }
+			: new byte[] { (0x04), (0x5F), (0x1C), (0xF6) };
+
+		return Encoders.Base58Check.EncodeData(version.Concat(data).ToArray());
+	}
+
 	public static string ToZPrv(this ExtKey extKey, Network network)
 	{
 		var data = extKey.ToBytes();
@@ -120,10 +151,8 @@ public static class NBitcoinExtensions
 			unsignedSmartTransaction.Height,
 			unsignedSmartTransaction.BlockHash,
 			unsignedSmartTransaction.BlockIndex,
-			unsignedSmartTransaction.Labels,
+			unsignedSmartTransaction.Label,
 			unsignedSmartTransaction.IsReplacement,
-			unsignedSmartTransaction.IsSpeedup,
-			unsignedSmartTransaction.IsCancellation,
 			unsignedSmartTransaction.FirstSeen);
 	}
 
@@ -364,10 +393,10 @@ public static class NBitcoinExtensions
 
 	private static Money EffectiveValue(Money amount, int virtualSize, FeeRate feeRate, CoordinationFeeRate coordinationFeeRate)
 	{
-		var networkFee = feeRate.GetFee(virtualSize);
-		var coordinationFee = coordinationFeeRate.GetFee(amount);
+		var netFee = feeRate.GetFee(virtualSize);
+		var coordFee = coordinationFeeRate.GetFee(amount);
 
-		return amount - networkFee - coordinationFee;
+		return amount - netFee - coordFee;
 	}
 
 	public static Money EffectiveValue(this SmartCoin coin, FeeRate feeRate, CoordinationFeeRate coordinationFeeRate) =>
@@ -460,23 +489,5 @@ public static class NBitcoinExtensions
 				: ScriptPubKeyType.TaprootBIP86);
 
 		return ownershipProof;
-	}
-
-	public static Money GetFeeWithZero(this FeeRate feeRate, int virtualSize) =>
-		feeRate == FeeRate.Zero ? Money.Zero : feeRate.GetFee(virtualSize);
-
-	/// <remarks>NBitcoin does not provide a try-parse method.</remarks>
-	public static bool TryParseBitcoinAddressForNetwork(string address, Network network, [NotNullWhen(true)] out BitcoinAddress? bitcoinAddress)
-	{
-		try
-		{
-			bitcoinAddress = Network.Parse<BitcoinAddress>(address, network);
-			return true;
-		}
-		catch
-		{
-			bitcoinAddress = null;
-			return false;
-		}
 	}
 }

@@ -1,50 +1,79 @@
-using ReactiveUI;
 using System.Threading.Tasks;
+using ReactiveUI;
 using System.Windows.Input;
 using WalletWasabi.Fluent.ViewModels.Navigation;
 
 namespace WalletWasabi.Fluent.ViewModels.NavBar;
 
-public partial class NavBarItemViewModel : RoutableViewModel
+public enum NavBarItemSelectionMode
 {
-	private readonly INavBarItem _item;
-	private string? _title;
-	[AutoNotify] private string? _iconName;
-	[AutoNotify] private string? _iconNameFocused;
+	Selected = 0,
+	Button = 1,
+	Toggle = 2
+}
 
-	public NavBarItemViewModel(INavBarItem item)
+public abstract class NavBarItemViewModel : RoutableViewModel
+{
+	private readonly NavigationMode _defaultNavigationMode;
+	private bool _isSelected;
+
+	protected NavBarItemViewModel(NavigationMode defaultNavigationMode = NavigationMode.Clear)
 	{
-		_item = item;
-
-		item.WhenAnyValue(x => x.Title)
-			.BindTo(this, x => x.Title);
-
-		item.WhenAnyValue(x => x.IconName)
-			.BindTo(this, x => x.IconName);
-
-		item.WhenAnyValue(x => x.IconNameFocused)
-			.BindTo(this, x => x.IconNameFocused);
-
-		OpenCommand = ReactiveCommand.CreateFromTask(ActivateAsync);
+		_defaultNavigationMode = defaultNavigationMode;
+		SelectionMode = NavBarItemSelectionMode.Selected;
+		OpenCommand = ReactiveCommand.CreateFromTask<bool>(OnOpenCommandExecutedAsync);
 	}
 
-	public override string Title
+	public NavBarItemSelectionMode SelectionMode { get; protected init; }
+
+	public bool IsSelectable => SelectionMode == NavBarItemSelectionMode.Selected;
+
+	public bool IsSelected
 	{
-		get => _title;
-		protected set => this.RaiseAndSetIfChanged(ref _title, value);
+		get => _isSelected;
+		set
+		{
+			switch (SelectionMode)
+			{
+				case NavBarItemSelectionMode.Selected:
+					this.RaiseAndSetIfChanged(ref _isSelected, value);
+					break;
+
+				case NavBarItemSelectionMode.Button:
+				case NavBarItemSelectionMode.Toggle:
+					break;
+			}
+		}
 	}
 
 	public ICommand OpenCommand { get; }
 
-	public async Task ActivateAsync()
+	private async Task OnOpenCommandExecutedAsync(bool enableReSelection = false)
 	{
-		if (_item is INavBarToggle toggle)
+		if (!enableReSelection && IsSelected)
 		{
-			toggle.Toggle();
+			return;
 		}
-		if (_item is INavBarButton button)
+
+		IsSelected = true;
+		await OnOpen(_defaultNavigationMode);
+	}
+
+	protected virtual Task OnOpen(NavigationMode defaultNavigationMode)
+	{
+		if (SelectionMode == NavBarItemSelectionMode.Toggle)
 		{
-			await button.Activate();
+			Toggle();
 		}
+		else
+		{
+			Navigate().To(this, defaultNavigationMode);
+		}
+
+		return Task.CompletedTask;
+	}
+
+	public virtual void Toggle()
+	{
 	}
 }

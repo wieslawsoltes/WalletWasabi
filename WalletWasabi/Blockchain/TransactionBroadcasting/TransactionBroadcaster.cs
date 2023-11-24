@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
-using WabiSabi.Crypto.Randomness;
 using WalletWasabi.BitcoinCore.Rpc;
 using WalletWasabi.Blockchain.Transactions;
 using WalletWasabi.Extensions;
@@ -20,26 +19,25 @@ namespace WalletWasabi.Blockchain.TransactionBroadcasting;
 
 public class TransactionBroadcaster
 {
-	public TransactionBroadcaster(Network network, BitcoinStore bitcoinStore, WasabiHttpClientFactory httpClientFactory, WalletManager walletManager)
+	public TransactionBroadcaster(Network network, BitcoinStore bitcoinStore, HttpClientFactory httpClientFactory, WalletManager walletManager)
 	{
-		Network = network;
-		BitcoinStore = bitcoinStore;
+		Network = Guard.NotNull(nameof(network), network);
+		BitcoinStore = Guard.NotNull(nameof(bitcoinStore), bitcoinStore);
 		HttpClientFactory = httpClientFactory;
-		WalletManager = walletManager;
+		WalletManager = Guard.NotNull(nameof(walletManager), walletManager);
 	}
 
-	private BitcoinStore BitcoinStore { get; }
-	private IWasabiHttpClientFactory HttpClientFactory { get; }
-	private Network Network { get; }
-	private NodesGroup? Nodes { get; set; }
-	private IRPCClient? RpcClient { get; set; }
-	private WalletManager WalletManager { get; }
-	private WasabiRandom Random { get; } = InsecureRandom.Instance;
+	public BitcoinStore BitcoinStore { get; }
+	public IWasabiHttpClientFactory HttpClientFactory { get; }
+	public Network Network { get; }
+	public NodesGroup? Nodes { get; private set; }
+	public IRPCClient? RpcClient { get; private set; }
+	public WalletManager WalletManager { get; }
 
-	public void Initialize(NodesGroup nodes, IRPCClient? rpcClient)
+	public void Initialize(NodesGroup nodes, IRPCClient? rpc)
 	{
-		Nodes = nodes;
-		RpcClient = rpcClient;
+		Nodes = Guard.NotNull(nameof(nodes), nodes);
+		RpcClient = rpc;
 	}
 
 	private async Task BroadcastTransactionToNetworkNodeAsync(SmartTransaction transaction, Node node)
@@ -52,7 +50,7 @@ public class TransactionBroadcaster
 		var invPayload = new InvPayload(transaction.Transaction);
 
 		// Give 7 seconds to send the inv payload.
-		await node.SendMessageAsync(invPayload).WaitAsync(TimeSpan.FromSeconds(7)).ConfigureAwait(false); // ToDo: It's dangerous way to cancel. Implement proper cancellation to NBitcoin!
+		await node.SendMessageAsync(invPayload).WithAwaitCancellationAsync(TimeSpan.FromSeconds(7)).ConfigureAwait(false); // ToDo: It's dangerous way to cancel. Implement proper cancellation to NBitcoin!
 
 		if (BitcoinStore.MempoolService.TryGetFromBroadcastStore(transaction.GetHash(), out TransactionBroadcastEntry? entry))
 		{
@@ -136,8 +134,6 @@ public class TransactionBroadcaster
 			transaction.SetUnconfirmed();
 		}
 
-		BitcoinStore.MempoolService.TryAddToBroadcastStore(transaction, "N/A");
-
 		WalletManager.Process(transaction);
 	}
 
@@ -159,7 +155,7 @@ public class TransactionBroadcaster
 				throw new InvalidOperationException($"Nodes are not yet initialized.");
 			}
 
-			Node? node = Nodes.ConnectedNodes.RandomElement(Random);
+			Node? node = Nodes.ConnectedNodes.RandomElement();
 			while (node is null || !node.IsConnected || Nodes.ConnectedNodes.Count < 5)
 			{
 				// As long as we are connected to at least 4 nodes, we can always try again.
@@ -169,7 +165,7 @@ public class TransactionBroadcaster
 					throw new InvalidOperationException("We are not connected to enough nodes.");
 				}
 				await Task.Delay(100).ConfigureAwait(false);
-				node = Nodes.ConnectedNodes.RandomElement(Random);
+				node = Nodes.ConnectedNodes.RandomElement();
 			}
 			await BroadcastTransactionToNetworkNodeAsync(transaction, node).ConfigureAwait(false);
 		}

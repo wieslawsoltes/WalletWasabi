@@ -10,9 +10,9 @@ public interface IValidations
 
 	bool AnyWarnings { get; }
 
-	bool AnyInfoItems { get; }
+	bool AnyInfos { get; }
 
-	IEnumerable<string> InfoItems { get; }
+	IEnumerable<string> Infos { get; }
 
 	IEnumerable<string> Warnings { get; }
 

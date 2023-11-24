@@ -2,48 +2,44 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
-using System.Threading.Channels;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Hosting;
-using NBitcoin;
+using WalletWasabi.Bases;
 using WalletWasabi.Helpers;
 using WalletWasabi.Logging;
-using WalletWasabi.WabiSabi.Backend.Rounds.CoinJoinStorage;
 
 namespace WalletWasabi.WabiSabi.Backend.DoSPrevention;
 
-public class Warden : BackgroundService
+/// <summary>
+/// Serializes and releases the prison population periodically.
+/// </summary>
+public class Warden : PeriodicRunner
 {
-	public Warden(string prisonFilePath, ICoinJoinIdStore coinjoinIdStore, WabiSabiConfig config)
+	/// <param name="period">How often to serialize and release inmates.</param>
+	public Warden(TimeSpan period, string prisonFilePath, WabiSabiConfig config) : base(period)
 	{
 		PrisonFilePath = prisonFilePath;
 		Config = config;
-		OffendersToSaveChannel = Channel.CreateUnbounded<Offender>();
-
-		Prison = DeserializePrison(PrisonFilePath, coinjoinIdStore, OffendersToSaveChannel.Writer);
+		Prison = DeserializePrison(PrisonFilePath);
+		LastKnownChange = Prison.ChangeId;
 	}
 
 	public Prison Prison { get; }
+	public Guid LastKnownChange { get; private set; }
 
 	public string PrisonFilePath { get; }
-	private WabiSabiConfig Config { get; }
+	public WabiSabiConfig Config { get; }
 
-	private Channel<Offender> OffendersToSaveChannel { get; }
-
-	private static Prison DeserializePrison(
-		string prisonFilePath,
-		ICoinJoinIdStore coinjoinIdStore,
-		ChannelWriter<Offender> channelWriter)
+	private static Prison DeserializePrison(string prisonFilePath)
 	{
 		IoHelpers.EnsureContainingDirectoryExists(prisonFilePath);
-		var offenders = new List<Offender>();
+		var inmates = new List<Inmate>();
 		if (File.Exists(prisonFilePath))
 		{
 			try
 			{
-				foreach (var offender in File.ReadAllLines(prisonFilePath).Select(Offender.FromStringLine))
+				foreach (var inmate in File.ReadAllLines(prisonFilePath).Select(Inmate.FromString))
 				{
-					offenders.Add(offender);
+					inmates.Add(inmate);
 				}
 			}
 			catch (Exception ex)
@@ -54,36 +50,47 @@ public class Warden : BackgroundService
 			}
 		}
 
-		return new Prison(coinjoinIdStore, offenders, channelWriter);
+		var prison = new Prison(inmates);
+
+		var (noted, banned, longBanned) = prison.CountInmates();
+		if (noted > 0)
+		{
+			Logger.LogInfo($"{noted} noted UTXOs are found in prison.");
+		}
+
+		if (banned > 0)
+		{
+			Logger.LogInfo($"{banned} banned UTXOs are found in prison.");
+		}
+
+		if (longBanned > 0)
+		{
+			Logger.LogInfo($"{longBanned} long-banned UTXOs are found in prison.");
+		}
+
+		return prison;
 	}
 
-	protected override async Task ExecuteAsync(CancellationToken cancel)
+	public async Task SerializePrisonAsync()
 	{
-		try
-		{
-			while (!cancel.IsCancellationRequested)
-			{
-				await foreach (var inmate in OffendersToSaveChannel.Reader.ReadAllAsync(cancel).ConfigureAwait(false))
-				{
-					var lines = Enumerable.Repeat(inmate.ToStringLine(), 1);
-					await File.AppendAllLinesAsync(PrisonFilePath, lines, CancellationToken.None).ConfigureAwait(false);
-				}
-			}
-		}
-		catch (OperationCanceledException)
-		{
-			Logger.LogInfo("Warden was requested to stop.");
-		}
-		catch (Exception ex)
-		{
-			Logger.LogError(ex);
-			throw;
-		}
+		IoHelpers.EnsureContainingDirectoryExists(PrisonFilePath);
+		await File.WriteAllLinesAsync(PrisonFilePath, Prison.GetInmates().Select(x => x.ToString())).ConfigureAwait(false);
 	}
 
-	public override Task StopAsync(CancellationToken cancellationToken)
+	protected override async Task ActionAsync(CancellationToken cancel)
 	{
-		OffendersToSaveChannel.Writer.Complete();
-		return base.StopAsync(cancellationToken);
+		var count = Prison.ReleaseEligibleInmates(Config.ReleaseUtxoFromPrisonAfter, Config.ReleaseUtxoFromPrisonAfterLongBan).Count();
+
+		if (count > 0)
+		{
+			Logger.LogInfo($"{count} UTXOs are released from prison.");
+		}
+
+		// If something changed, send prison to file.
+		if (LastKnownChange != Prison.ChangeId)
+		{
+			await SerializePrisonAsync().ConfigureAwait(false);
+			LastKnownChange = Prison.ChangeId;
+		}
 	}
 }

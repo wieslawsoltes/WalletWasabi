@@ -7,12 +7,12 @@ using DynamicData;
 using DynamicData.Binding;
 using NBitcoin;
 using ReactiveUI;
-using WalletWasabi.Fluent.Extensions;
-using WalletWasabi.Fluent.Models.Wallets;
+using WalletWasabi.Blockchain.Keys;
 using WalletWasabi.Fluent.Validation;
 using WalletWasabi.Fluent.ViewModels.Navigation;
 using WalletWasabi.Logging;
 using WalletWasabi.Models;
+using WalletWasabi.Wallets;
 
 namespace WalletWasabi.Fluent.ViewModels.Wallets;
 
@@ -20,9 +20,10 @@ namespace WalletWasabi.Fluent.ViewModels.Wallets;
 public partial class VerifyRecoveryWordsViewModel : RoutableViewModel
 {
 	[AutoNotify] private IEnumerable<string>? _suggestions;
-	[AutoNotify] private Mnemonic? _currentMnemonics;
+	[AutoNotify] private bool _isMnemonicsValid;
+	private Mnemonic? _currentMnemonics;
 
-	private VerifyRecoveryWordsViewModel(IWalletModel wallet)
+	public VerifyRecoveryWordsViewModel(Wallet wallet)
 	{
 		_suggestions = new Mnemonic(Wordlist.English, WordCount.Twelve).WordList.GetWords();
 
@@ -30,7 +31,8 @@ public partial class VerifyRecoveryWordsViewModel : RoutableViewModel
 			.Select(x => x.Count is 12 or 15 or 18 or 21 or 24 ? new Mnemonic(GetTagsAsConcatString().ToLowerInvariant()) : default)
 			.Subscribe(x =>
 			{
-				CurrentMnemonics = x;
+				_currentMnemonics = x;
+				IsMnemonicsValid = x is { IsValidChecksum: true };
 				this.RaisePropertyChanged(nameof(Mnemonics));
 			});
 
@@ -38,15 +40,13 @@ public partial class VerifyRecoveryWordsViewModel : RoutableViewModel
 
 		EnableBack = true;
 
-		NextCommand = ReactiveCommand.CreateFromTask(async () => await OnNextAsync(wallet), this.WhenAnyValue(x => x.CurrentMnemonics).Select(x => x is not null));
+		NextCommand = ReactiveCommand.CreateFromTask(async () => await OnNextAsync(wallet));
 
 		SetupCancel(enableCancel: true, enableCancelOnEscape: true, enableCancelOnPressed: true);
 		EnableAutoBusyOn(NextCommand);
 	}
 
 	public ObservableCollection<string> Mnemonics { get; } = new();
-
-	private bool IsMnemonicsValid => CurrentMnemonics is { IsValidChecksum: true };
 
 	private async Task ShowErrorAsync()
 	{
@@ -56,11 +56,11 @@ public partial class VerifyRecoveryWordsViewModel : RoutableViewModel
 			"The Recovery Words you entered were incorrect.");
 	}
 
-	private async Task OnNextAsync(IWalletModel wallet)
+	private async Task OnNextAsync(Wallet wallet)
 	{
 		try
 		{
-			if (!IsMnemonicsValid || CurrentMnemonics is not { } currentMnemonics)
+			if (!IsMnemonicsValid || _currentMnemonics is not { } currentMnemonics)
 			{
 				await ShowErrorAsync();
 
@@ -68,10 +68,20 @@ public partial class VerifyRecoveryWordsViewModel : RoutableViewModel
 				return;
 			}
 
-			var verificationResult = wallet.Auth.VerifyRecoveryWords(currentMnemonics);
-			if (verificationResult)
+			var saltSoup = wallet.Kitchen.SaltSoup();
+
+			var recovered = KeyManager.Recover(
+				currentMnemonics,
+				saltSoup,
+				wallet.Network,
+				wallet.KeyManager.SegwitAccountKeyPath,
+				null,
+				null,
+				wallet.KeyManager.MinGapLimit);
+
+			if (wallet.KeyManager.SegwitExtPubKey == recovered.SegwitExtPubKey)
 			{
-				Navigate().To().Success("Your Recovery Words have been verified and are correct.", navigationMode: NavigationMode.Clear);
+				Navigate().To(new SuccessViewModel("Your Recovery Words have been verified and are correct."), NavigationMode.Clear);
 			}
 			else
 			{
@@ -82,7 +92,7 @@ public partial class VerifyRecoveryWordsViewModel : RoutableViewModel
 		catch (Exception ex)
 		{
 			Logger.LogError(ex);
-			await ShowErrorAsync(Title, ex.ToUserFriendlyString(), "Wasabi was unable to verify the recovery words.");
+			await ShowErrorAsync(Title, ex.Message, "Wasabi was unable to verify the recovery words.");
 		}
 	}
 

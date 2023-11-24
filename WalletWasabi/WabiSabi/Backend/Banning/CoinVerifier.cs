@@ -97,14 +97,14 @@ public class CoinVerifier : IAsyncDisposable
 		{
 			if (timeoutCancellationTokenSource.IsCancellationRequested)
 			{
-				Logger.LogWarning(ex);
+				Logger.LogError(ex);
 			}
 
 			// Otherwise just continue - the whole round was cancelled.
 		}
 		catch (Exception ex)
 		{
-			Logger.LogWarning(ex);
+			Logger.LogError(ex);
 		}
 
 		CleanUp();
@@ -124,12 +124,12 @@ public class CoinVerifier : IAsyncDisposable
 		{
 			if (now - item.ScheduleTime > AbsoluteScheduleSanityTimeout)
 			{
-				CoinVerifyItems.TryRemove(coin, out _);
+				CoinVerifyItems.TryRemove(coin, out var _);
 
 				// This should never happen.
 				if (!item.Task.IsCompleted)
 				{
-					Logger.LogWarning($"Unfinished task was removed for coin: '{coin.Outpoint}'.");
+					Logger.LogError($"Unfinished task was removed for coin: '{coin.Outpoint}'.");
 				}
 
 				item.Dispose();
@@ -231,7 +231,7 @@ public class CoinVerifier : IAsyncDisposable
 					// Sanity check.
 					if (delay > AbsoluteScheduleSanityTimeout)
 					{
-						Logger.LogWarning($"Start delay '{delay}' was more than the absolute maximum '{AbsoluteScheduleSanityTimeout}' for coin '{coin.Outpoint}'.");
+						Logger.LogError($"Start delay '{delay}' was more than the absolute maximum '{AbsoluteScheduleSanityTimeout}' for coin '{coin.Outpoint}'.");
 						delay = AbsoluteScheduleSanityTimeout;
 					}
 
@@ -276,9 +276,9 @@ public class CoinVerifier : IAsyncDisposable
 					item.SetResult(result);
 					VerifierAuditArchiver.LogVerificationResult(result, Reason.Exception, apiResponseItem: null, exception: ex);
 
-					Logger.LogWarning($"Coin verification has failed for coin '{coin.Outpoint}' with '{ex}'.");
+					Logger.LogError($"Coin verification has failed for coin '{coin.Outpoint}' with '{ex}'.");
 
-					// Do not throw an exception here - unobserved exception prevention.
+					// Do not throw an exception here - unobserverved exception prevention.
 				}
 			},
 			verificationCancellationToken);

@@ -4,83 +4,81 @@ using System.Reactive.Linq;
 using WalletWasabi.Blockchain.Keys;
 using WalletWasabi.Fluent.Validation;
 using System.Threading.Tasks;
+using WalletWasabi.Fluent.ViewModels.AddWallet.Create;
 using WalletWasabi.Fluent.Models;
+using WalletWasabi.Fluent.ViewModels.AddWallet.HardwareWallet;
 using WalletWasabi.Fluent.ViewModels.Navigation;
+using WalletWasabi.Fluent.Helpers;
 using WalletWasabi.Models;
-using WalletWasabi.Fluent.Extensions;
-using WalletWasabi.Fluent.Models.UI;
+using WalletWasabi.Helpers;
+using NBitcoin;
+using WalletWasabi.Extensions;
 
 namespace WalletWasabi.Fluent.ViewModels.AddWallet;
 
 [NavigationMetaData(Title = "Wallet Name")]
 public partial class WalletNamePageViewModel : RoutableViewModel
 {
-	private readonly WalletCreationOptions _options;
 	[AutoNotify] private string _walletName;
+	private readonly string? _importFilePath;
+	private readonly Lazy<Mnemonic> _mnemonic = new(() => new Mnemonic(Wordlist.English, WordCount.Twelve));
 
-	public WalletNamePageViewModel(UiContext uiContext, WalletCreationOptions options)
+	public WalletNamePageViewModel(WalletCreationOption creationOption, string? importFilePath = null)
 	{
-		UiContext = uiContext;
+		_importFilePath = importFilePath;
 
-		_options = options;
-		_walletName = UiContext.WalletRepository.GetNextWalletName();
+		_walletName = Services.WalletManager.WalletDirectories.GetNextWalletName("Wallet");
 
 		EnableBack = true;
 
-		var nextCommandCanExecute =
+		var canExecute =
 			this.WhenAnyValue(x => x.WalletName)
+				.ObserveOn(RxApp.MainThreadScheduler)
 				.Select(x => !string.IsNullOrWhiteSpace(x) && !Validations.Any);
 
-		NextCommand = ReactiveCommand.CreateFromTask(OnNextAsync, nextCommandCanExecute);
+		NextCommand = ReactiveCommand.CreateFromTask(async () => await OnNextAsync(WalletName, creationOption), canExecute);
 
 		this.ValidateProperty(x => x.WalletName, ValidateWalletName);
-
-		if (!UiContext.WalletRepository.HasWallet && NextCommand.CanExecute(default))
-		{
-			NextCommand.Execute(default);
-		}
 	}
 
-	private async Task OnNextAsync()
+	private async Task OnNextAsync(string walletName, WalletCreationOption creationOption)
 	{
 		IsBusy = true;
 
 		// Makes sure we can create a wallet with this wallet name.
-		await Task.Run(() => WalletGenerator.GetWalletFilePath(WalletName, Services.WalletManager.WalletDirectories.WalletsDir));
+		await Task.Run(() => WalletGenerator.GetWalletFilePath(walletName, Services.WalletManager.WalletDirectories.WalletsDir));
 
 		IsBusy = false;
 
-		var options = _options with { WalletName = WalletName };
-
-		switch (options)
+		switch (creationOption)
 		{
-			case WalletCreationOptions.AddNewWallet add:
-				Navigate().To().RecoveryWords(add);
+			case WalletCreationOption.AddNewWallet:
+				Navigate().To(new RecoveryWordsViewModel(_mnemonic.Value, walletName));
 				break;
 
-			case WalletCreationOptions.ConnectToHardwareWallet chw:
-				Navigate().To().ConnectHardwareWallet(chw);
+			case WalletCreationOption.ConnectToHardwareWallet:
+				Navigate().To(new ConnectHardwareWalletViewModel(walletName));
 				break;
 
-			case WalletCreationOptions.RecoverWallet rec:
-				Navigate().To().RecoverWallet(rec);
+			case WalletCreationOption.RecoverWallet:
+				Navigate().To(new RecoverWalletViewModel(walletName));
 				break;
 
-			case WalletCreationOptions.ImportWallet imp:
-				await ImportWalletAsync(imp);
+			case WalletCreationOption.ImportWallet when _importFilePath is { }:
+				await ImportWalletAsync(walletName, _importFilePath);
 				break;
 
 			default:
-				throw new InvalidOperationException($"{nameof(WalletCreationOptions)} not supported: {options?.GetType().Name}");
+				throw new InvalidOperationException($"{nameof(WalletCreationOption)} not supported: {creationOption}");
 		}
 	}
 
-	private async Task ImportWalletAsync(WalletCreationOptions.ImportWallet options)
+	private async Task ImportWalletAsync(string walletName, string filePath)
 	{
 		try
 		{
-			var walletSettings = await UiContext.WalletRepository.NewWalletAsync(options);
-			Navigate().To().AddedWalletPage(walletSettings, options);
+			var keyManager = await ImportWalletHelper.ImportWalletAsync(Services.WalletManager, walletName, filePath);
+			Navigate().To(new AddedWalletPageViewModel(keyManager));
 		}
 		catch (Exception ex)
 		{
@@ -91,7 +89,7 @@ public partial class WalletNamePageViewModel : RoutableViewModel
 
 	private void ValidateWalletName(IValidationErrors errors)
 	{
-		var error = UiContext.WalletRepository.ValidateWalletName(WalletName);
+		var error = WalletHelpers.ValidateWalletName(WalletName);
 		if (error is { } e)
 		{
 			errors.Add(e.Severity, e.Message);
@@ -102,12 +100,7 @@ public partial class WalletNamePageViewModel : RoutableViewModel
 	{
 		base.OnNavigatedTo(isInHistory, disposables);
 
-		if (isInHistory && !UiContext.WalletRepository.HasWallet)
-		{
-			Navigate().Back();
-		}
-
-		var enableCancel = UiContext.WalletRepository.HasWallet;
+		var enableCancel = Services.WalletManager.HasWallet();
 		SetupCancel(enableCancel: enableCancel, enableCancelOnEscape: enableCancel, enableCancelOnPressed: enableCancel);
 	}
 }

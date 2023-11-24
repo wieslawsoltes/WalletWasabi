@@ -12,7 +12,7 @@ public static class EventHandlerExtensions
 		}
 		catch (Exception e)
 		{
-			Logger.LogWarning(e);
+			Logger.LogError(e);
 		}
 	}
 }

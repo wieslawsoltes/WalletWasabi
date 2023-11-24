@@ -1,12 +1,8 @@
-using System.IO;
-using System.Runtime.InteropServices;
-using SkiaSharp;
-using WalletWasabi.Helpers;
 using Xunit;
-using ZXing;
-using ZXing.Common;
+using System.IO;
+using WalletWasabi.Helpers;
+using System.Runtime.InteropServices;
 using ZXing.QrCode;
-using ZXing.SkiaSharp;
 
 namespace WalletWasabi.Tests.UnitTests.QrDecode;
 
@@ -29,15 +25,15 @@ public class QrCodeDecodingTests
 
 		// First Test
 		string path = Path.Combine(CommonPartialPath, "AddressTest1.png");
-		var result = DecodeFromImagePath(decoder, path);
+		var result = decoder.DecodeFromImagePath(path);
 
-		Assert.Equal(expectedAddress, result);
+		Assert.Equal(expectedAddress, result.Text);
 
 		// Second Test
 		string path2 = Path.Combine(CommonPartialPath, "AddressTest2.png");
-		var result2 = DecodeFromImagePath(decoder, path2);
+		var result2 = decoder.DecodeFromImagePath(path2);
 
-		Assert.Equal(otherExpectedAddress, result2);
+		Assert.Equal(otherExpectedAddress, result2.Text);
 	}
 
 	[Fact]
@@ -51,9 +47,9 @@ public class QrCodeDecodingTests
 		string expectedOutput = "tb1qutgpgraaze3hqnvt2xyw5acsmd3urprk3ff27d";
 
 		string path = Path.Combine(CommonPartialPath, "QrByPhone.jpg");
-		var result = DecodeFromImagePath(decoder, path);
+		var result = decoder.DecodeFromImagePath(path);
 
-		Assert.Equal(expectedOutput, result);
+		Assert.Equal(expectedOutput, result.Text);
 	}
 
 	[Fact]
@@ -67,8 +63,8 @@ public class QrCodeDecodingTests
 		string expectedOutput = "Let's see a Zebra.";
 
 		string path = Path.Combine(CommonPartialPath, "QRwithZebraBackground.png");
-		var result = DecodeFromImagePath(decoder, path);
-		Assert.Equal(expectedOutput, result);
+		var result = decoder.DecodeFromImagePath(path);
+		Assert.Equal(expectedOutput, result.Text);
 	}
 
 	[Fact]
@@ -82,15 +78,7 @@ public class QrCodeDecodingTests
 		string expectedOutput = "https://twitter.com/SimonHearne";
 
 		string path = Path.Combine(CommonPartialPath, "qr-embed-logos.png");
-		var result = DecodeFromImagePath(decoder, path);
-		Assert.Equal(expectedOutput, result);
-	}
-
-	private static string DecodeFromImagePath(QRCodeReader reader, string path)
-	{
-		using var bitmap = SKBitmap.Decode(path);
-		var source = new SKBitmapLuminanceSource(bitmap);
-		var binary = new BinaryBitmap(new HybridBinarizer(source));
-		return reader.decode(binary).Text;
+		var result = decoder.DecodeFromImagePath(path);
+		Assert.Equal(expectedOutput, result.Text);
 	}
 }

@@ -5,12 +5,11 @@ namespace WalletWasabi.Fluent.ViewModels.SearchBar.SearchItems;
 
 public interface ISearchItem
 {
-	public string Name { get; }
-	public string Description { get; }
-	public ComposedKey Key { get; }
-	public string? Icon { get; set; }
-	public string Category { get; }
-	public IEnumerable<string> Keywords { get; }
-	public bool IsDefault { get; }
-	public int Priority { get; }
+	string Name { get; }
+	string Description { get; }
+	ComposedKey Key { get; }
+	string? Icon { get; set; }
+	string Category { get; }
+	IEnumerable<string> Keywords { get; }
+	bool IsDefault { get; }
 }

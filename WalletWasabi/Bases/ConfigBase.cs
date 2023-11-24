@@ -38,6 +38,26 @@ public abstract class ConfigBase : NotifyPropertyChangedBase, IConfig
 		}
 	}
 
+	/// <inheritdoc/>
+	public bool CheckFileChange()
+	{
+		AssertFilePathSet();
+
+		if (!File.Exists(FilePath))
+		{
+			throw new FileNotFoundException($"{GetType().Name} file did not exist at path: `{FilePath}`.");
+		}
+
+		lock (FileLock)
+		{
+			string jsonString = ReadFileNoLock();
+			object newConfigObject = Activator.CreateInstance(GetType())!;
+			JsonConvert.PopulateObject(jsonString, newConfigObject, JsonSerializationOptions.Default.Settings);
+
+			return !AreDeepEqual(newConfigObject);
+		}
+	}
+
 	/// <inheritdoc />
 	public virtual void LoadFile(bool createIfMissing = false)
 	{
@@ -82,6 +102,15 @@ public abstract class ConfigBase : NotifyPropertyChangedBase, IConfig
 	public void SetFilePath(string path)
 	{
 		FilePath = Guard.NotNullOrEmptyOrWhitespace(nameof(path), path, trim: true);
+	}
+
+	/// <inheritdoc />
+	public bool AreDeepEqual(object otherConfig)
+	{
+		var serializer = JsonSerializer.Create(JsonSerializationOptions.Default.Settings);
+		var currentConfig = JObject.FromObject(this, serializer);
+		var otherConfigJson = JObject.FromObject(otherConfig, serializer);
+		return JToken.DeepEquals(otherConfigJson, currentConfig);
 	}
 
 	/// <inheritdoc />

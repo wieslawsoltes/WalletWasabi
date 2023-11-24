@@ -8,7 +8,6 @@ using Avalonia.Controls.ApplicationLifetimes;
 using ReactiveUI;
 using WalletWasabi.Fluent.Controls;
 using WalletWasabi.Fluent.Extensions;
-using WalletWasabi.Fluent.Helpers;
 using WalletWasabi.Userfacing;
 
 namespace WalletWasabi.Fluent.Behaviors;
@@ -74,7 +73,7 @@ public class PasteButtonFlashBehavior : AttachedToVisualTreeBehavior<AnimatedBut
 
 	private async Task CheckClipboardForValidAddressAsync(bool forceCheck = false)
 	{
-		if (ApplicationHelper.Clipboard is { } clipboard)
+		if (Application.Current is { Clipboard: { } clipboard })
 		{
 			var clipboardValue = (await clipboard.GetTextAsync()) ?? "";
 

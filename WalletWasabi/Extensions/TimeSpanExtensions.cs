@@ -6,8 +6,9 @@ namespace WalletWasabi.Extensions;
 
 public static class TimeSpanExtensions
 {
-	public static ImmutableList<DateTimeOffset> SamplePoisson(this TimeSpan timeFrame, int numberOfEvents, DateTimeOffset startTime)
+	public static ImmutableList<DateTimeOffset> SamplePoisson(this TimeSpan timeFrame, int numberOfEvents)
 	{
+		var startTime = DateTimeOffset.UtcNow;
 		return timeFrame.SamplePoissonDelays(numberOfEvents).Select(delay => startTime + delay).ToImmutableList();
 	}
 

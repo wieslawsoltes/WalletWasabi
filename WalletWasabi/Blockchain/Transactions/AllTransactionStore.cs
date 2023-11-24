@@ -201,7 +201,7 @@ public class AllTransactionStore : ITransactionStore, IAsyncDisposable
 	}
 
 	/// <returns>Labels ordered by blockchain.</returns>
-	public IEnumerable<LabelsArray> GetLabels() => GetTransactions().Select(x => x.Labels);
+	public IEnumerable<SmartLabel> GetLabels() => GetTransactions().Select(x => x.Label);
 
 	#endregion Accessors
 

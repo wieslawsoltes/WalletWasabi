@@ -9,12 +9,15 @@ namespace WalletWasabi.Fluent.ViewModels.AddWallet;
 public partial class WelcomePageViewModel : DialogViewModelBase<Unit>
 {
 	private const int NumberOfPages = 2;
+	private readonly AddWalletPageViewModel _addWalletPage;
 	[AutoNotify] private int _selectedIndex;
 	[AutoNotify] private string? _nextLabel;
 	[AutoNotify] private bool _enableNextKey = true;
 
-	private WelcomePageViewModel()
+	public WelcomePageViewModel(AddWalletPageViewModel addWalletPage)
 	{
+		_addWalletPage = addWalletPage;
+
 		SetupCancel(enableCancel: false, enableCancelOnEscape: false, enableCancelOnPressed: false);
 
 		SelectedIndex = 0;
@@ -44,9 +47,9 @@ public partial class WelcomePageViewModel : DialogViewModelBase<Unit>
 		{
 			SelectedIndex++;
 		}
-		else if (!UiContext.WalletRepository.HasWallet)
+		else if (!Services.WalletManager.HasWallet())
 		{
-			Navigate().To().AddWalletPage();
+			Navigate().To(_addWalletPage);
 		}
 		else
 		{

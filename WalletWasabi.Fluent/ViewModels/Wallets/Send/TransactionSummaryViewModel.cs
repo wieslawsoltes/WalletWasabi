@@ -1,9 +1,9 @@
-using NBitcoin;
+using System.Linq;
+using ReactiveUI;
 using WalletWasabi.Blockchain.Analysis.Clustering;
 using WalletWasabi.Blockchain.TransactionBuilding;
 using WalletWasabi.Fluent.Extensions;
 using WalletWasabi.Fluent.Helpers;
-using WalletWasabi.Fluent.Models.Wallets;
 using WalletWasabi.Wallets;
 
 namespace WalletWasabi.Fluent.ViewModels.Wallets.Send;
@@ -12,23 +12,28 @@ public partial class TransactionSummaryViewModel : ViewModelBase
 {
 	private readonly Wallet _wallet;
 	private BuildTransactionResult? _transaction;
+	[AutoNotify] private string _amountText = "";
 	[AutoNotify] private bool _transactionHasChange;
-	[AutoNotify] private TimeSpan? _confirmationTime;
+	[AutoNotify] private bool _transactionHasPockets;
+	[AutoNotify] private string _confirmationTimeText = "";
 	[AutoNotify] private string _feeText = "";
+	[AutoNotify] private bool _maxPrivacy;
 	[AutoNotify] private bool _isCustomFeeUsed;
 	[AutoNotify] private bool _isOtherPocketSelectionPossible;
-	[AutoNotify] private LabelsArray _labels = LabelsArray.Empty;
-	[AutoNotify] private LabelsArray _recipient = LabelsArray.Empty;
-	[AutoNotify] private Amount? _fee;
-	[AutoNotify] private Amount? _amount;
-	[AutoNotify] private double? _amountDiff;
-	[AutoNotify] private double? _feeDiff;
+	[AutoNotify] private SmartLabel _labels = SmartLabel.Empty;
+	[AutoNotify] private SmartLabel _recipient = SmartLabel.Empty;
+	[AutoNotify] private string _fee = "";
+	[AutoNotify] private string _amount = "";
 
-	private TransactionSummaryViewModel(TransactionPreviewViewModel parent, Wallet wallet, TransactionInfo info, bool isPreview = false)
+	public TransactionSummaryViewModel(TransactionPreviewViewModel parent, Wallet wallet, TransactionInfo info, bool isPreview = false)
 	{
 		Parent = parent;
 		_wallet = wallet;
 		IsPreview = isPreview;
+
+		this.WhenAnyValue(x => x.TransactionHasChange, x => x.TransactionHasPockets)
+			.Subscribe(_ => MaxPrivacy = !TransactionHasPockets && !TransactionHasChange);
+
 		AddressText = info.Destination.ToString();
 		PayJoinUrl = info.PayJoinClient?.PaymentUrl.AbsoluteUri;
 		IsPayJoin = PayJoinUrl is not null;
@@ -48,28 +53,35 @@ public partial class TransactionSummaryViewModel : ViewModelBase
 	{
 		_transaction = transactionResult;
 
-		TransactionFeeHelper.TryEstimateConfirmationTime(_wallet, info.FeeRate, out var estimate);
-		ConfirmationTime = estimate;
+		ConfirmationTimeText = $"Approximately {TextHelpers.TimeSpanToFriendlyString(info.ConfirmationTimeSpan)} ";
 
-		var destinationAmount = _transaction.CalculateDestinationAmount(info.Destination);
+		var destinationAmount = _transaction.CalculateDestinationAmount();
+		AmountText = $"{destinationAmount.ToFormattedString()} BTC";
+		Amount = destinationAmount.ToString();
 
-		Amount = UiContext.AmountProvider.Create(destinationAmount);
-		Fee = UiContext.AmountProvider.Create(_transaction.Fee);
+		var fee = _transaction.Fee;
+		FeeText = fee.ToFeeDisplayUnitFormattedString();
+		Fee = _transaction.Fee.ToFeeDisplayUnitRawString();
 
-		Recipient = info.Recipient;
-		IsCustomFeeUsed = info.IsCustomFeeUsed;
-		IsOtherPocketSelectionPossible = info.IsOtherPocketSelectionPossible;
-		AmountDiff = DiffOrNull(Amount, Parent.CurrentTransactionSummary.Amount);
-		FeeDiff = DiffOrNull(Fee, Parent.CurrentTransactionSummary.Fee);
-	}
-
-	private static double? DiffOrNull(Amount? current, Amount? previous)
-	{
-		if (current is null || previous is null)
+		var exchangeRate = _wallet.Synchronizer.UsdExchangeRate;
+		if (exchangeRate != 0)
 		{
-			return null;
+			var fiatAmountText = destinationAmount.BtcToUsd(exchangeRate).ToUsdAproxBetweenParens();
+			AmountText += $" {fiatAmountText}";
+
+			var fiatFeeText = fee.BtcToUsd(exchangeRate).ToUsdAproxBetweenParens();
+			FeeText += $" {fiatFeeText}";
 		}
 
-		return current.Diff(previous);
+		TransactionHasChange =
+			_transaction.InnerWalletOutputs.Any(x => x.ScriptPubKey != info.Destination.ScriptPubKey);
+
+		Labels = new SmartLabel(transactionResult.SpentCoins.SelectMany(x => x.GetLabels(info.PrivateCoinThreshold)).Except(info.Recipient.Labels));
+		TransactionHasPockets = Labels.Any();
+
+		Recipient = info.Recipient;
+
+		IsCustomFeeUsed = info.IsCustomFeeUsed;
+		IsOtherPocketSelectionPossible = info.IsOtherPocketSelectionPossible;
 	}
 }

@@ -1,27 +1,31 @@
 using DynamicData;
 using DynamicData.Binding;
-using System.Linq;
-using NBitcoin;
-using System.Reactive.Disposables;
-using WalletWasabi.Fluent.Models;
-using WalletWasabi.Fluent.Models.Wallets;
+using ReactiveUI;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reactive.Linq;
+using NBitcoin;
+using WalletWasabi.Wallets;
+using System.Reactive.Disposables;
+using WalletWasabi.Fluent.Helpers;
 
 namespace WalletWasabi.Fluent.ViewModels.Wallets.Home.Tiles.PrivacyRing;
 
 public partial class PrivacyBarViewModel : ActivatableViewModel
 {
-	[AutoNotify] private bool _hasProgress;
+	private readonly WalletViewModel _walletViewModel;
+
 	[AutoNotify] private decimal _totalAmount;
 
-	public PrivacyBarViewModel(IWalletModel wallet)
+	public PrivacyBarViewModel(WalletViewModel walletViewModel)
 	{
-		Wallet = wallet;
+		_walletViewModel = walletViewModel;
+		Wallet = walletViewModel.Wallet;
 	}
 
 	public ObservableCollectionExtended<PrivacyBarItemViewModel> Items { get; } = new();
 
-	public IWalletModel Wallet { get; }
+	public Wallet Wallet { get; }
 
 	[System.Diagnostics.CodeAnalysis.SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope", Justification = "Uses DisposeWith()")]
 	protected override void OnActivated(CompositeDisposable disposables)
@@ -37,35 +41,51 @@ public partial class PrivacyBarViewModel : ActivatableViewModel
 			.Subscribe()
 			.DisposeWith(disposables);
 
-		Wallet.Coins.List
-			.Connect(suppressEmptyChangeSets: false)
-			.ToCollection()
-			.Subscribe(x => itemsSourceList.Edit(l => Update(l, x)))
+		_walletViewModel.UiTriggers.PrivacyProgressUpdateTrigger
+			.Subscribe(_ => itemsSourceList.Edit(Update))
 			.DisposeWith(disposables);
 	}
 
-	private void Update(IExtendedList<PrivacyBarItemViewModel> list, IReadOnlyCollection<ICoinModel> coins)
+	private void Update(IExtendedList<PrivacyBarItemViewModel> list)
 	{
-		TotalAmount = coins.Sum(x => x.Amount.ToDecimal(MoneyUnit.BTC));
+		TotalAmount = _walletViewModel.Wallet.Coins.TotalAmount().ToDecimal(MoneyUnit.BTC);
 
 		list.Clear();
 
-		var coinCount = coins.Count;
+		var coinCount = _walletViewModel.Wallet.Coins.Count();
 
 		if (coinCount == 0d)
 		{
 			return;
 		}
 
-		var segments =
-			coins
-				.GroupBy(x => x.PrivacyLevel)
-				.OrderBy(x => (int)x.Key)
-				.Select(x => new PrivacyBarItemViewModel(x.Key, x.Sum(x => x.Amount.ToDecimal(MoneyUnit.BTC))))
-				.ToList();
+		var shouldCreateSegmentsByCoin = coinCount < UiConstants.PrivacyRingMaxItemCount;
 
-		HasProgress = segments.Any(x => x.PrivacyLevel != PrivacyLevel.NonPrivate);
+		var result =
+			shouldCreateSegmentsByCoin
+			? CreateSegmentsByCoin()
+			: CreateSegmentsByPrivacyLevel();
 
-		list.AddRange(segments);
+		list.AddRange(result);
+	}
+
+	private IEnumerable<PrivacyBarItemViewModel> CreateSegmentsByCoin()
+	{
+		return
+			_walletViewModel.Wallet.Coins
+								   .Select(coin => new PrivacyBarItemViewModel(this, coin))
+								   .OrderBy(x => x.PrivacyLevel)
+								   .ThenByDescending(x => x.Amount)
+								   .ToList();
+	}
+
+	private IEnumerable<PrivacyBarItemViewModel> CreateSegmentsByPrivacyLevel()
+	{
+		return
+			_walletViewModel.Wallet.Coins
+								   .GroupBy(x => x.GetPrivacyLevel(_walletViewModel.Wallet))
+								   .OrderBy(x => (int)x.Key)
+								   .Select(x => new PrivacyBarItemViewModel(x.Key, x.Sum(x => x.Amount.ToDecimal(MoneyUnit.BTC))))
+								   .ToList();
 	}
 }

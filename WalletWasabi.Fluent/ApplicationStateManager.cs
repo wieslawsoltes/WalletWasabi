@@ -4,9 +4,8 @@ using System.Reactive.Linq;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using ReactiveUI;
-using WalletWasabi.Fluent.Extensions;
+using WalletWasabi.Fluent.Behaviors;
 using WalletWasabi.Fluent.Helpers;
-using WalletWasabi.Fluent.Models.UI;
 using WalletWasabi.Fluent.Providers;
 using WalletWasabi.Fluent.State;
 using WalletWasabi.Fluent.ViewModels;
@@ -25,13 +24,11 @@ public class ApplicationStateManager : IMainWindowService
 	private bool _isShuttingDown;
 	private bool _restartRequest;
 
-	internal ApplicationStateManager(IClassicDesktopStyleApplicationLifetime lifetime, UiContext uiContext, bool startInBg)
+	internal ApplicationStateManager(IClassicDesktopStyleApplicationLifetime lifetime, bool startInBg)
 	{
 		_lifetime = lifetime;
 		_stateMachine = new StateMachine<State, Trigger>(State.InitialState);
-
-		UiContext = uiContext;
-		ApplicationViewModel = new ApplicationViewModel(UiContext, this);
+		ApplicationViewModel = new ApplicationViewModel(this);
 		State initTransitionState = startInBg ? State.Closed : State.Open;
 
 		Observable
@@ -56,7 +53,6 @@ public class ApplicationStateManager : IMainWindowService
 				Trigger.ShutdownPrevented,
 				() =>
 				{
-					_lifetime.MainWindow.BringToFront();
 					ApplicationViewModel.OnShutdownPrevented(_restartRequest);
 					_restartRequest = false; // reset the value.
 				});
@@ -102,7 +98,6 @@ public class ApplicationStateManager : IMainWindowService
 		Open,
 	}
 
-	internal UiContext UiContext { get; }
 	internal ApplicationViewModel ApplicationViewModel { get; }
 
 	private void LifetimeOnShutdownRequested(object? sender, ShutdownRequestedEventArgs e)
@@ -137,7 +132,7 @@ public class ApplicationStateManager : IMainWindowService
 			{
 				// _hideRequest flag is used to distinguish what is the user's intent.
 				// It is only true when the request comes from the Tray.
-				if ((Services.UiConfig.HideOnClose || _hideRequest) && App.EnableFeatureHide)
+				if (Services.UiConfig.HideOnClose || _hideRequest)
 				{
 					_hideRequest = false; // request processed, set it back to the default.
 					return;
@@ -202,7 +197,7 @@ public class ApplicationStateManager : IMainWindowService
 		window
 			.WhenAnyValue(x => x.Bounds)
 			.Skip(1)
-			.Where(b => b != default && window.WindowState == WindowState.Normal)
+			.Where(b => !b.IsEmpty && window.WindowState == WindowState.Normal)
 			.Subscribe(b =>
 			{
 				Services.UiConfig.WindowWidth = b.Width;

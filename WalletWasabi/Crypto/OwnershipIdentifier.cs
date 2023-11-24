@@ -33,7 +33,7 @@ public class OwnershipIdentifier : IBitcoinSerializable, IEquatable<OwnershipIde
 
 	public void ReadWrite(BitcoinStream bitcoinStream)
 	{
-		bitcoinStream.ReadWrite(_bytes);
+		bitcoinStream.ReadWrite(ref _bytes);
 	}
 
 	public override int GetHashCode()

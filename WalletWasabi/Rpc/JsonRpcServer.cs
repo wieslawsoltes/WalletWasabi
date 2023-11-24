@@ -1,35 +1,29 @@
-using Microsoft.Extensions.Hosting;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Hosting;
 using WalletWasabi.Logging;
-using WalletWasabi.Services.Terminate;
 
 namespace WalletWasabi.Rpc;
 
 public class JsonRpcServer : BackgroundService
 {
-	public JsonRpcServer(IJsonRpcService service, JsonRpcServerConfiguration config, TerminateService terminateService)
+	public JsonRpcServer(IJsonRpcService service, JsonRpcServerConfiguration config)
 	{
 		Config = config;
-		TerminateService = terminateService;
-		RequestHandler = new JsonRpcRequestHandler<IJsonRpcService>(service);
-
 		Listener = new HttpListener();
 		Listener.AuthenticationSchemes = AuthenticationSchemes.Basic | AuthenticationSchemes.Anonymous;
-
 		foreach (var prefix in Config.Prefixes)
 		{
 			Listener.Prefixes.Add(prefix);
 		}
+		Service = service;
 	}
 
-	private TerminateService TerminateService { get; }
 	private HttpListener Listener { get; }
-	private JsonRpcRequestHandler<IJsonRpcService> RequestHandler { get; }
+	private IJsonRpcService Service { get; }
 	private JsonRpcServerConfiguration Config { get; }
 
 	public override async Task StartAsync(CancellationToken cancellationToken)
@@ -41,21 +35,18 @@ public class JsonRpcServer : BackgroundService
 	public override async Task StopAsync(CancellationToken cancellationToken)
 	{
 		await base.StopAsync(cancellationToken).ConfigureAwait(false);
-
-		// HttpListener is disposable but the dispose method is not public.
-		// That's a quirk of the HttpListener implementation.
 		Listener.Stop();
 	}
 
 	protected override async Task ExecuteAsync(CancellationToken stoppingToken)
 	{
-		bool stopRpcRequestReceived = false;
+		var handler = new JsonRpcRequestHandler<IJsonRpcService>(Service);
 
 		while (!stoppingToken.IsCancellationRequested)
 		{
 			try
 			{
-				var context = await Listener.GetContextAsync().WaitAsync(stoppingToken).ConfigureAwait(false);
+				var context = await GetHttpContextAsync(stoppingToken).ConfigureAwait(false);
 				var request = context.Request;
 				var response = context.Response;
 
@@ -66,39 +57,14 @@ public class JsonRpcServer : BackgroundService
 
 					if (IsAuthorized(context))
 					{
-						var path = request.Url?.LocalPath ?? string.Empty;
-						string jsonResponse = string.Empty;
-
-						if (!JsonRpcRequest.TryParse(body, out var allRpcRequests, out var isBatch))
-						{
-							jsonResponse = RequestHandler.CreateParseErrorResponse();
-						}
-						else
-						{
-							JsonRpcRequest[] requestsToProcess = allRpcRequests.Where(x =>
-							{
-								bool isStopRequest = x.Method == IJsonRpcService.StopRpcCommand;
-
-								if (isStopRequest)
-								{
-									stopRpcRequestReceived = true;
-								}
-
-								return !isStopRequest;
-							}).ToArray();
-
-							if (requestsToProcess.Length > 0)
-							{
-								jsonResponse = await RequestHandler.HandleRequestsAsync(path, requestsToProcess, isBatch, stoppingToken).ConfigureAwait(false);
-							}
-						}
+						var result = await handler.HandleAsync(body, stoppingToken).ConfigureAwait(false);
 
 						// result is null only when the request is a notification.
-						if (!string.IsNullOrEmpty(jsonResponse))
+						if (!string.IsNullOrEmpty(result))
 						{
 							response.ContentType = "application/json-rpc";
 							var output = response.OutputStream;
-							var buffer = Encoding.UTF8.GetBytes(jsonResponse);
+							var buffer = Encoding.UTF8.GetBytes(result);
 							await output.WriteAsync(buffer.AsMemory(0, buffer.Length), stoppingToken).ConfigureAwait(false);
 							await output.FlushAsync(stoppingToken).ConfigureAwait(false);
 						}
@@ -112,13 +78,7 @@ public class JsonRpcServer : BackgroundService
 				{
 					response.StatusCode = (int)HttpStatusCode.MethodNotAllowed;
 				}
-
 				response.Close();
-
-				if (stopRpcRequestReceived)
-				{
-					break;
-				}
 			}
 			catch (OperationCanceledException)
 			{
@@ -128,12 +88,6 @@ public class JsonRpcServer : BackgroundService
 			{
 				Logger.LogError(ex);
 			}
-		}
-
-		if (stopRpcRequestReceived)
-		{
-			Logger.LogDebug($"User sent '{IJsonRpcService.StopRpcCommand}' command. Terminating application.");
-			TerminateService.SignalForceTerminate();
 		}
 	}
 
@@ -152,6 +106,21 @@ public class JsonRpcServer : BackgroundService
 
 		var identity = (HttpListenerBasicIdentity?)user.Identity;
 		return CheckValidCredentials(identity);
+	}
+
+	private async Task<HttpListenerContext> GetHttpContextAsync(CancellationToken cancellationToken)
+	{
+		var getHttpContextTask = Listener.GetContextAsync();
+		var tcs = new TaskCompletionSource<bool>();
+		using (cancellationToken.Register(state => ((TaskCompletionSource<bool>)state).TrySetResult(true), tcs))
+		{
+			var firstTaskToComplete = await Task.WhenAny(getHttpContextTask, tcs.Task).ConfigureAwait(false);
+			if (getHttpContextTask != firstTaskToComplete)
+			{
+				cancellationToken.ThrowIfCancellationRequested();
+			}
+		}
+		return await getHttpContextTask.ConfigureAwait(false);
 	}
 
 	private bool CheckValidCredentials(HttpListenerBasicIdentity? identity)

@@ -10,7 +10,6 @@ using WalletWasabi.Blockchain.Keys;
 using WalletWasabi.Crypto;
 using WalletWasabi.Helpers;
 using WalletWasabi.WabiSabi.Client;
-using WalletWasabi.Extensions;
 
 namespace WalletWasabi.Tests.UnitTests;
 
@@ -40,9 +39,9 @@ public class TestWallet : IKeyChain, IDestinationProvider
 		}
 	}
 
-	public BitcoinAddress CreateNewAddress(bool isInternal = false)
+	public BitcoinAddress CreateNewAddress()
 	{
-		var key = CreateNewKey(isInternal);
+		var key = CreateNewKey();
 		var scriptPubKey = key.PrivateKey.GetScriptPubKey(ScriptPubKeyType.Segwit);
 		ScriptPubKeys.Add(scriptPubKey, key);
 		return scriptPubKey.GetDestinationAddress(Rpc.Network);
@@ -50,8 +49,13 @@ public class TestWallet : IKeyChain, IDestinationProvider
 
 	public (Transaction, Coin) CreateTemplateTransaction()
 	{
-		var biggestUtxo = Utxos.MaxBy(x => x.Amount)
-			?? throw new InvalidOperationException("No UTXO is available.");
+		var biggestUtxo = Utxos.MaxBy(x => x.Amount);
+
+		if (biggestUtxo is null)
+		{
+			throw new InvalidOperationException("No UTXO is available.");
+		}
+
 		var tx = Rpc.Network.CreateTransaction();
 		tx.Inputs.Add(biggestUtxo.Outpoint);
 		return (tx, biggestUtxo);
@@ -60,14 +64,14 @@ public class TestWallet : IKeyChain, IDestinationProvider
 	public Transaction CreateSelfTransfer(FeeRate feeRate)
 	{
 		var (tx, spendingCoin) = CreateTemplateTransaction();
-		tx.Outputs.Add(spendingCoin.Amount - feeRate.GetFeeWithZero(Constants.P2wpkhOutputVirtualSize), CreateNewAddress());
+		tx.Outputs.Add(spendingCoin.Amount - feeRate.GetFee(Constants.P2wpkhOutputVirtualSize), CreateNewAddress());
 		return tx;
 	}
 
-	public async Task<Transaction> SendToAsync(Money amount, Script scriptPubKey, FeeRate feeRate, CancellationToken cancellationToken)
+	public async Task<uint256> SendToAsync(Money amount, Script scriptPubKey, FeeRate feeRate, CancellationToken cancellationToken)
 	{
 		const int FinalSignedTxVirtualSize = 222;
-		var effectiveOutputCost = amount + feeRate.GetFeeWithZero(FinalSignedTxVirtualSize);
+		var effectiveOutputCost = amount + feeRate.GetFee(FinalSignedTxVirtualSize);
 		var tx = CreateSelfTransfer(FeeRate.Zero);
 
 		if (tx.Outputs[0].Value < effectiveOutputCost)
@@ -75,18 +79,9 @@ public class TestWallet : IKeyChain, IDestinationProvider
 			throw new ArgumentException("Not enough satoshis in input.");
 		}
 
-		if (effectiveOutputCost != tx.Outputs[0].Value)
-		{
-			tx.Outputs[0].Value -= effectiveOutputCost;
-			tx.Outputs.Add(amount, scriptPubKey);
-		}
-		else
-		{
-			// Sending whole coin.
-			tx.Outputs[0].ScriptPubKey = scriptPubKey;
-		}
-		await SendRawTransactionAsync(SignTransaction(tx), cancellationToken).ConfigureAwait(false);
-		return tx;
+		tx.Outputs[0].Value -= effectiveOutputCost;
+		tx.Outputs.Add(amount, scriptPubKey);
+		return await SendRawTransactionAsync(SignTransaction(tx), cancellationToken).ConfigureAwait(false);
 	}
 
 	public async Task<uint256> SendRawTransactionAsync(Transaction tx, CancellationToken cancellationToken)
@@ -109,9 +104,6 @@ public class TestWallet : IKeyChain, IDestinationProvider
 		signedTx.Sign(secrets, inputsToSign);
 		return signedTx;
 	}
-
-	public ExtPubKey GetSegwitAccountExtPubKey() =>
-		ExtKey.Derive(KeyPath.Parse("m/84'/0'/0'")).Neuter();
 
 	public ExtPubKey GetExtPubKey(Script scriptPubKey) =>
 		ScriptPubKeys[scriptPubKey].Neuter();
@@ -150,10 +142,7 @@ public class TestWallet : IKeyChain, IDestinationProvider
 	public IEnumerable<IDestination> GetNextDestinations(int count, bool preferTaproot) =>
 		Enumerable.Range(0, count).Select(_ => CreateNewAddress());
 
-	public IEnumerable<IDestination> GetNextInternalDestinations(int count) =>
-		Enumerable.Range(0, count).Select(_ => CreateNewAddress(true));
-
-	public void ScanTransaction(Transaction tx)
+	private void ScanTransaction(Transaction tx)
 	{
 		var receivedCoins = tx.Outputs.AsIndexedOutputs()
 			.Where(x => ScriptPubKeys.ContainsKey(x.TxOut.ScriptPubKey))
@@ -163,9 +152,6 @@ public class TestWallet : IKeyChain, IDestinationProvider
 		Utxos.RemoveAll(x => tx.Inputs.Any(y => y.PrevOut == x.Outpoint));
 	}
 
-	private ExtKey CreateNewKey(bool isInternal)
-	{
-		var path = isInternal ? "84'/0'/0'/1" : "84'/0'/0'/0";
-		return ExtKey.Derive(KeyPath.Parse($"{path}/{NextKeyIndex++}"));
-	}
+	private ExtKey CreateNewKey() =>
+		ExtKey.Derive(NextKeyIndex++);
 }
