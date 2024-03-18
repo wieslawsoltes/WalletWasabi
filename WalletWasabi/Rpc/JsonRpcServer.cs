@@ -62,7 +62,7 @@ public class JsonRpcServer : BackgroundService
 				// Add CORS headers
 				if (request.HttpMethod == "OPTIONS")
 				{
-					response.AddHeader("Access-Control-Allow-Origin", "http://127.0.0.1:9000");
+					response.AddHeader("Access-Control-Allow-Origin", "http://127.0.0.1:37128");
 					response.AddHeader("Access-Control-Allow-Methods", "GET, POST");
 					response.AddHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
 					response.StatusCode = (int)HttpStatusCode.OK;
