@@ -71,7 +71,7 @@ public class JsonRpcServer : BackgroundService
 				}
 				else
 				{
-					response.AddHeader("Access-Control-Allow-Origin", "http://127.0.0.1:9000");
+					response.AddHeader("Access-Control-Allow-Origin", "http://127.0.0.1:37128");
 				}
 
 				if (request.HttpMethod == "POST")
