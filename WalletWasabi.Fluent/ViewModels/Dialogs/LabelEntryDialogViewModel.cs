@@ -2,6 +2,7 @@ using System.Linq;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using DynamicData;
+using DynamicData.Binding;
 using ReactiveUI;
 using WalletWasabi.Blockchain.Analysis.Clustering;
 using WalletWasabi.Fluent.Extensions;
@@ -48,7 +49,9 @@ public partial class LabelEntryDialogViewModel : DialogViewModelBase<LabelsArray
 	{
 		base.OnNavigatedTo(isInHistory, disposables);
 
+		// TODO: why are we using this here and turning it into a Signal, instead of an event like _wallet.TransactionProcessed?
 		_wallet.Coins.List
+			.Connect()
 			.ToSignal()
 			.ObserveOn(RxApp.MainThreadScheduler)
 			.Subscribe(_ => SuggestionLabels.UpdateLabels())

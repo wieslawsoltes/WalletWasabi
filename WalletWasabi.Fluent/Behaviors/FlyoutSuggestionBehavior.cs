@@ -4,6 +4,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Templates;
 using Avalonia.Input;
+using Avalonia.Xaml.Interactions.Custom;
 using ReactiveUI;
 using WalletWasabi.Fluent.Helpers;
 using WalletWasabi.Fluent.Models;
@@ -18,7 +19,7 @@ public class FlyoutSuggestionBehavior : AttachedToVisualTreeBehavior<Control>
 
 	public static readonly StyledProperty<TextBox?> TargetProperty = AvaloniaProperty.Register<FlyoutSuggestionBehavior, TextBox?>(nameof(Target));
 
-	public static readonly StyledProperty<FlyoutPlacementMode> PlacementModeProperty = AvaloniaProperty.Register<FlyoutSuggestionBehavior, FlyoutPlacementMode>(nameof(PlacementMode));
+	public static readonly StyledProperty<PlacementMode> PlacementModeProperty = AvaloniaProperty.Register<FlyoutSuggestionBehavior, PlacementMode>(nameof(PlacementMode));
 
 	private readonly Flyout _flyout;
 
@@ -27,7 +28,7 @@ public class FlyoutSuggestionBehavior : AttachedToVisualTreeBehavior<Control>
 		_flyout = new Flyout { ShowMode = FlyoutShowMode.Transient };
 	}
 
-	public FlyoutPlacementMode PlacementMode
+	public PlacementMode PlacementMode
 	{
 		get => GetValue(PlacementModeProperty);
 		set => SetValue(PlacementModeProperty, value);
@@ -105,7 +106,7 @@ public class FlyoutSuggestionBehavior : AttachedToVisualTreeBehavior<Control>
 			{
 				if (textBox != null)
 				{
-					textBox.Text = content;
+					textBox.SetCurrentValue(TextBox.TextProperty, content);
 				}
 
 				_flyout.Hide();

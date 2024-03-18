@@ -6,7 +6,6 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using WalletWasabi.Extensions;
 using WalletWasabi.Logging;
 
 namespace WalletWasabi.Services;
@@ -77,10 +76,7 @@ public class SingleInstanceChecker : BackgroundService, IAsyncDisposable
 	/// <returns>true if this is the only instance running; otherwise false.</returns>
 	private async Task<bool> CanRunAsSingleInstanceAsync()
 	{
-		if (DisposeCts.IsCancellationRequested)
-		{
-			throw new ObjectDisposedException(nameof(SingleInstanceChecker));
-		}
+        ObjectDisposedException.ThrowIf(DisposeCts.IsCancellationRequested, this);
 
 		try
 		{
@@ -90,7 +86,7 @@ public class SingleInstanceChecker : BackgroundService, IAsyncDisposable
 			await StartAsync(DisposeCts.Token).ConfigureAwait(false);
 
 			// Wait for the result of TcpListener.Start().
-			await TaskStartTcpListener.Task.WithAwaitCancellationAsync(DisposeCts.Token).ConfigureAwait(false);
+			await TaskStartTcpListener.Task.WaitAsync(DisposeCts.Token).ConfigureAwait(false);
 
 			// This is the first instance, nothing else to do.
 			return true;
@@ -139,10 +135,10 @@ public class SingleInstanceChecker : BackgroundService, IAsyncDisposable
 	{
 		var task = TaskStartTcpListener
 			?? throw new InvalidOperationException("This should never happen!");
-		TcpListener? listener = null;
+		
 		try
 		{
-			listener = new(IPAddress.Loopback, Port)
+            using TcpListener listener = new(IPAddress.Loopback, Port)
 			{
 				ExclusiveAddressUse = true
 			};
@@ -192,10 +188,6 @@ public class SingleInstanceChecker : BackgroundService, IAsyncDisposable
 			task.TrySetException(ex);
 			return;
 		}
-		finally
-		{
-			listener?.Stop();
-		}
 	}
 
 	public async ValueTask DisposeAsync()
@@ -215,16 +207,19 @@ public class SingleInstanceChecker : BackgroundService, IAsyncDisposable
 		// Stopping the execution task and wait until it finishes.
 		using CancellationTokenSource timeout = new(TimeSpan.FromSeconds(_timeoutMultiplier * 20));
 
-		// This is added because Dispose is called from the Main and Main cannot be an async function.
-		while (!ExecuteTask.IsCompleted)
-		{
-			Thread.Sleep(10);
-			if (timeout.IsCancellationRequested)
-			{
-				Logger.LogWarning($"{nameof(SingleInstanceChecker)} cannot be disposed properly in time.");
-				break;
-			}
-		}
+        // This is added because Dispose is called from the Main and Main cannot be an async function.
+        if (ExecuteTask is not null)
+        {
+            while (!ExecuteTask.IsCompleted)
+            {
+                Thread.Sleep(10);
+                if (timeout.IsCancellationRequested)
+                {
+                    Logger.LogWarning($"{nameof(SingleInstanceChecker)} cannot be disposed properly in time.");
+                    break;
+                }
+            }
+        }
 
 		DisposeCts.Dispose();
 	}

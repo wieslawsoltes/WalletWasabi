@@ -4,6 +4,7 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.VisualTree;
+using Avalonia.Xaml.Interactions.Custom;
 
 namespace WalletWasabi.Fluent.Behaviors;
 
@@ -35,7 +36,7 @@ public class ButtonExecuteCommandOnKeyDownBehavior : AttachedToVisualTreeBehavio
 			return;
 		}
 
-		if (button.GetVisualRoot() is IInputElement inputRoot)
+		if (button.GetVisualRoot() is InputElement inputRoot)
 		{
 			inputRoot
 				.AddDisposableHandler(InputElement.KeyDownEvent, RootDefaultKeyDown)

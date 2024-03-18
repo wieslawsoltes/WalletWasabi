@@ -23,16 +23,20 @@ public class TerminateService
 		_terminateApplicationAsync = terminateApplicationAsync;
 		_terminateApplication = terminateApplication;
 		IsSystemEventsSubscribed = false;
-		CancellationToken = TerminationCts.Token; 
+		CancellationToken = TerminationCts.Token;
+		Instance = this;
 	}
+
+	public static TerminateService? Instance { get; private set; }
 
 	/// <summary>Completion source that is completed once we receive a request to terminate the application in a graceful way.</summary>
 	/// <remarks>Currently, we handle CTRL+C this way. However, for example, an RPC command might use this API too.</remarks>
-	private TaskCompletionSource TerminationRequested { get; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
+	private TaskCompletionSource ForcefulTerminationRequested { get; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
 
-	public Task TerminationRequestedTask => TerminationRequested.Task;
+	/// <summary>Task is set, if user requested the application to stop in a "forceful" way (e.g. CTRL+C or by the stop RPC request).</summary>
+	public Task ForcefulTerminationRequestedTask => ForcefulTerminationRequested.Task;
 
-	/// <summary>Cancellation token source cancelled once <see cref="TerminationRequested"/> is assigned a result.</summary>
+	/// <summary>Cancellation token source cancelled once <see cref="ForcefulTerminationRequested"/> is assigned a result.</summary>
 	private CancellationTokenSource TerminationCts { get; } = new();
 
 	/// <summary>Cancellation token that denotes that user requested to stop the application.</summary>
@@ -40,6 +44,9 @@ public class TerminateService
 	public CancellationToken CancellationToken { get; }
 
 	private bool IsSystemEventsSubscribed { get; set; }
+
+	/// <summary>In case of an unrecoverable exception, SignalGracefulCrash will store here the exception to pass down to the CrashReporter.</summary>
+	public Exception? GracefulCrashException { get; private set; }
 
 	public void Activate()
 	{
@@ -99,12 +106,18 @@ public class TerminateService
 		e.Cancel = true;
 
 		// ... instead signal back that the app should terminate.
-		SignalTerminate();
+		SignalForceTerminate();
 	}
 
-	public void SignalTerminate()
+	public void SignalGracefulCrash(Exception ex)
 	{
-		if (TerminationRequested.TrySetResult())
+		GracefulCrashException = ex;
+		SignalForceTerminate();
+	}
+
+	public void SignalForceTerminate()
+	{
+		if (ForcefulTerminationRequested.TrySetResult())
 		{
 			TerminationCts.Cancel();
 			TerminationCts.Dispose();
@@ -136,7 +149,7 @@ public class TerminateService
 		Logger.LogDebug("Start shutting down the application.");
 
 		// We want to call the callback once. Not multiple times.
-		if (!TerminationRequested.Task.IsCompleted)
+		if (!ForcefulTerminationRequested.Task.IsCompleted)
 		{
 			_terminateApplication();
 		}

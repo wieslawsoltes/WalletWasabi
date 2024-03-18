@@ -4,6 +4,7 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.VisualTree;
+using Avalonia.Xaml.Interactions.Custom;
 using WalletWasabi.Fluent.ViewModels.Wallets;
 
 namespace WalletWasabi.Fluent.Behaviors;
@@ -52,7 +53,7 @@ public class ShowWalletCoinsOnKeyCombinationBehavior : AttachedToVisualTreeBehav
 
 	protected override void OnAttachedToVisualTree(CompositeDisposable disposable)
 	{
-		if (AssociatedObject?.GetVisualRoot() is not IInputElement inputRoot)
+		if (AssociatedObject?.GetVisualRoot() is not InputElement inputRoot)
 		{
 			return;
 		}

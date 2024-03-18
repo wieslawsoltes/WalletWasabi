@@ -1,6 +1,8 @@
 using System.Reactive.Disposables;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Layout;
+using Avalonia.Xaml.Interactions.Custom;
 using ReactiveUI;
 
 namespace WalletWasabi.Fluent.Behaviors;
@@ -27,7 +29,12 @@ public class DynamicHeightBehavior : DisposingBehavior<Control>
 
 	protected override void OnAttached(CompositeDisposable disposables)
 	{
-		AssociatedObject?.Parent?.WhenAnyValue(x => x.Bounds)
+		if (AssociatedObject?.Parent is not Control parent)
+		{
+			return;
+		}
+
+		parent.WhenAnyValue(x => x.Bounds)
 			.Subscribe(bounds =>
 			{
 				var newHeight = bounds.Height * HeightMultiplier;
