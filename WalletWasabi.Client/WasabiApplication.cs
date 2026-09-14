@@ -27,8 +27,8 @@ public class WasabiApplication
 
 		CheckVersionAndHelp();
 		Directory.CreateDirectory(Config.DataDir);
-		Config = new Config(LoadOrCreateConfigs(), wasabiAppBuilder.Arguments);
 		SetupLogger();
+		Config = new Config(LoadOrCreateConfigs(), wasabiAppBuilder.Arguments);
 		Logger.LogDebug($"Wasabi was started with these argument(s): {string.Join(" ", AppConfig.Arguments.DefaultIfEmpty("none"))}.");
 
 		Global = new Global(Config.DataDir, Config);
@@ -50,27 +50,6 @@ public class WasabiApplication
 			Environment.Exit((int)ExitCode.Ok);
 		}
 
-	}
-
-	public void RunAsyncMobile(Action afterStarting)
-	{
-		var exitCode = ProcessAppArguments();
-		if (exitCode is not null)
-		{
-			return;
-		}
-
-		try
-		{
-			BeforeStarting();
-
-			afterStarting();
-		}
-		catch (Exception e)
-		{
-			Logger.LogInfo("Exception occurred while the application was starting or running", e);
-			throw;
-		}
 	}
 
 	public ExitCode Run(Action afterStarting)

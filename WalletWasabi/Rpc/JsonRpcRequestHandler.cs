@@ -181,9 +181,7 @@ public class JsonRpcRequestHandler<TService>
 				}
 				else
 				{
-					var task = (Task)result!;
-					await task.ConfigureAwait(false);
-					var ret = result!.GetType().GetProperty("Result")?.GetValue(result);
+					var ret = await ((dynamic)result!).ConfigureAwait(false);
 					response = JsonRpcResponse.CreateResultResponse(jsonRpcRequest.Id, ret);
 				}
 			}

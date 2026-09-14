@@ -10,7 +10,7 @@ using WalletWasabi.Fluent.Infrastructure;
 using WalletWasabi.Fluent.Models.Transactions;
 using WalletWasabi.Fluent.ViewModels.Wallets.Labels;
 using WalletWasabi.Services;
-using WalletWasabi.WabiSabi.Client;
+using WalletWasabi.WabiSabi.Client.CoinJoin.Manager;
 using WalletWasabi.Wallets;
 
 namespace WalletWasabi.Fluent.Models.Wallets;
@@ -113,32 +113,17 @@ public partial class WalletModel : ReactiveObject, IWalletModel
 
 		Addresses = new AddressesModel(services, Wallet);
 
-		if (Environment.GetEnvironmentVariable("WASABI_AUTOMATE_MOBILE") == "1" || Environment.GetEnvironmentVariable("WASABI_MOCK_NETWORK") == "1")
-		{
-			Loaded = Loader.LoadCompleted.Select(_ => true).Concat(Observable.Never<bool>());
-		}
-		else
-		{
-			Loaded = services.EventBus.AsObservable<WalletLoaded>()
-				.ObserveOn(RxApp.MainThreadScheduler)
-				.Select(_ => Wallet.Loaded);
-		}
+		Loaded = services.EventBus.AsObservable<WalletLoaded>()
+			.ObserveOn(RxApp.MainThreadScheduler)
+			.Select(_ => Wallet.Loaded);
 
 		Privacy = new WalletPrivacyModel(this, Wallet);
 
-		if (Environment.GetEnvironmentVariable("WASABI_AUTOMATE_MOBILE") == "1" || Environment.GetEnvironmentVariable("WASABI_MOCK_NETWORK") == "1")
-		{
-			Balances = Observable.Return(AmountProvider.Create(new Money(1.23456789m, MoneyUnit.BTC)))
-				.Concat(Transactions.TransactionProcessed.Select(_ => new Money(1.23456789m, MoneyUnit.BTC)).Select(AmountProvider.Create));
-			HasBalance = Observable.Return(true);
-		}
-		else
-		{
-			Balances = Transactions.TransactionProcessed
-				.Select(_ => Wallet.Coins.TotalAmount())
-				.Select(AmountProvider.Create);
-			HasBalance = Balances.Select(x => x.HasBalance);
-		}
+		Balances = Transactions.TransactionProcessed
+			.Select(_ => Wallet.Coins.TotalAmount())
+			.Select(AmountProvider.Create);
+
+		HasBalance = Balances.Select(x => x.HasBalance);
 
 		// Start the Loader after wallet is logged in
 		this.WhenAnyValue(x => x.Auth.IsLoggedIn)

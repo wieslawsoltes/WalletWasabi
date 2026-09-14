@@ -55,19 +55,40 @@ public record Result<TValue,TError>
 	public bool IsOk { get; }
 
 	public Result<T, TError> Map<T>(Func<TValue, T> f) =>
-		IsOk ? new Result<T, TError>(f(_value!)) : new Result<T, TError>(_error!);
+		Match(v => Result<T, TError>.Ok(f(v)), e => e);
 
 	public Result<TValue, TE> MapError<TE>(Func<TError, TE> f) =>
-		IsOk ? new Result<TValue, TE>(_value!) : new Result<TValue, TE>(f(_error!));
+		Match(v => v, e => Result<TValue, TE>.Fail(f(e)));
 
 	public Result<T, TError> Then<T>(Func<TValue, Result<T, TError>> f) =>
-		IsOk ? f(_value!) : new Result<T, TError>(_error!);
+		Match(v => f(v), e => e);
+
+	public Result<TValue, TE> ThenError<TE>(Func<TError, TE> f) =>
+		Match(v => v, e => Result<TValue, TE>.Fail(f(e)));
+
+	public static Result<TValue[], TError[]> Sequence(IEnumerable<Result<TValue, TError>> results)
+	{
+		Result<TValue[], TError[]> initialState = Array.Empty<TValue>();
+
+		return results.Aggregate(initialState, (acc, s) =>
+			(acc.IsOk, s.IsOk) switch
+			{
+				(true, true) => acc._value!.Append(s._value!).ToArray(),
+				(true, false) => new[] {s._error!},
+				(false, true) => acc._error!,
+				(false, false) => acc._error!.Append(s._error!).ToArray()
+			});
+	}
 
 	public TValue Value =>
-		IsOk ? _value! : throw new InvalidOperationException("Failed result don't have value.");
+		Match(
+			v => v,
+			_ => throw new InvalidOperationException("Failed result don't have value."));
 
 	public TError Error =>
-		!IsOk ? _error! : throw new InvalidOperationException("Successful result don't have error.");
+		Match(
+			_ => throw new InvalidOperationException("Successful result don't have error."),
+			e => e);
 
 	public static Result<T, Exception> Catch<T>(Func<T> func)
 	{
@@ -81,7 +102,10 @@ public record Result<TValue,TError>
 		}
 	}
 
-	public TValue? AsNullable() => IsOk ? _value : default;
+	public TValue? AsNullable () =>
+		IsOk
+			? Value
+			: default;
 }
 
 public record Result<TError> : Result<Unit, TError>
@@ -94,60 +118,26 @@ public record Result<TError> : Result<Unit, TError>
 	{
 	}
 
-	public static implicit operator Result<TError>(TError error) => new(error);
+	public static implicit operator Result<TError> (TError error) => new(error);
 	public static Result<TError> Ok() => new(Unit.Instance);
 	public static new Result<TError> Fail(TError error) => new(error);
 
-	public Result<T> ThenError<T>(Func<TError, T> f) =>
-		IsOk ? Result<T>.Ok() : Result<T>.Fail(f(Error));
+	public static Result<TError[]> Sequence(IEnumerable<Result<TError>> results) =>
+		Result<Unit, TError>.Sequence(results)
+			.Match(
+				_ => Result<TError[]>.Ok(),
+				es => Result<TError[]>.Fail(es));
+
+	public new Result<T> ThenError<T>(Func<TError, T> f) =>
+		Match(_=> Result<T>.Ok(), e => Result<T>.Fail(f(e)));
 }
 
 public static class ResultExtensions
 {
-	public static Result<TValue[], TError[]> SequenceResults<TValue, TError>(this IEnumerable<Result<TValue, TError>> results)
-	{
-		var values = new List<TValue>();
-		var errors = new List<TError>();
+	public static Result<TValue[], TError[]>
+		SequenceResults<TValue, TError>(this IEnumerable<Result<TValue, TError>> results) =>
+		Result<TValue, TError>.Sequence(results);
 
-		foreach (var r in results)
-		{
-			if (r.IsOk)
-			{
-				if (errors.Count == 0)
-				{
-					values.Add(r.Value);
-				}
-			}
-			else
-			{
-				errors.Add(r.Error);
-			}
-		}
-
-		if (errors.Count > 0)
-		{
-			return Result<TValue[], TError[]>.Fail(errors.ToArray());
-		}
-
-		return Result<TValue[], TError[]>.Ok(values.ToArray());
-	}
-
-	public static Result<TError[]> SequenceResults<TError>(this IEnumerable<Result<TError>> results)
-	{
-		var errors = new List<TError>();
-		foreach (var r in results)
-		{
-			if (!r.IsOk)
-			{
-				errors.Add(r.Error);
-			}
-		}
-
-		if (errors.Count > 0)
-		{
-			return Result<TError[]>.Fail(errors.ToArray());
-		}
-
-		return Result<TError[]>.Ok();
-	}
+	public static Result<TError[]> SequenceResults<TError>(this IEnumerable<Result<TError>> results) =>
+		Result<TError>.Sequence(results);
 }
