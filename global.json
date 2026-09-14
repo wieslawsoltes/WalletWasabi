@@ -4,7 +4,7 @@
     "allowPrerelease": false,
     "rollForward": "latestFeature"
   },
-  "test": {
-    "runner": "Microsoft.Testing.Platform"
+  "workloadSettings": {
+    "workload-set": "10.0.203.1"
   }
 }
